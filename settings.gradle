@@ -1,2 +1,10 @@
-rootProject.name = 'Lua2Java'
-include('lib')
+rootProject.name = 'Config2Java'
+
+include('deserializer', 'lua2java', 'groovy2java', 'toml2java', 'json2java', 'xml2java')
+
+project(':deserializer').projectDir = file('modules/deserializer')
+project(':lua2java').projectDir = file('modules/lua2java')
+project(':groovy2java').projectDir = file('modules/groovy2java')
+project(':toml2java').projectDir = file('modules/toml2java')
+project(':json2java').projectDir = file('modules/json2java')
+project(':xml2java').projectDir = file('modules/xml2java')

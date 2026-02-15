@@ -1,0 +1,4 @@
+dependencies {
+    api project(':deserializer')
+    implementation 'org.apache.groovy:groovy:4.0.24'
+}

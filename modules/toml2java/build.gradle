@@ -1,0 +1,4 @@
+dependencies {
+    api project(':deserializer')
+    implementation 'org.tomlj:tomlj:1.1.1'
+}
