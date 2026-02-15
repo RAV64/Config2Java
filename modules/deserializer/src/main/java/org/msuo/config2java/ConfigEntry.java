@@ -1,40 +1,30 @@
 package org.msuo.config2java;
 
-interface ConfigEntry {
-    ConfigValue key();
+final class ConfigEntry {
 
-    ConfigValue value();
+    private final ConfigValue key;
+    private final ConfigValue value;
+    private final String rawKeyString;
 
-    String rawKeyString();
-
-    static ConfigEntry of(ConfigValue key, ConfigValue value, String rawKeyString) {
-        return new SimpleConfigEntry(key, value, rawKeyString);
+    private ConfigEntry(ConfigValue key, ConfigValue value, String rawKeyString) {
+        this.key = key;
+        this.value = value;
+        this.rawKeyString = rawKeyString;
     }
 
-    final class SimpleConfigEntry implements ConfigEntry {
-        private final ConfigValue key;
-        private final ConfigValue value;
-        private final String rawKeyString;
+    static ConfigEntry of(ConfigValue key, ConfigValue value, String rawKeyString) {
+        return new ConfigEntry(key, value, rawKeyString);
+    }
 
-        SimpleConfigEntry(ConfigValue key, ConfigValue value, String rawKeyString) {
-            this.key = key;
-            this.value = value;
-            this.rawKeyString = rawKeyString;
-        }
+    ConfigValue key() {
+        return key;
+    }
 
-        @Override
-        public ConfigValue key() {
-            return key;
-        }
+    ConfigValue value() {
+        return value;
+    }
 
-        @Override
-        public ConfigValue value() {
-            return value;
-        }
-
-        @Override
-        public String rawKeyString() {
-            return rawKeyString;
-        }
+    String rawKeyString() {
+        return rawKeyString;
     }
 }

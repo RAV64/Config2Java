@@ -8,10 +8,6 @@ public abstract class SharedContractSupport {
 
     protected abstract Deserializer deserializer();
 
-    protected String rootFailureContains() {
-        return "No 1-arg constructor";
-    }
-
     protected final <T> T ok(String source, Class<T> cls) {
         return deserializer().deserialize(source, cls);
     }

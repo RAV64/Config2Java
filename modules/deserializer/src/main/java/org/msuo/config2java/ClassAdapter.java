@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 final class ClassAdapter implements TypeAdapter {
 
     private final Class<?> cls;
+    private static final Object READ_FAILED = new Object();
 
     ClassAdapter(Class<?> cls) {
         this.cls = cls;
@@ -44,11 +45,13 @@ final class ClassAdapter implements TypeAdapter {
 
         private static void bindField(Object instance, FieldBinding b, ConfigTable table, Path basePath, ErrorCollector errors) {
             Path fieldPath = basePath.field(b.key);
+            if (!ensureAccessible(b.field, fieldPath, errors)) return;
 
             ConfigValue v = table.getField(b.key);
             boolean provided = !v.isMissing();
 
-            Object currentDefault = getFieldValueQuiet(instance, b.field);
+            Object currentDefault = getFieldValue(instance, b.field, fieldPath, errors);
+            if (currentDefault == READ_FAILED) return;
 
             if (!provided) {
                 if (currentDefault != null) return;
@@ -63,6 +66,16 @@ final class ClassAdapter implements TypeAdapter {
             ReadResult rr = b.adapter.read(fieldPath, v, errors);
             if (rr.ok) {
                 setFieldQuiet(instance, b.field, rr.value, fieldPath, errors);
+            }
+        }
+
+        private static boolean ensureAccessible(Field field, Path path, ErrorCollector errors) {
+            try {
+                field.setAccessible(true);
+                return true;
+            } catch (RuntimeException e) {
+                errors.add(path, Errors.fieldAccessSetup(e));
+                return false;
             }
         }
     }
@@ -83,11 +96,15 @@ final class ClassAdapter implements TypeAdapter {
         return null;
     }
 
-    private static Object getFieldValueQuiet(Object instance, Field f) {
+    private static Object getFieldValue(Object instance, Field f, Path path, ErrorCollector errors) {
         try {
             return f.get(instance);
         } catch (IllegalAccessException e) {
-            return null;
+            errors.add(path, Errors.fieldReadAccess(e));
+            return READ_FAILED;
+        } catch (RuntimeException e) {
+            errors.add(path, Errors.fieldReadAccess(e));
+            return READ_FAILED;
         }
     }
 

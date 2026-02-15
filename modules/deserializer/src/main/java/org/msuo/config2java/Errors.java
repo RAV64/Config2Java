@@ -95,6 +95,14 @@ final class Errors {
         return new FieldSetTypeMismatch(e);
     }
 
+    static ConfigErrorType fieldAccessSetup(Exception e) {
+        return new FieldAccessSetup(e);
+    }
+
+    static ConfigErrorType fieldReadAccess(Exception e) {
+        return new FieldReadAccess(e);
+    }
+
     private static final class UnsupportedType implements ConfigErrorType {
         private final Type type;
         private UnsupportedType(Type type) { this.type = type; }
@@ -251,5 +259,17 @@ final class Errors {
         private final Exception error;
         private FieldSetTypeMismatch(Exception error) { this.error = error; }
         @Override public String message() { return "Failed to set field (type mismatch): " + error.getMessage(); }
+    }
+
+    private static final class FieldAccessSetup implements ConfigErrorType {
+        private final Exception error;
+        private FieldAccessSetup(Exception error) { this.error = error; }
+        @Override public String message() { return "Failed to access field reflectively: " + error.getMessage(); }
+    }
+
+    private static final class FieldReadAccess implements ConfigErrorType {
+        private final Exception error;
+        private FieldReadAccess(Exception error) { this.error = error; }
+        @Override public String message() { return "Failed to read field default value: " + error.getMessage(); }
     }
 }

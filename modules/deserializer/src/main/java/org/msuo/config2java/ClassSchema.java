@@ -21,8 +21,6 @@ final class ClassSchema {
 
         for (int i = 0; i < fields.size(); i++) {
             Field f = fields.get(i);
-            f.setAccessible(true);
-
             String key = f.getName();
             Type t = f.getGenericType();
             TypeAdapter adapter = Binder.adapterFor(t);
