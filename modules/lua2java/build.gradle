@@ -1,4 +1,5 @@
 dependencies {
     api project(':deserializer')
     implementation 'org.luaj:luaj-jse:3.0.1'
+    testImplementation(testFixtures(project(':deserializer')))
 }
