@@ -28,6 +28,6 @@ public class JsonReflectionEdgeCasesTest extends SharedContractSupport {
         Throwable ex = assertThrows(Throwable.class, () ->
             deserializer().deserialize("\"nope\"", CfgRootIsComplex.class)
         );
-        assertTrue(ex.getMessage().contains(rootFailureContains()));
+        assertTrue(ex.getMessage().contains("No 1-arg constructor"));
     }
 }

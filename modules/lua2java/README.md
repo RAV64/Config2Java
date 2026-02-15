@@ -109,10 +109,12 @@ class Cfg {
     enum Mode { DEV, PROD }
 }
 
-LuaDeserializer d = LuaDeserializer.builder()
+ScriptBindings bindings = ScriptBindings.builder()
     .env("APP_ENV", "prod")
     .global("defaultName", "worker-default")
     .build();
+
+LuaDeserializer d = new LuaDeserializer(bindings);
 
 String lua = """
 local c = { mode = 'DEV', name = defaultName }

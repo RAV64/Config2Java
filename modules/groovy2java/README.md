@@ -107,10 +107,12 @@ class Cfg {
     enum Mode { DEV, PROD }
 }
 
-GroovyDeserializer d = GroovyDeserializer.builder()
+ScriptBindings bindings = ScriptBindings.builder()
     .env("APP_ENV", "prod")
     .global("defaultName", "worker-default")
     .build();
+
+GroovyDeserializer d = new GroovyDeserializer(bindings);
 
 String groovy = """
 def c = [mode: 'DEV', name: defaultName]

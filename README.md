@@ -135,6 +135,17 @@ try {
 
 See [errors.md](errors.md) for all error variants.
 
+Parse/eval failures are separate and throw `ConfigSourceException`.
+
+```java
+try {
+    new TomlDeserializer().deserialize("name = ", AppConfig.class);
+} catch (ConfigSourceException ex) {
+    System.out.println(ex.phase());   // parse or evaluate
+    System.out.println(ex.format());  // TOML / JSON / XML / Lua / Groovy
+}
+```
+
 ## Format-specific behavior
 
 Format-specific semantics are documented in each module README:

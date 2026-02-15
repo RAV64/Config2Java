@@ -4,7 +4,7 @@ This document lists all binding/validation errors emitted by the core deserializ
 
 These are emitted inside `ConfigDeserializationException`.
 
-It does not include language parser/evaluator failures (for example invalid Lua/Groovy/TOML/JSON/XML syntax), which throw runtime parse/eval errors before binding.
+It does not include language parser/evaluator failures (for example invalid Lua/Groovy/TOML/JSON/XML syntax), which throw `ConfigSourceException` before binding.
 
 ## Error shape
 
@@ -249,6 +249,34 @@ Bound value type is incompatible with field type.
 
 How to fix:
 Align field declaration with actual bound value type.
+
+### 23) `FieldAccessSetup`
+Message:
+`Failed to access field reflectively: <reason>`
+
+Real trigger:
+Runtime blocks reflective access setup (`setAccessible(true)`), for example module access restrictions.
+
+How to fix:
+Open module/package for reflection, or use a runtime that allows reflective access for your config model types.
+
+### 24) `FieldReadAccess`
+Message:
+`Failed to read field default value: <reason>`
+
+Real trigger:
+Deserializer cannot read the current field value when deciding whether a default already exists.
+
+How to fix:
+Allow reflective read access for model fields in the runtime environment.
+
+## Source parse/eval failures
+
+`ConfigSourceException` is thrown before binding for syntax/eval issues.
+
+- `format()`: `Lua`, `Groovy`, `TOML`, `JSON`, `XML`
+- `phase()`: `evaluate` (script formats) or `parse` (data formats)
+- message format: `Failed to <phase> <format>: <details>`
 
 ## Practical debugging flow
 

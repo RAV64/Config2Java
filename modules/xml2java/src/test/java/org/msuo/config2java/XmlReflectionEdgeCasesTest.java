@@ -9,12 +9,6 @@ public class XmlReflectionEdgeCasesTest extends SharedContractSupport {
         return new XmlDeserializer();
     }
 
-    @Override
-    protected String rootFailureContains() {
-        return "Failed to parse XML";
-    }
-
-
     @Test
     void inheritedFields_areDeserialized() {
         DerivedCfg cfg = ok("<config><base>x</base><child>1</child></config>", DerivedCfg.class);
@@ -33,6 +27,6 @@ public class XmlReflectionEdgeCasesTest extends SharedContractSupport {
         Throwable ex = assertThrows(Throwable.class, () ->
             deserializer().deserialize("<config>", CfgRootIsComplex.class)
         );
-        assertTrue(ex.getMessage().contains(rootFailureContains()));
+        assertTrue(ex.getMessage().contains("Failed to parse XML"));
     }
 }

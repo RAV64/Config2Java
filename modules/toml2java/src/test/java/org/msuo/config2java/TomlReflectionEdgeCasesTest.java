@@ -9,12 +9,6 @@ public class TomlReflectionEdgeCasesTest extends SharedContractSupport {
         return new TomlDeserializer();
     }
 
-    @Override
-    protected String rootFailureContains() {
-        return "Failed to parse TOML";
-    }
-
-
     @Test
     void inheritedFields_areDeserialized() {
         DerivedCfg cfg = ok("base = 'x'\nchild = 1", DerivedCfg.class);
@@ -33,6 +27,6 @@ public class TomlReflectionEdgeCasesTest extends SharedContractSupport {
         Throwable ex = assertThrows(Throwable.class, () ->
             deserializer().deserialize("'nope'", CfgRootIsComplex.class)
         );
-        assertTrue(ex.getMessage().contains(rootFailureContains()));
+        assertTrue(ex.getMessage().contains("Failed to parse TOML"));
     }
 }
