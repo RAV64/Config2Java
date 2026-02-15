@@ -2,11 +2,6 @@
 
 Config2Java maps configuration data into validated **null-safe** Java objects.
 
-## Supported Java versions
-
-- Java 11 and above for all modules
-- Build pipeline runs Gradle with JDK 17 (Gradle runtime requirement)
-
 This repository is a monorepo with one core module and format-specific modules. You can depend on exactly the formats you need.
 
 ## Modules
@@ -172,3 +167,8 @@ Run selected modules:
 ```bash
 ./gradlew :lua2java:test :groovy2java:test :toml2java:test :json2java:test :xml2java:test
 ```
+
+## Notes
+
+- Supported Java versions: Java 11 and above for all modules.
+- LLM assistance was used during development of this codebase and its documentation.
