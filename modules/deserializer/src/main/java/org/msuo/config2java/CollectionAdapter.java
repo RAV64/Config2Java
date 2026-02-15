@@ -36,7 +36,7 @@ final class CollectionAdapter implements TypeAdapter {
         for (int i = 1; i <= n; i++) {
             ConfigValue v = table.getIndex(i);
             Path elemPath = path.index(i);
-            ReadResult rr = Binder.readValue(elemPath, elemCls, v, errors);
+            ReadResult rr = ObjectMapper.readValue(elemPath, elemCls, v, errors);
             if (rr.ok) out.add(rr.value);
         }
 

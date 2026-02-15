@@ -6,6 +6,6 @@ public abstract class TreeDeserializer implements Deserializer {
 
     @Override
     public final <T> T deserialize(String source, Class<T> configClass) {
-        return Binder.deserialize(parse(source), configClass);
+        return ObjectMapper.deserialize(parse(source), configClass);
     }
 }

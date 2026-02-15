@@ -23,7 +23,7 @@ final class ClassSchema {
             Field f = fields.get(i);
             String key = f.getName();
             Type t = f.getGenericType();
-            TypeAdapter adapter = Binder.adapterFor(t);
+            TypeAdapter adapter = ObjectMapper.adapterFor(t);
 
             bs.add(new FieldBinding(f, key, adapter));
         }

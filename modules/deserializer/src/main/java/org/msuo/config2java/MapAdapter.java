@@ -42,13 +42,13 @@ final class MapAdapter implements TypeAdapter {
             ConfigValue v = e.value();
 
             Path keyPath = path.rawKey(e.rawKeyString());
-            ReadResult keyRes = Binder.readValue(keyPath, kCls, k, errors);
+            ReadResult keyRes = ObjectMapper.readValue(keyPath, kCls, k, errors);
             if (!keyRes.ok) continue;
 
             Object keyObj = keyRes.value;
 
             Path valPath = path.mapKey(keyObj);
-            ReadResult valRes = Binder.readValue(valPath, vCls, v, errors);
+            ReadResult valRes = ObjectMapper.readValue(valPath, vCls, v, errors);
             if (!valRes.ok) continue;
 
             out.put(keyObj, valRes.value);

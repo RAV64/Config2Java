@@ -28,7 +28,7 @@ final class OptionalAdapter implements TypeAdapter {
         );
         if (inner == null) return ReadResult.ok(Optional.empty());
 
-        ReadResult innerRes = Binder.readValue(path, inner, value, errors);
+        ReadResult innerRes = ObjectMapper.readValue(path, inner, value, errors);
         if (!innerRes.ok) return ReadResult.fail();
         return ReadResult.ok(Optional.of(innerRes.value));
     }

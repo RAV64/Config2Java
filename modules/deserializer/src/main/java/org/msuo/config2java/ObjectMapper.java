@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-final class Binder {
+final class ObjectMapper {
 
-    private Binder() {}
+    private ObjectMapper() {}
 
     static <T> T deserialize(ConfigValue root, Class<T> configClass) {
         ErrorCollector errors = new ErrorCollector();
