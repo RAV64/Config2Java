@@ -6,6 +6,9 @@ Depends on:
 - [../deserializer](../deserializer/README.md)
 - `org.luaj:luaj-jse`
 
+Supported Lua versions:
+- Lua 5.2 and above (LuaJ provides Lua 5.2 semantics via `luaj-jse:3.0.1`)
+
 ## Leaf values
 
 ```java

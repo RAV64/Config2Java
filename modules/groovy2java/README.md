@@ -6,6 +6,9 @@ Depends on:
 - [../deserializer](../deserializer/README.md)
 - `org.apache.groovy:groovy`
 
+Supported Groovy versions:
+- Groovy 5.0 and above (tested with `org.apache.groovy:groovy:5.0.4`)
+
 ## Leaf values
 
 ```java
