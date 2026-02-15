@@ -38,7 +38,10 @@ public final class LuaDeserializer extends TreeDeserializer {
     }
 
     private void injectEnvironment(Globals runtime) {
-        runtime.set("ENV", toLuaValue(bindings.environment()));
+        runtime.set(
+            "ENV",
+            toLuaValue(EnvironmentValues.withSystemFallback(bindings.environment()))
+        );
 
         LuaValue os = runtime.get("os");
         if (!os.istable()) {
