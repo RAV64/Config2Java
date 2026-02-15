@@ -1,6 +1,6 @@
 # Config2Java
 
-Config2Java maps configuration data into validated Java objects.
+Config2Java maps configuration data into validated **null-safe** Java objects.
 
 This repository is a monorepo with one core module and format-specific modules. You can depend on exactly the formats you need.
 
