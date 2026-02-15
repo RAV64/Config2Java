@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 class LuaEnvironmentAndGlobalsTest extends SharedContractSupport {
+    private static final String ENV_KEY = "CONFIG2JAVA_TEST_APP_ENV_6A0C9341_EE7F_4F5A_BA4A";
 
     @Override
     protected Deserializer deserializer() {
@@ -17,12 +18,13 @@ class LuaEnvironmentAndGlobalsTest extends SharedContractSupport {
     @Test
     void envAbsent_usesDefaultBranch() {
         LuaDeserializer d = LuaDeserializer.builder()
+            .env(ENV_KEY, null)
             .global("defaultName", "worker-default")
             .build();
 
         CfgInjected cfg = d.deserialize(
             "local cfg = { mode = 'DEV', name = defaultName }\n" +
-            "if os.getenv('APP_ENV') == 'prod' then\n" +
+            "if os.getenv('" + ENV_KEY + "') == 'prod' then\n" +
             "  cfg.mode = 'PROD'\n" +
             "end\n" +
             "return cfg",
@@ -36,13 +38,13 @@ class LuaEnvironmentAndGlobalsTest extends SharedContractSupport {
     @Test
     void envPresent_switchesBranch() {
         LuaDeserializer d = LuaDeserializer.builder()
-            .env("APP_ENV", "prod")
+            .env(ENV_KEY, "prod")
             .global("defaultName", "worker-default")
             .build();
 
         CfgInjected cfg = d.deserialize(
             "local cfg = { mode = 'DEV', name = defaultName }\n" +
-            "if os.getenv('APP_ENV') == 'prod' then\n" +
+            "if os.getenv('" + ENV_KEY + "') == 'prod' then\n" +
             "  cfg.mode = 'PROD'\n" +
             "end\n" +
             "return cfg",

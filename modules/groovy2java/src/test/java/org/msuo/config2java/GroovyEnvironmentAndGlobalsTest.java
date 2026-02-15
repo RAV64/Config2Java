@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 class GroovyEnvironmentAndGlobalsTest extends SharedContractSupport {
+    private static final String ENV_KEY = "CONFIG2JAVA_TEST_APP_ENV_6A0C9341_EE7F_4F5A_BA4A";
 
     @Override
     protected Deserializer deserializer() {
@@ -17,12 +18,13 @@ class GroovyEnvironmentAndGlobalsTest extends SharedContractSupport {
     @Test
     void envAbsent_usesDefaultBranch() {
         GroovyDeserializer d = GroovyDeserializer.builder()
+            .env(ENV_KEY, null)
             .global("defaultName", "worker-default")
             .build();
 
         CfgInjected cfg = d.deserialize(
             "def cfg = [mode: 'DEV', name: defaultName]\n" +
-            "if (ENV.APP_ENV == 'prod') {\n" +
+            "if (ENV." + ENV_KEY + " == 'prod') {\n" +
             "  cfg.mode = 'PROD'\n" +
             "}\n" +
             "return cfg",
@@ -36,13 +38,13 @@ class GroovyEnvironmentAndGlobalsTest extends SharedContractSupport {
     @Test
     void envPresent_switchesBranch() {
         GroovyDeserializer d = GroovyDeserializer.builder()
-            .env("APP_ENV", "prod")
+            .env(ENV_KEY, "prod")
             .global("defaultName", "worker-default")
             .build();
 
         CfgInjected cfg = d.deserialize(
             "def cfg = [mode: 'DEV', name: defaultName]\n" +
-            "if (ENV.APP_ENV == 'prod') {\n" +
+            "if (ENV." + ENV_KEY + " == 'prod') {\n" +
             "  cfg.mode = 'PROD'\n" +
             "}\n" +
             "return cfg",

@@ -110,7 +110,7 @@ class Cfg {
 }
 
 ScriptBindings bindings = ScriptBindings.builder()
-    .env("APP_ENV", "prod")
+    .env("CONFIG2JAVA_TEST_APP_ENV", "prod")
     .global("defaultName", "worker-default")
     .build();
 
@@ -118,7 +118,7 @@ LuaDeserializer d = new LuaDeserializer(bindings);
 
 String lua = """
 local c = { mode = 'DEV', name = defaultName }
-if os.getenv('APP_ENV') == 'prod' then c.mode = 'PROD' end
+if os.getenv('CONFIG2JAVA_TEST_APP_ENV') == 'prod' then c.mode = 'PROD' end
 return c
 """;
 
@@ -126,5 +126,7 @@ Cfg cfg = d.deserialize(lua, Cfg.class);
 assertEquals(Cfg.Mode.PROD, cfg.mode);
 assertEquals("worker-default", cfg.name);
 ```
+
+`os.getenv` resolves from injected values first, then falls back to system environment variables.
 
 See [../../errors.md](../../errors.md) for error details.

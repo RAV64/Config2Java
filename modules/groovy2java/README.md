@@ -108,7 +108,7 @@ class Cfg {
 }
 
 ScriptBindings bindings = ScriptBindings.builder()
-    .env("APP_ENV", "prod")
+    .env("CONFIG2JAVA_TEST_APP_ENV", "prod")
     .global("defaultName", "worker-default")
     .build();
 
@@ -116,7 +116,7 @@ GroovyDeserializer d = new GroovyDeserializer(bindings);
 
 String groovy = """
 def c = [mode: 'DEV', name: defaultName]
-if (ENV.APP_ENV == 'prod') c.mode = 'PROD'
+if (ENV.CONFIG2JAVA_TEST_APP_ENV == 'prod') c.mode = 'PROD'
 return c
 """;
 
@@ -124,5 +124,7 @@ Cfg cfg = d.deserialize(groovy, Cfg.class);
 assertEquals(Cfg.Mode.PROD, cfg.mode);
 assertEquals("worker-default", cfg.name);
 ```
+
+`ENV` resolves from injected values first, then falls back to system environment variables.
 
 See [../../errors.md](../../errors.md) for error details.

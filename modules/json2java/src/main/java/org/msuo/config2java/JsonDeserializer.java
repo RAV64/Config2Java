@@ -98,14 +98,19 @@ public final class JsonDeserializer extends TreeDeserializer {
 
         @Override
         public Iterable<ConfigEntry> entries() {
-            if (node.isObject()) {
-                return () -> new Iterator<ConfigEntry>() {
-                    private final Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+            if (node.isObject()) return objectEntries();
+            if (node.isArray()) return arrayEntries();
+            return java.util.Collections::emptyIterator;
+        }
 
-                    @Override
-                    public boolean hasNext() {
-                        return it.hasNext();
-                    }
+        private Iterable<ConfigEntry> objectEntries() {
+            return () -> new Iterator<ConfigEntry>() {
+                private final Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
 
                 @Override
                 public ConfigEntry next() {
@@ -119,14 +124,14 @@ public final class JsonDeserializer extends TreeDeserializer {
             };
         }
 
-            if (node.isArray()) {
-                return () -> new Iterator<ConfigEntry>() {
-                    private int index = 1;
+        private Iterable<ConfigEntry> arrayEntries() {
+            return () -> new Iterator<ConfigEntry>() {
+                private int index = 1;
 
-                    @Override
-                    public boolean hasNext() {
-                        return index <= node.size();
-                    }
+                @Override
+                public boolean hasNext() {
+                    return index <= node.size();
+                }
 
                 @Override
                 public ConfigEntry next() {
@@ -141,8 +146,5 @@ public final class JsonDeserializer extends TreeDeserializer {
                 }
             };
         }
-
-        return java.util.Collections::emptyIterator;
-    }
     }
 }
