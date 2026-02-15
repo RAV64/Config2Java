@@ -6,6 +6,10 @@ Depends on:
 - [../deserializer](../deserializer/README.md)
 - `org.luaj:luaj-jse`
 
+```gradle
+implementation "org.msuo:lua2java:<version>"
+```
+
 Supported Lua versions:
 - Lua 5.2 and above (LuaJ provides Lua 5.2 semantics via `luaj-jse:3.0.1`)
 

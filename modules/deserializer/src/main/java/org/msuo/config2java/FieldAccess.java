@@ -29,10 +29,7 @@ final class FieldAccess {
     Object readDefault(Object instance, Path path, ErrorCollector errors) {
         try {
             return field.get(instance);
-        } catch (IllegalAccessException e) {
-            errors.add(path, Errors.fieldReadAccess(e));
-            return READ_FAILED;
-        } catch (RuntimeException e) {
+        } catch (IllegalAccessException | RuntimeException e) {
             errors.add(path, Errors.fieldReadAccess(e));
             return READ_FAILED;
         }

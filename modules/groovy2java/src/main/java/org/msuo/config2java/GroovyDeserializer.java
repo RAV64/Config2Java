@@ -16,8 +16,8 @@ public final class GroovyDeserializer extends TreeDeserializer {
         this.bindings = bindings;
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static ScriptedDeserializerBuilder<GroovyDeserializer> builder() {
+        return ScriptedDeserializerBuilder.of(GroovyDeserializer::new);
     }
 
     @Override
@@ -51,31 +51,4 @@ public final class GroovyDeserializer extends TreeDeserializer {
         }
     }
 
-    public static final class Builder {
-        private final ScriptBindings.Builder bindings = ScriptBindings.builder();
-
-        public Builder environment(Map<String, String> values) {
-            this.bindings.environment(values);
-            return this;
-        }
-
-        public Builder env(String key, String value) {
-            this.bindings.env(key, value);
-            return this;
-        }
-
-        public Builder globals(Map<String, ?> values) {
-            this.bindings.globals(values);
-            return this;
-        }
-
-        public Builder global(String key, Object value) {
-            this.bindings.global(key, value);
-            return this;
-        }
-
-        public GroovyDeserializer build() {
-            return new GroovyDeserializer(bindings.build());
-        }
-    }
 }

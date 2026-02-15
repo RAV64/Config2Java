@@ -6,6 +6,10 @@ Depends on:
 - [../deserializer](../deserializer/README.md)
 - `org.tomlj:tomlj`
 
+```gradle
+implementation "org.msuo:toml2java:<version>"
+```
+
 ## Leaf values
 
 ```java

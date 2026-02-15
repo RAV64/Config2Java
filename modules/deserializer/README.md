@@ -19,6 +19,12 @@ Language modules convert native parse trees to `ConfigValue`/`ConfigTable`, then
 - `deserialize(String source, Class<T> configClass)`
 - default overloads for `Path`/`File` with charset
 
+Gradle dependency:
+
+```gradle
+implementation "org.msuo:deserializer:<version>"
+```
+
 ## Mapping model
 
 - Object field mapping is iterative and single-pass.

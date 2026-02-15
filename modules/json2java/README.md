@@ -6,6 +6,10 @@ Depends on:
 - [../deserializer](../deserializer/README.md)
 - `com.fasterxml.jackson.core:jackson-databind`
 
+```gradle
+implementation "org.msuo:json2java:<version>"
+```
+
 ## Leaf values
 
 ```java

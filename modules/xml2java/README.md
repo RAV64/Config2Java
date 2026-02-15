@@ -6,6 +6,10 @@ Depends on:
 - [../deserializer](../deserializer/README.md)
 - no extra runtime dependency (JDK XML parser)
 
+```gradle
+implementation "org.msuo:xml2java:<version>"
+```
+
 ## Leaf values
 
 ```java

@@ -6,6 +6,10 @@ Depends on:
 - [../deserializer](../deserializer/README.md)
 - `org.apache.groovy:groovy`
 
+```gradle
+implementation "org.msuo:groovy2java:<version>"
+```
+
 Supported Groovy versions:
 - Groovy 5.0 and above (tested with `org.apache.groovy:groovy:5.0.4`)
 
