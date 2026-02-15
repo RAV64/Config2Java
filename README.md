@@ -6,7 +6,7 @@ This repository is a monorepo with one core module and format-specific modules. 
 
 ## Modules
 
-- [modules/deserializer](modules/deserializer/README.md): core binding/validation engine
+- [modules/deserializer](modules/deserializer/README.md): core object-mapping/validation engine
 - [modules/lua2java](modules/lua2java/README.md): Lua deserializer
 - [modules/groovy2java](modules/groovy2java/README.md): Groovy deserializer
 - [modules/toml2java](modules/toml2java/README.md): TOML deserializer
@@ -121,7 +121,7 @@ AppConfig xmlCfg = new XmlDeserializer().deserialize(
 
 ## Validation and errors
 
-Binding/validation collects all errors and throws one `ConfigDeserializationException`.
+Object mapping and validation are done in one pass. Field errors are collected, then one `ConfigDeserializationException` is thrown with all errors.
 
 ```java
 try {

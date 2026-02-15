@@ -1,10 +1,10 @@
 # Error Reference
 
-This document lists all binding/validation errors emitted by the core deserializer (`modules/deserializer/src/main/java/org/msuo/config2java/Errors.java`).
+This document lists all object-mapping/validation errors emitted by the core deserializer (`modules/deserializer/src/main/java/org/msuo/config2java/Errors.java`).
 
 These are emitted inside `ConfigDeserializationException`.
 
-It does not include language parser/evaluator failures (for example invalid Lua/Groovy/TOML/JSON/XML syntax), which throw `ConfigSourceException` before binding.
+It does not include language parser/evaluator failures (for example invalid Lua/Groovy/TOML/JSON/XML syntax), which throw `ConfigSourceException` before object mapping starts.
 
 ## Error shape
 
@@ -28,14 +28,14 @@ try {
 }
 ```
 
-## Binding error variants
+## Mapping error variants
 
 ### 1) `UnsupportedType`
 Message:
 `Unsupported Type: <type>`
 
 Real trigger:
-A field type resolves to a `Type` that is neither `Class<?>` nor `ParameterizedType` in the binder.
+A field type resolves to a `Type` that is neither `Class<?>` nor `ParameterizedType` in the mapper.
 
 How to fix:
 Use supported field declarations (`Class`, `Enum`, `Optional<T>`, `Collection<T>`, `Map<K,V>`).
@@ -175,7 +175,7 @@ Message:
 `No 1-arg constructor on <Type> accepting <ScalarType>`
 
 Real trigger:
-Leaf binding needs value-object construction, but constructor signature does not match scalar type.
+Leaf value mapping needs value-object construction, but constructor signature does not match scalar type.
 
 How to fix:
 Add matching one-arg constructor or change input scalar type.
@@ -205,7 +205,7 @@ Message:
 `No no-arg constructor for nested object type: <Type>`
 
 Real trigger:
-Object binding requires no-arg constructor and none exists.
+Object mapping requires a no-arg constructor and none exists.
 
 How to fix:
 Add a no-arg constructor or change model shape.
@@ -218,7 +218,7 @@ Real trigger:
 No-arg constructor exists but throws while instantiating nested object.
 
 How to fix:
-Avoid throwing from construction path used by binding.
+Avoid throwing from construction path used by object mapping.
 
 ### 20) `InstantiateFailed`
 Message:
@@ -272,7 +272,7 @@ Allow reflective read access for model fields in the runtime environment.
 
 ## Source parse/eval failures
 
-`ConfigSourceException` is thrown before binding for syntax/eval issues.
+`ConfigSourceException` is thrown before object mapping for syntax/eval issues.
 
 - `format()`: `Lua`, `Groovy`, `TOML`, `JSON`, `XML`
 - `phase()`: `evaluate` (script formats) or `parse` (data formats)
