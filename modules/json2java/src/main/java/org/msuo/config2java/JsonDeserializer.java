@@ -16,8 +16,6 @@ public final class JsonDeserializer extends TreeDeserializer {
         try {
             JsonNode root = MAPPER.readTree(source);
             return new JsonConfigValue(root);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse JSON: " + e.getMessage(), e);
         }
@@ -39,11 +37,6 @@ public final class JsonDeserializer extends TreeDeserializer {
             if (node.isBoolean()) return "boolean";
             if (node.isNumber()) return "number";
             return "userdata";
-        }
-
-        @Override
-        public boolean isMissing() {
-            return false;
         }
 
         @Override

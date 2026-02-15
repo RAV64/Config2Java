@@ -62,11 +62,6 @@ public final class GroovyDeserializer extends TreeDeserializer {
         }
 
         @Override
-        public boolean isMissing() {
-            return false;
-        }
-
-        @Override
         public boolean isNil() {
             return value == null;
         }

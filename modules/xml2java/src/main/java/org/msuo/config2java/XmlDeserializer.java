@@ -27,8 +27,6 @@ public final class XmlDeserializer extends TreeDeserializer {
             Document doc = f.newDocumentBuilder().parse(new InputSource(new StringReader(source)));
             Element root = doc.getDocumentElement();
             return new XmlElementValue(root, false);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse XML: " + e.getMessage(), e);
         }
@@ -67,11 +65,6 @@ public final class XmlDeserializer extends TreeDeserializer {
         }
 
         @Override
-        public boolean isMissing() {
-            return false;
-        }
-
-        @Override
         public boolean isNil() {
             return false;
         }
@@ -103,11 +96,6 @@ public final class XmlDeserializer extends TreeDeserializer {
         @Override
         public String typename() {
             return "table";
-        }
-
-        @Override
-        public boolean isMissing() {
-            return false;
         }
 
         @Override
@@ -146,11 +134,6 @@ public final class XmlDeserializer extends TreeDeserializer {
             if (value instanceof Boolean) return "boolean";
             if (value instanceof Number) return "number";
             return "userdata";
-        }
-
-        @Override
-        public boolean isMissing() {
-            return false;
         }
 
         @Override
