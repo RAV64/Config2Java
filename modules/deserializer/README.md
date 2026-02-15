@@ -2,24 +2,40 @@
 
 `deserializer` is the format-agnostic core of Config2Java.
 
-## What this module does
+Language modules convert native parse trees to `ConfigValue`/`ConfigTable`, then this module performs binding and validation.
 
-- binds config trees into Java objects
-- validates leaf/value objects through 1-arg constructors
-- supports defaults, `Optional<T>`, collections, maps, enums
-- aggregates all binding errors with stable paths
+## Responsibilities
 
-## Internal contract used by language modules
-
-Language modules only need to provide native `ConfigValue`/`ConfigTable` adapters.
-
-The binder then performs deserialization and validation in a single traversal path.
+- bind config trees to Java objects
+- apply defaults and optional semantics
+- parse enums and generic containers (`Optional`, `List`, `Set`, `Map`)
+- perform constructor-based leaf validation
+- aggregate path-based errors into one exception
 
 ## Public API
 
 `org.msuo.config2java.Deserializer`:
 
-- `deserialize(String source, Class<T> targetType)`
-- default overloads for `Path`/`File` and charset
+- `deserialize(String source, Class<T> configClass)`
+- default overloads for `Path`/`File` with charset
 
-For error types/messages and path format, see [../../errors.md](../../errors.md).
+## Binding model
+
+- Object field binding is iterative and single-pass.
+- Missing key and explicit nil are handled differently.
+- Missing required fields fail unless a default already exists.
+- `Optional<T>` maps missing/nil to `Optional.empty()`.
+
+## For language implementers
+
+A language module typically:
+
+1. Parses source text into native objects.
+2. Exposes them through `ConfigValue` + `ConfigTable` adapters.
+3. Extends `TreeDeserializer` and returns the root `ConfigValue`.
+
+The core binder then handles the rest.
+
+## Error model
+
+See [../../errors.md](../../errors.md) for all error types, examples, and fixes.

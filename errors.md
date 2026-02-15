@@ -1,38 +1,258 @@
 # Error Reference
 
-Config2Java binding/validation errors are format-agnostic and are reported as `ConfigDeserializationException`.
+This document lists all binding/validation errors emitted by the core deserializer (`modules/deserializer/src/main/java/org/msuo/config2java/Errors.java`).
 
-## Error structure
+These are emitted inside `ConfigDeserializationException`.
 
-Each error contains:
+It does not include language parser/evaluator failures (for example invalid Lua/Groovy/TOML/JSON/XML syntax), which throw runtime parse/eval errors before binding.
 
-- `path`: location such as `$.db.port`, `$.tags[1]`, `$.limits{foo}`
-- `message`: human-readable error message
+## Error shape
 
-## Handling errors
+Each error entry has:
+
+- `path`: location (for example `$.db.port`, `$.tags[1]`, `$.limits{foo}`)
+- `message`: message from `ConfigErrorType.message()`
+- `errorType`: class name from `ConfigErrorType.type()`
+
+Example:
 
 ```java
-import org.msuo.config2java.ConfigDeserializationException;
-import org.msuo.config2java.Deserializer;
-
 try {
-    Deserializer d = ...;
-    d.deserialize(source, MyCfg.class);
+    deserializer.deserialize(source, MyCfg.class);
 } catch (ConfigDeserializationException ex) {
     for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
-        System.out.println(e.getPath() + " -> " + e.getMessage());
+        System.out.println(e.getPath());
+        System.out.println(e.getErrorType().type()); // e.g. MissingRequiredField
+        System.out.println(e.getMessage());
     }
 }
 ```
 
-## Common categories
+## Binding error variants
 
-- missing required fields
-- wrong scalar/table shape
-- invalid value-object constructor type
-- constructor rejection (domain validation)
-- enum parse failures
-- unsupported type declarations (for nested generics etc)
-- nested-object instantiation/field-set reflection failures
+### 1) `UnsupportedType`
+Message:
+`Unsupported Type: <type>`
 
-Parse/eval failures in a language parser (invalid Lua/Groovy/TOML/JSON/XML input) are raised by that language module before binder errors are produced.
+Real trigger:
+A field type resolves to a `Type` that is neither `Class<?>` nor `ParameterizedType` in the binder.
+
+How to fix:
+Use supported field declarations (`Class`, `Enum`, `Optional<T>`, `Collection<T>`, `Map<K,V>`).
+
+### 2) `UnsupportedParameterized`
+Message:
+`Unsupported parameterized type: <type>`
+
+Real trigger:
+A parameterized type has a class raw type, but the raw type is not `Optional`, `Collection`/`List`/`Set`, or `Map`.
+
+How to fix:
+Use supported generics, or wrap unsupported generic structures in concrete classes.
+
+### 3) `UnsupportedParameterizedRaw`
+Message:
+`Unsupported parameterized raw type: <raw>`
+
+Real trigger:
+Parameterized raw type is not a `Class<?>`.
+
+How to fix:
+Use normal class-based generic declarations.
+
+### 4) `PrimitiveNotSupported`
+Message:
+`Primitive field types are not supported: <primitive>`
+
+Real trigger:
+A target field is primitive (`int`, `boolean`, etc.).
+
+How to fix:
+Use boxed types (`Integer`, `Boolean`, etc.).
+
+### 5) `EnumExpectedString`
+Message:
+`Enum expects string name, got: <type>`
+
+Real trigger:
+Enum field receives non-string scalar or non-scalar value.
+
+How to fix:
+Provide enum as a string value.
+
+### 6) `EnumUnknown`
+Message:
+`Unknown enum value '<value>' for <EnumClass>`
+
+Real trigger:
+String value does not match any enum constant name.
+
+How to fix:
+Use a valid enum constant name exactly.
+
+### 7) `ExpectedScalar`
+Message:
+`Expected primitive (string/number/bool), got: <type>`
+
+Real trigger:
+Leaf/value-object target receives table/array/object instead of scalar.
+
+How to fix:
+Provide scalar input or change Java field type to object/collection.
+
+### 8) `MapExpected`
+Message:
+`Expected table for Map, got: <type>`
+
+Real trigger:
+`Map<K,V>` field receives non-table input.
+
+How to fix:
+Provide object/table-like input.
+
+### 9) `CollectionExpected`
+Message:
+`Expected table/array for <CollectionType>, got: <type>`
+
+Real trigger:
+`Collection/List/Set` field receives non-array/table input.
+
+How to fix:
+Provide list/array/table-like input.
+
+### 10) `OptionalInnerMustBeConcrete`
+Message:
+`Optional inner type must be a concrete class (no nested generics). Got: <type>`
+
+Real trigger:
+`Optional<T>` inner type is not a concrete class.
+
+How to fix:
+Use `Optional<ConcreteType>`.
+
+### 11) `CollectionElementMustBeConcrete`
+Message:
+`Collection element type must be a concrete class (no nested generics). Got: <type>`
+
+Real trigger:
+Collection element type is not a concrete class.
+
+How to fix:
+Use concrete element types.
+
+### 12) `MapKeyMustBeConcrete`
+Message:
+`Map key type must be a concrete class (no nested generics). Got: <type>`
+
+Real trigger:
+Map key type is not a concrete class.
+
+How to fix:
+Use concrete key types.
+
+### 13) `MapValueMustBeConcrete`
+Message:
+`Map value type must be a concrete class (no nested generics). Got: <type>`
+
+Real trigger:
+Map value type is not a concrete class.
+
+How to fix:
+Use concrete value types.
+
+### 14) `MissingRequiredField`
+Message:
+`Missing required field (no default value).`
+
+Real trigger:
+Key is missing and field has no default and no optional/missing adapter fallback.
+
+How to fix:
+Provide key, set a default, or change field to `Optional<T>`.
+
+### 15) `NoOneArgCtor`
+Message:
+`No 1-arg constructor on <Type> accepting <ScalarType>`
+
+Real trigger:
+Leaf binding needs value-object construction, but constructor signature does not match scalar type.
+
+How to fix:
+Add matching one-arg constructor or change input scalar type.
+
+### 16) `CtorRejected`
+Message:
+`Value rejected by <Type> constructor: <reason>`
+
+Real trigger:
+One-arg constructor exists and throws (typically validation failure).
+
+How to fix:
+Fix input value or constructor validation logic.
+
+### 17) `CtorCallFailed`
+Message:
+`Failed calling constructor for <Type>: <reason>`
+
+Real trigger:
+One-arg constructor invocation fails reflectively for non-validation reasons.
+
+How to fix:
+Check constructor accessibility/reflective constraints and type assumptions.
+
+### 18) `NoNoArgCtor`
+Message:
+`No no-arg constructor for nested object type: <Type>`
+
+Real trigger:
+Object binding requires no-arg constructor and none exists.
+
+How to fix:
+Add a no-arg constructor or change model shape.
+
+### 19) `CtorFailed`
+Message:
+`Constructor failed for <Type>: <reason>`
+
+Real trigger:
+No-arg constructor exists but throws while instantiating nested object.
+
+How to fix:
+Avoid throwing from construction path used by binding.
+
+### 20) `InstantiateFailed`
+Message:
+`Failed to instantiate <Type>: <reason>`
+
+Real trigger:
+Reflective no-arg instantiation fails (for example abstract type or reflection failure).
+
+How to fix:
+Use concrete instantiable field types.
+
+### 21) `FieldSetAccess`
+Message:
+`Failed to set field (access): <reason>`
+
+Real trigger:
+Reflection cannot assign field due to access/security restriction at runtime.
+
+How to fix:
+Allow reflective field access in runtime environment.
+
+### 22) `FieldSetTypeMismatch`
+Message:
+`Failed to set field (type mismatch): <reason>`
+
+Real trigger:
+Bound value type is incompatible with field type.
+
+How to fix:
+Align field declaration with actual bound value type.
+
+## Practical debugging flow
+
+1. Inspect `path` to locate offending field.
+2. Inspect `errorType.type()` to identify exact variant.
+3. Apply the fix to either config input or Java model.
+4. Re-run and handle remaining aggregated errors.
