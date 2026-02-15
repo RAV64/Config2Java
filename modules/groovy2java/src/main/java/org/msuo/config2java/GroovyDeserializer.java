@@ -2,25 +2,20 @@ package org.msuo.config2java;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public final class GroovyDeserializer extends TreeDeserializer {
 
-    private final Map<String, String> environment;
-    private final Map<String, Object> globals;
+    private final ScriptBindings bindings;
 
     public GroovyDeserializer() {
-        this(Collections.emptyMap(), Collections.emptyMap());
+        this(ScriptBindings.empty());
     }
 
-    private GroovyDeserializer(Map<String, String> environment, Map<String, Object> globals) {
-        this.environment = Collections.unmodifiableMap(new LinkedHashMap<>(environment));
-        this.globals = Collections.unmodifiableMap(new LinkedHashMap<>(globals));
+    public GroovyDeserializer(ScriptBindings bindings) {
+        this.bindings = bindings;
     }
 
     public static Builder builder() {
@@ -31,15 +26,15 @@ public final class GroovyDeserializer extends TreeDeserializer {
     protected ConfigValue parse(String source) {
         try {
             Binding binding = new Binding();
-            binding.setVariable("ENV", environment);
-            for (Map.Entry<String, Object> e : globals.entrySet()) {
+            binding.setVariable("ENV", bindings.environment());
+            for (Map.Entry<String, Object> e : bindings.globals().entrySet()) {
                 binding.setVariable(e.getKey(), e.getValue());
             }
 
             Object root = new GroovyShell(binding).evaluate(source);
             return new GroovyConfigValue(root);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Failed to evaluate Groovy: " + e.getMessage(), e);
+            throw new ConfigSourceException("Groovy", "evaluate", e.getMessage(), e);
         }
     }
 
@@ -83,42 +78,8 @@ public final class GroovyDeserializer extends TreeDeserializer {
             if (value == null) return null;
             if (value instanceof CharSequence) return ScalarValue.ofString(value.toString());
             if (value instanceof Boolean) return ScalarValue.ofBoolean((Boolean) value);
-            if (value instanceof Number) return numberToScalar((Number) value);
+            if (value instanceof Number) return ScalarNumbers.fromNumber((Number) value);
             return null;
-        }
-
-        private static ScalarValue numberToScalar(Number n) {
-            if (n instanceof Integer || n instanceof Short || n instanceof Byte) {
-                return ScalarValue.ofInt(n.intValue());
-            }
-            if (n instanceof Long) {
-                long l = n.longValue();
-                if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
-                    return ScalarValue.ofInt((int) l);
-                }
-                return ScalarValue.ofDouble((double) l);
-            }
-            if (n instanceof Float || n instanceof Double) {
-                double d = n.doubleValue();
-                if (d == Math.rint(d) && d >= Integer.MIN_VALUE && d <= Integer.MAX_VALUE) {
-                    return ScalarValue.ofInt((int) d);
-                }
-                return ScalarValue.ofDouble(d);
-            }
-            if (n instanceof BigDecimal) {
-                BigDecimal bd = (BigDecimal) n;
-                try {
-                    return ScalarValue.ofInt(bd.intValueExact());
-                } catch (ArithmeticException ex) {
-                    return ScalarValue.ofDouble(bd.doubleValue());
-                }
-            }
-
-            double d = n.doubleValue();
-            if (d == Math.rint(d) && d >= Integer.MIN_VALUE && d <= Integer.MAX_VALUE) {
-                return ScalarValue.ofInt((int) d);
-            }
-            return ScalarValue.ofDouble(d);
         }
     }
 
@@ -179,7 +140,6 @@ public final class GroovyDeserializer extends TreeDeserializer {
         public ConfigValue getIndex(int index1Based) {
             if (index1Based < 1 || index1Based > list.size()) return MissingValue.INSTANCE;
             Object value = list.get(index1Based - 1);
-            if (value == null) return MissingValue.INSTANCE;
             return new GroovyConfigValue(value);
         }
 
@@ -209,34 +169,30 @@ public final class GroovyDeserializer extends TreeDeserializer {
     }
 
     public static final class Builder {
-
-        private final Map<String, String> environment = new LinkedHashMap<>();
-        private final Map<String, Object> globals = new LinkedHashMap<>();
+        private final ScriptBindings.Builder bindings = ScriptBindings.builder();
 
         public Builder environment(Map<String, String> values) {
-            this.environment.clear();
-            this.environment.putAll(values);
+            this.bindings.environment(values);
             return this;
         }
 
         public Builder env(String key, String value) {
-            this.environment.put(key, value);
+            this.bindings.env(key, value);
             return this;
         }
 
         public Builder globals(Map<String, ?> values) {
-            this.globals.clear();
-            this.globals.putAll(values);
+            this.bindings.globals(values);
             return this;
         }
 
         public Builder global(String key, Object value) {
-            this.globals.put(key, value);
+            this.bindings.global(key, value);
             return this;
         }
 
         public GroovyDeserializer build() {
-            return new GroovyDeserializer(environment, globals);
+            return new GroovyDeserializer(bindings.build());
         }
     }
 }

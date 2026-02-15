@@ -17,7 +17,7 @@ public final class JsonDeserializer extends TreeDeserializer {
             JsonNode root = MAPPER.readTree(source);
             return new JsonConfigValue(root);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse JSON: " + e.getMessage(), e);
+            throw new ConfigSourceException("JSON", "parse", e.getMessage(), e);
         }
     }
 
@@ -60,14 +60,7 @@ public final class JsonDeserializer extends TreeDeserializer {
             if (node == null || node.isNull()) return null;
             if (node.isTextual()) return ScalarValue.ofString(node.asText());
             if (node.isBoolean()) return ScalarValue.ofBoolean(node.booleanValue());
-            if (node.isIntegralNumber()) {
-                long value = node.longValue();
-                if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
-                    return ScalarValue.ofInt((int) value);
-                }
-                return ScalarValue.ofDouble((double) value);
-            }
-            if (node.isFloatingPointNumber()) return ScalarValue.ofDouble(node.doubleValue());
+            if (node.isNumber()) return ScalarNumbers.fromNumber(node.numberValue());
             return null;
         }
     }
@@ -99,7 +92,7 @@ public final class JsonDeserializer extends TreeDeserializer {
             if (!node.isArray()) return MissingValue.INSTANCE;
             if (index1Based < 1 || index1Based > node.size()) return MissingValue.INSTANCE;
             JsonNode value = node.get(index1Based - 1);
-            if (value == null || value.isNull()) return MissingValue.INSTANCE;
+            if (value == null) return MissingValue.INSTANCE;
             return new JsonConfigValue(value);
         }
 

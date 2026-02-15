@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,17 +20,28 @@ public final class XmlDeserializer extends TreeDeserializer {
     @Override
     protected ConfigValue parse(String source) {
         try {
-            DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
-            f.setNamespaceAware(false);
-            f.setExpandEntityReferences(false);
-            f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            DocumentBuilderFactory f = newFactory();
 
             Document doc = f.newDocumentBuilder().parse(new InputSource(new StringReader(source)));
             Element root = doc.getDocumentElement();
             return new XmlElementValue(root, false);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse XML: " + e.getMessage(), e);
+            throw new ConfigSourceException("XML", "parse", e.getMessage(), e);
         }
+    }
+
+    private static DocumentBuilderFactory newFactory() throws Exception {
+        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+        f.setNamespaceAware(false);
+        f.setExpandEntityReferences(false);
+        f.setXIncludeAware(false);
+        f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        f.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        f.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        f.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        f.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        return f;
     }
 
     private static ConfigValue valueForElement(Element element) {
@@ -156,14 +168,7 @@ public final class XmlDeserializer extends TreeDeserializer {
             if (value == null) return null;
             if (value instanceof CharSequence) return ScalarValue.ofString(value.toString());
             if (value instanceof Boolean) return ScalarValue.ofBoolean((Boolean) value);
-            if (value instanceof Number) {
-                Number n = (Number) value;
-                double d = n.doubleValue();
-                if (d == Math.rint(d) && d >= Integer.MIN_VALUE && d <= Integer.MAX_VALUE) {
-                    return ScalarValue.ofInt((int) d);
-                }
-                return ScalarValue.ofDouble(d);
-            }
+            if (value instanceof Number) return ScalarNumbers.fromNumber((Number) value);
             return null;
         }
     }
@@ -219,16 +224,6 @@ public final class XmlDeserializer extends TreeDeserializer {
         }
 
         @Override
-        public int length() {
-            return 0;
-        }
-
-        @Override
-        public ConfigValue getIndex(int index1Based) {
-            return MissingValue.INSTANCE;
-        }
-
-        @Override
         public Iterable<ConfigEntry> entries() {
             return () -> new Iterator<ConfigEntry>() {
                 private final Iterator<Map.Entry<String, Object>> attrsIt = attributes.entrySet().iterator();
@@ -279,11 +274,6 @@ public final class XmlDeserializer extends TreeDeserializer {
 
         XmlElementListTable(List<Element> elements) {
             this.elements = elements;
-        }
-
-        @Override
-        public ConfigValue getField(String key) {
-            return MissingValue.INSTANCE;
         }
 
         @Override

@@ -18,7 +18,7 @@ public final class TomlDeserializer extends TreeDeserializer {
                 .stream()
                 .map(e -> e.position() + " " + e.getMessage())
                 .collect(Collectors.joining("; "));
-            throw new RuntimeException("Failed to parse TOML: " + details);
+            throw new ConfigSourceException("TOML", "parse", details, null);
         }
 
         return new TomlConfigValue(result);
@@ -73,14 +73,7 @@ public final class TomlDeserializer extends TreeDeserializer {
             if (value == null) return null;
             if (value instanceof CharSequence) return ScalarValue.ofString(value.toString());
             if (value instanceof Boolean) return ScalarValue.ofBoolean((Boolean) value);
-            if (value instanceof Number) {
-                Number n = (Number) value;
-                double d = n.doubleValue();
-                if (d == Math.rint(d) && d >= Integer.MIN_VALUE && d <= Integer.MAX_VALUE) {
-                    return ScalarValue.ofInt((int) d);
-                }
-                return ScalarValue.ofDouble(d);
-            }
+            if (value instanceof Number) return ScalarNumbers.fromNumber((Number) value);
             return null;
         }
     }
@@ -139,7 +132,6 @@ public final class TomlDeserializer extends TreeDeserializer {
         public ConfigValue getIndex(int index1Based) {
             if (index1Based < 1 || index1Based > array.size()) return MissingValue.INSTANCE;
             Object value = array.get(index1Based - 1);
-            if (value == null) return MissingValue.INSTANCE;
             return new TomlConfigValue(value);
         }
 

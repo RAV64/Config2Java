@@ -1,7 +1,5 @@
 package org.msuo.config2java;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaTable;
@@ -12,16 +10,14 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 
 public final class LuaDeserializer extends TreeDeserializer {
 
-    private final Map<String, String> environment;
-    private final Map<String, Object> globals;
+    private final ScriptBindings bindings;
 
     public LuaDeserializer() {
-        this(Collections.emptyMap(), Collections.emptyMap());
+        this(ScriptBindings.empty());
     }
 
-    private LuaDeserializer(Map<String, String> environment, Map<String, Object> globals) {
-        this.environment = Collections.unmodifiableMap(new LinkedHashMap<>(environment));
-        this.globals = Collections.unmodifiableMap(new LinkedHashMap<>(globals));
+    public LuaDeserializer(ScriptBindings bindings) {
+        this.bindings = bindings;
     }
 
     public static Builder builder() {
@@ -37,12 +33,12 @@ public final class LuaDeserializer extends TreeDeserializer {
             LuaValue root = runtime.load(source).call();
             return new LuaConfigValue(root);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Failed to evaluate Lua: " + e.getMessage(), e);
+            throw new ConfigSourceException("Lua", "evaluate", e.getMessage(), e);
         }
     }
 
     private void injectEnvironment(Globals runtime) {
-        runtime.set("ENV", toLuaValue(environment));
+        runtime.set("ENV", toLuaValue(bindings.environment()));
 
         LuaValue os = runtime.get("os");
         if (!os.istable()) {
@@ -57,8 +53,8 @@ public final class LuaDeserializer extends TreeDeserializer {
                 @Override
                 public LuaValue call(LuaValue arg) {
                     String key = arg.tojstring();
-                    if (environment.containsKey(key)) {
-                        String value = environment.get(key);
+                    if (bindings.environment().containsKey(key)) {
+                        String value = bindings.environment().get(key);
                         return value == null ? LuaValue.NIL : LuaValue.valueOf(value);
                     }
 
@@ -74,7 +70,7 @@ public final class LuaDeserializer extends TreeDeserializer {
     }
 
     private void injectGlobals(Globals runtime) {
-        for (Map.Entry<String, Object> e : globals.entrySet()) {
+        for (Map.Entry<String, Object> e : bindings.globals().entrySet()) {
             runtime.set(e.getKey(), toLuaValue(e.getValue()));
         }
     }
@@ -87,7 +83,7 @@ public final class LuaDeserializer extends TreeDeserializer {
         if (value instanceof Number) {
             Number n = (Number) value;
             double d = n.doubleValue();
-            if (d == Math.rint(d) && d >= Integer.MIN_VALUE && d <= Integer.MAX_VALUE) {
+            if (ScalarNumbers.fitsInt(d)) {
                 return LuaValue.valueOf((int) d);
             }
             return LuaValue.valueOf(d);
@@ -226,33 +222,30 @@ public final class LuaDeserializer extends TreeDeserializer {
 
     public static final class Builder {
 
-        private final Map<String, String> environment = new LinkedHashMap<>();
-        private final Map<String, Object> globals = new LinkedHashMap<>();
+        private final ScriptBindings.Builder bindings = ScriptBindings.builder();
 
         public Builder environment(Map<String, String> values) {
-            this.environment.clear();
-            this.environment.putAll(values);
+            this.bindings.environment(values);
             return this;
         }
 
         public Builder env(String key, String value) {
-            this.environment.put(key, value);
+            this.bindings.env(key, value);
             return this;
         }
 
         public Builder globals(Map<String, ?> values) {
-            this.globals.clear();
-            this.globals.putAll(values);
+            this.bindings.globals(values);
             return this;
         }
 
         public Builder global(String key, Object value) {
-            this.globals.put(key, value);
+            this.bindings.global(key, value);
             return this;
         }
 
         public LuaDeserializer build() {
-            return new LuaDeserializer(environment, globals);
+            return new LuaDeserializer(bindings.build());
         }
     }
 }
