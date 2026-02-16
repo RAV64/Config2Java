@@ -50,6 +50,6 @@ The core mapper then handles the rest.
 - `forEachError((pathSegments, error) -> ...)` for typed iteration without message parsing
 - each error entry includes `getErrorKind()`, `getPathSegments()`, and `getMessage()`
 - `getErrorPathTree()` for structured nested path traversal
-- `getMessage()` for human-readable tree rendering
+- `getMessage()` for rendered tree output
 
 See [../../errors.md](../../errors.md) for all error types, examples, and fixes.

@@ -132,7 +132,7 @@ try {
         System.out.println(segments + " -> " + error.getErrorKind())
     );
     ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
-    System.out.println(ex.getMessage()); // pretty tree for humans
+    System.out.println(ex.getMessage());
 }
 ```
 

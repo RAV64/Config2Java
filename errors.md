@@ -14,7 +14,7 @@ Each error entry has:
 - `errorKind`: typed variant (`ConfigErrorKind`)
 - `message`: message from `ConfigErrorType.message()`
 
-`ConfigDeserializationException` message now also includes an `Error path tree` section that groups failing paths hierarchically using `├─`, `|`, and `└─`, and prints each error message at the node where it occurred.
+`ConfigDeserializationException` message includes a hierarchical path tree with each error shown at the node where it occurred.
 
 Example:
 
@@ -107,7 +107,7 @@ Expected error paths:
 - `$.service.name`
 - `$.retries`
 
-Human-readable tree output is included in `ex.getMessage()`:
+`ex.getMessage()` output:
 
 ```text
 $

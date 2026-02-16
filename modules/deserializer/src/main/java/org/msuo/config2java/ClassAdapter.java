@@ -20,20 +20,11 @@ final class ClassAdapter implements TypeAdapter {
     }
 
     private static final class ObjectReader {
-
-        private static final ClassValue<ClassSchema> SCHEMA_CACHE =
-            new ClassValue<>() {
-                @Override
-                protected ClassSchema computeValue(Class<?> type) {
-                    return ClassSchema.build(type);
-                }
-            };
-
         static ReadResult readObject(Path path, Class<?> cls, ConfigTable table, ErrorCollector errors) {
             Object instance = instantiateNoArg(path, cls, errors);
             if (instance == null) return ReadResult.fail();
 
-            ClassSchema schema = SCHEMA_CACHE.get(cls);
+            ClassSchema schema = ClassSchema.build(cls);
             for (int i = 0; i < schema.bindings.size(); i++) {
                 bindField(instance, schema.bindings.get(i), table, path, errors);
             }
