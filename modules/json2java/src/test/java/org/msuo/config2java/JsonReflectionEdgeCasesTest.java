@@ -20,12 +20,12 @@ public class JsonReflectionEdgeCasesTest extends SharedContractSupport {
     @Test
     void primitiveFieldTypes_areRejected() {
         ConfigDeserializationException ex = fails("{\"n\":1}", CfgPrimitiveFieldNotSupported.class);
-        assertSingleError(ex, ConfigErrorKind.PrimitiveNotSupported, "n");
+        assertSingleError(ex, ConfigErrorTypes.PrimitiveNotSupported.class, "n");
     }
 
     @Test
     void rootNotATable_forComplexConfig_fails() {
         ConfigDeserializationException ex = fails("\"nope\"", CfgRootIsComplex.class);
-        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor);
+        assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class);
     }
 }

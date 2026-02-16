@@ -32,7 +32,7 @@ public class XmlCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void mapKeyWrongType_reportsError_atKeyPathWithBraces() {
         ConfigDeserializationException ex = fails("<config><limits><foo>1</foo></limits></config>", CfgMapKeyWrongType.class);
-        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "limits", "{foo}");
+        assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "limits", "{foo}");
     }
 
     @Test
@@ -51,13 +51,13 @@ public class XmlCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void missingRequiredList_withoutDefault_fails() {
         ConfigDeserializationException ex = fails("<config/>", CfgMissingRequiredList.class);
-        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "tags");
+        assertSingleError(ex, ConfigErrorTypes.MissingRequiredField.class, "tags");
     }
 
     @Test
     void missingRequiredMap_withoutDefault_fails() {
         ConfigDeserializationException ex = fails("<config/>", CfgMissingRequiredMap.class);
-        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "limits");
+        assertSingleError(ex, ConfigErrorTypes.MissingRequiredField.class, "limits");
     }
 
     @Test
@@ -76,18 +76,18 @@ public class XmlCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void listElementWrongType_reportsError_atElementPath() {
         ConfigDeserializationException ex = fails("<config><tags>1</tags><tags>a</tags></config>", CfgListElementWrongType.class);
-        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "tags", "[1]");
+        assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "tags", "[1]");
     }
 
     @Test
     void mapBadEntry_reportsError() {
         ConfigDeserializationException ex = fails("<config><limits><ok>1</ok><bad>0</bad></limits></config>", CfgMapHasBadEntry.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "limits", "[bad]");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "limits", "[bad]");
     }
 
     @Test
     void nestedGenericsInMap_areRejected() {
         ConfigDeserializationException ex = fails("<config><bad><foo>a</foo></bad></config>", CfgNestedGenericsBadInMap.class);
-        assertSingleError(ex, ConfigErrorKind.MapValueMustBeConcrete, "bad");
+        assertSingleError(ex, ConfigErrorTypes.MapValueMustBeConcrete.class, "bad");
     }
 }

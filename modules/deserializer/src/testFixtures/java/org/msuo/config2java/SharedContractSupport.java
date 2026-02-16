@@ -23,13 +23,13 @@ public abstract class SharedContractSupport {
 
     protected final void assertSingleError(
         ConfigDeserializationException ex,
-        ConfigErrorKind errorType,
+        Class<? extends ConfigErrorType> errorType,
         String... expectedPathSegments
     ) {
         assertEquals(1, ex.getErrors().size(), "Expected exactly 1 error");
         assertEquals(
             errorType,
-            ex.getErrors().get(0).getErrorKind(),
+            ex.getErrors().get(0).getErrorType().getClass(),
             "Unexpected error type"
         );
         assertPathSegments(ex, 0, expectedPathSegments);
@@ -38,11 +38,11 @@ public abstract class SharedContractSupport {
     protected final void assertErrorType(
         ConfigDeserializationException ex,
         int index,
-        ConfigErrorKind errorType
+        Class<? extends ConfigErrorType> errorType
     ) {
         assertEquals(
             errorType,
-            ex.getErrors().get(index).getErrorKind(),
+            ex.getErrors().get(index).getErrorType().getClass(),
             "Unexpected error type at index " + index
         );
     }

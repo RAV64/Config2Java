@@ -20,6 +20,6 @@ public class LuaOptionalsTest extends SharedContractSupport {
     @Test
     void optionalLeaf_badValue_reportsError() {
         ConfigDeserializationException ex = fails("return { n = 0 }", CfgOptionalLeafBadValue.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "n");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "n");
     }
 }

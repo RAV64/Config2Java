@@ -84,12 +84,12 @@ public final class ConfigDeserializationException extends RuntimeException {
             return pathSegments;
         }
 
-        public ConfigErrorKind getErrorKind() {
-            return errorType.kind();
-        }
-
         public String getMessage() {
             return errorType.message();
+        }
+
+        public ConfigErrorType getErrorType() {
+            return errorType;
         }
     }
 }

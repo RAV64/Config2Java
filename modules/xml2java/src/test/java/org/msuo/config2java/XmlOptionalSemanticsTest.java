@@ -51,13 +51,13 @@ public class XmlOptionalSemanticsTest extends SharedContractSupport {
     @Test
     void providedInvalidOptionalLeaf_fails_andDoesNotOverwriteDefaultPresent() {
         ConfigDeserializationException ex = fails("<config><name></name></config>", CfgOptionalLeafWithDefaultPresent.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "name");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "name");
     }
 
     @Test
     void providedInvalidOptionalLeaf_fails_atOptionalPath() {
         ConfigDeserializationException ex = fails("<config><n>0</n></config>", CfgOptionalLeafNoDefault.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "n");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "n");
     }
 
     @Test
@@ -101,6 +101,6 @@ public class XmlOptionalSemanticsTest extends SharedContractSupport {
     @Test
     void optionalComplex_providedButInnerCannotInstantiate_fails() {
         ConfigDeserializationException ex = fails("<config><bad><x>ok</x></bad></config>", CfgOptionalBadInnerNoNoArg.class);
-        assertSingleError(ex, ConfigErrorKind.NoNoArgCtor, "bad");
+        assertSingleError(ex, ConfigErrorTypes.NoNoArgCtor.class, "bad");
     }
 }

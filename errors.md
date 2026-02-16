@@ -11,7 +11,7 @@ It does not include language parser/evaluator failures (for example invalid Lua/
 Each error entry has:
 
 - `pathSegments`: structured path segments (for example `["db", "port"]`, `["tags", "[1]"]`, `["limits", "{foo}"]`)
-- `errorKind`: typed variant (`ConfigErrorKind`)
+- `errorType`: typed variant (`ConfigErrorType`, for example `ConfigErrorTypes.MissingRequiredField`)
 - `message`: message from `ConfigErrorType.message()`
 
 `ConfigDeserializationException` message includes a hierarchical path tree with each error shown at the node where it occurred.
@@ -24,7 +24,7 @@ try {
 } catch (ConfigDeserializationException ex) {
     ex.forEachError((segments, error) -> {
         System.out.println(segments);
-        System.out.println(error.getErrorKind()); // e.g. ConfigErrorKind.MissingRequiredField
+        System.out.println(error.getErrorType().getClass().getSimpleName());
         System.out.println(error.getMessage());
     });
 }
@@ -91,7 +91,9 @@ try {
     new JsonDeserializer().deserialize(source, AppCfg.class);
 } catch (ConfigDeserializationException ex) {
     for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
-        System.out.println(e.getPathSegments() + " -> " + e.getErrorKind());
+        System.out.println(
+            e.getPathSegments() + " -> " + e.getErrorType().getClass().getSimpleName()
+        );
     }
 
     ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
@@ -375,7 +377,7 @@ Allow reflective read access for model fields in the runtime environment.
 ## Practical debugging flow
 
 1. Inspect `pathSegments` to locate offending field.
-2. Inspect `errorKind` to identify exact variant.
+2. Inspect `errorType` to identify exact variant.
 3. If needed, inspect `getErrorPathTree()` to traverse grouped nested failures programmatically.
 4. Apply the fix to either config input or Java model.
 5. Re-run and handle remaining aggregated errors.

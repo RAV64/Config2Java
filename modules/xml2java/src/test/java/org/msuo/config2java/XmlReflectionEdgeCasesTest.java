@@ -19,7 +19,7 @@ public class XmlReflectionEdgeCasesTest extends SharedContractSupport {
     @Test
     void primitiveFieldTypes_areRejected() {
         ConfigDeserializationException ex = fails("<config><n>1</n></config>", CfgPrimitiveFieldNotSupported.class);
-        assertSingleError(ex, ConfigErrorKind.PrimitiveNotSupported, "n");
+        assertSingleError(ex, ConfigErrorTypes.PrimitiveNotSupported.class, "n");
     }
 
     @Test

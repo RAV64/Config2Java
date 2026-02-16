@@ -48,7 +48,7 @@ The core mapper then handles the rest.
 
 - `getErrors()` for flat structured error entries
 - `forEachError((pathSegments, error) -> ...)` for typed iteration without message parsing
-- each error entry includes `getErrorKind()`, `getPathSegments()`, and `getMessage()`
+- each error entry includes `getErrorType()`, `getPathSegments()`, and `getMessage()`
 - `getErrorPathTree()` for structured nested path traversal
 - `getMessage()` for rendered tree output
 

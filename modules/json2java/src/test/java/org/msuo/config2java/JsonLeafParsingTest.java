@@ -19,7 +19,7 @@ public class JsonLeafParsingTest extends SharedContractSupport {
     @Test
     void stringLeaf_validationFailure_isReported() {
         ConfigDeserializationException ex = fails("{\"name\":\"\"}", CfgStringLeaf.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "name");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "name");
     }
 
     @Test
@@ -31,7 +31,7 @@ public class JsonLeafParsingTest extends SharedContractSupport {
     @Test
     void intLeaf_validationFailure_isReported() {
         ConfigDeserializationException ex = fails("{\"n\":0}", CfgIntLeaf.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "n");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "n");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class JsonLeafParsingTest extends SharedContractSupport {
     @Test
     void integerProvidedToDoubleLeaf_isNotAutoCoerced() {
         ConfigDeserializationException ex = fails("{\"x\":1}", CfgDoubleLeaf.class);
-        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "x");
+        assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "x");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class JsonLeafParsingTest extends SharedContractSupport {
     @Test
     void enum_unknownValue_fails() {
         ConfigDeserializationException ex = fails("{\"mode\":\"NOPE\"}", CfgEnum.class);
-        assertSingleError(ex, ConfigErrorKind.EnumUnknown, "mode");
+        assertSingleError(ex, ConfigErrorTypes.EnumUnknown.class, "mode");
     }
 
     @Test

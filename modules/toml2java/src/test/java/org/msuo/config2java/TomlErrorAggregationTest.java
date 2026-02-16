@@ -15,8 +15,8 @@ public class TomlErrorAggregationTest extends SharedContractSupport {
         ConfigDeserializationException ex = fails("a = ''\nb = 0", CfgCollectAllErrors.class);
         assertEquals(2, ex.getErrors().size());
         assertErrorTreeRootChildren(ex, "a", "b");
-        assertErrorType(ex, 0, ConfigErrorKind.CtorRejected);
-        assertErrorType(ex, 1, ConfigErrorKind.CtorRejected);
+        assertErrorType(ex, 0, ConfigErrorTypes.CtorRejected.class);
+        assertErrorType(ex, 1, ConfigErrorTypes.CtorRejected.class);
     }
 
     @Test

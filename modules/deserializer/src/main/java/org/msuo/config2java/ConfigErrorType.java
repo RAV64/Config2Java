@@ -1,7 +1,5 @@
 package org.msuo.config2java;
 
-interface ConfigErrorType {
-    ConfigErrorKind kind();
-
+public interface ConfigErrorType {
     String message();
 }

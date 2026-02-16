@@ -20,6 +20,6 @@ public class XmlOptionalsTest extends SharedContractSupport {
     @Test
     void optionalLeaf_badValue_reportsError() {
         ConfigDeserializationException ex = fails("<config><n>0</n></config>", CfgOptionalLeafBadValue.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "n");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "n");
     }
 }

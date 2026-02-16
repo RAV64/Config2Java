@@ -19,7 +19,7 @@ public class TomlReflectionEdgeCasesTest extends SharedContractSupport {
     @Test
     void primitiveFieldTypes_areRejected() {
         ConfigDeserializationException ex = fails("n = 1", CfgPrimitiveFieldNotSupported.class);
-        assertSingleError(ex, ConfigErrorKind.PrimitiveNotSupported, "n");
+        assertSingleError(ex, ConfigErrorTypes.PrimitiveNotSupported.class, "n");
     }
 
     @Test

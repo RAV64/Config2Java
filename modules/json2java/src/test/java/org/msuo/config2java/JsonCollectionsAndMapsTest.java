@@ -32,7 +32,7 @@ public class JsonCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void mapKeyWrongType_reportsError_atKeyPathWithBraces() {
         ConfigDeserializationException ex = fails("{\"limits\":{\"foo\":1}}", CfgMapKeyWrongType.class);
-        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "limits", "{foo}");
+        assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "limits", "{foo}");
     }
 
     @Test
@@ -51,13 +51,13 @@ public class JsonCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void missingRequiredList_withoutDefault_fails() {
         ConfigDeserializationException ex = fails("{}", CfgMissingRequiredList.class);
-        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "tags");
+        assertSingleError(ex, ConfigErrorTypes.MissingRequiredField.class, "tags");
     }
 
     @Test
     void missingRequiredMap_withoutDefault_fails() {
         ConfigDeserializationException ex = fails("{}", CfgMissingRequiredMap.class);
-        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "limits");
+        assertSingleError(ex, ConfigErrorTypes.MissingRequiredField.class, "limits");
     }
 
     @Test
@@ -76,18 +76,18 @@ public class JsonCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void listElementWrongType_reportsError_atElementPath() {
         ConfigDeserializationException ex = fails("{\"tags\":[1]}", CfgListElementWrongType.class);
-        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "tags", "[1]");
+        assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "tags", "[1]");
     }
 
     @Test
     void mapBadEntry_reportsError() {
         ConfigDeserializationException ex = fails("{\"limits\":{\"ok\":1,\"bad\":0}}", CfgMapHasBadEntry.class);
-        assertSingleError(ex, ConfigErrorKind.CtorRejected, "limits", "[bad]");
+        assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "limits", "[bad]");
     }
 
     @Test
     void nestedGenericsInMap_areRejected() {
         ConfigDeserializationException ex = fails("{\"bad\":{\"foo\":[\"a\"]}}", CfgNestedGenericsBadInMap.class);
-        assertSingleError(ex, ConfigErrorKind.MapValueMustBeConcrete, "bad");
+        assertSingleError(ex, ConfigErrorTypes.MapValueMustBeConcrete.class, "bad");
     }
 }

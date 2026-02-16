@@ -129,7 +129,7 @@ try {
     new JsonDeserializer().deserialize("{\"port\":0}", AppConfig.class);
 } catch (ConfigDeserializationException ex) {
     ex.forEachError((segments, error) ->
-        System.out.println(segments + " -> " + error.getErrorKind())
+        System.out.println(segments + " -> " + error.getErrorType().getClass().getSimpleName())
     );
     ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
     System.out.println(ex.getMessage());

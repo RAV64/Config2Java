@@ -20,12 +20,12 @@ public class GroovyReflectionEdgeCasesTest extends SharedContractSupport {
     @Test
     void primitiveFieldTypes_areRejected() {
         ConfigDeserializationException ex = fails("return [n: 1]", CfgPrimitiveFieldNotSupported.class);
-        assertSingleError(ex, ConfigErrorKind.PrimitiveNotSupported, "n");
+        assertSingleError(ex, ConfigErrorTypes.PrimitiveNotSupported.class, "n");
     }
 
     @Test
     void rootNotATable_forComplexConfig_fails() {
         ConfigDeserializationException ex = fails("return 'nope'", CfgRootIsComplex.class);
-        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor);
+        assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class);
     }
 }

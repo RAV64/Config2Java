@@ -27,15 +27,15 @@ public class JsonErrorOutputShowcaseTest extends SharedContractSupport {
         assertEquals(9, ex.getErrors().size());
         assertErrorTreeRootChildren(ex, "db", "service", "limits", "bad", "feature", "ratio");
 
-        assertHasError(ex, ConfigErrorKind.CtorRejected, "db", "host");
-        assertHasError(ex, ConfigErrorKind.CtorRejected, "db", "port");
-        assertHasError(ex, ConfigErrorKind.EnumUnknown, "service", "mode");
-        assertHasError(ex, ConfigErrorKind.CtorRejected, "service", "auth", "token");
-        assertHasError(ex, ConfigErrorKind.CtorRejected, "service", "auth", "ttl");
-        assertHasError(ex, ConfigErrorKind.CtorRejected, "limits", "[bad]");
-        assertHasError(ex, ConfigErrorKind.NoNoArgCtor, "bad");
-        assertHasError(ex, ConfigErrorKind.MissingRequiredField, "feature", "name");
-        assertHasError(ex, ConfigErrorKind.NoOneArgCtor, "ratio");
+        assertHasError(ex, ConfigErrorTypes.CtorRejected.class, "db", "host");
+        assertHasError(ex, ConfigErrorTypes.CtorRejected.class, "db", "port");
+        assertHasError(ex, ConfigErrorTypes.EnumUnknown.class, "service", "mode");
+        assertHasError(ex, ConfigErrorTypes.CtorRejected.class, "service", "auth", "token");
+        assertHasError(ex, ConfigErrorTypes.CtorRejected.class, "service", "auth", "ttl");
+        assertHasError(ex, ConfigErrorTypes.CtorRejected.class, "limits", "[bad]");
+        assertHasError(ex, ConfigErrorTypes.NoNoArgCtor.class, "bad");
+        assertHasError(ex, ConfigErrorTypes.MissingRequiredField.class, "feature", "name");
+        assertHasError(ex, ConfigErrorTypes.NoOneArgCtor.class, "ratio");
 
         // Showcase output for humans when running tests.
         System.out.println("=== ConfigDeserializationException#getMessage() ===");
@@ -77,15 +77,18 @@ public class JsonErrorOutputShowcaseTest extends SharedContractSupport {
 
     private static void assertHasError(
         ConfigDeserializationException ex,
-        ConfigErrorKind kind,
+        Class<? extends ConfigErrorType> type,
         String... segments
     ) {
         java.util.List<String> expected = java.util.Arrays.asList(segments);
         for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
-            if (e.getErrorKind() == kind && e.getPathSegments().equals(expected)) {
+            if (
+                e.getErrorType().getClass() == type &&
+                e.getPathSegments().equals(expected)
+            ) {
                 return;
             }
         }
-        fail("Missing error kind/path: " + kind + " " + expected);
+        fail("Missing error type/path: " + type.getSimpleName() + " " + expected);
     }
 }

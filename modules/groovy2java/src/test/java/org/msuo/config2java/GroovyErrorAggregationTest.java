@@ -15,8 +15,8 @@ public class GroovyErrorAggregationTest extends SharedContractSupport {
         ConfigDeserializationException ex = fails("return [a: '', b: 0]", CfgCollectAllErrors.class);
         assertEquals(2, ex.getErrors().size());
         assertErrorTreeRootChildren(ex, "a", "b");
-        assertErrorType(ex, 0, ConfigErrorKind.CtorRejected);
-        assertErrorType(ex, 1, ConfigErrorKind.CtorRejected);
+        assertErrorType(ex, 0, ConfigErrorTypes.CtorRejected.class);
+        assertErrorType(ex, 1, ConfigErrorTypes.CtorRejected.class);
     }
 
     @Test
