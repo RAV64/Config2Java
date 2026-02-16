@@ -1,6 +1,5 @@
 package org.msuo.config2java;
 
-import java.util.Collections;
 import java.util.Map;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaTable;
@@ -9,41 +8,10 @@ import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
-public final class LuaDeserializer implements Deserializer {
-
-    private LuaDeserializer() {}
+public final class LuaDeserializer extends AbstractScriptDeserializer {
 
     @Override
-    public <T> T deserialize(CharSequence source, Class<T> configClass) {
-        return deserialize(source.toString(), configClass);
-    }
-
-    public static <T> T deserialize(String source, Class<T> configClass) {
-        return deserialize(
-            source,
-            configClass,
-            Collections.emptyMap(),
-            Collections.emptyMap()
-        );
-    }
-
-    public static <T> T deserialize(
-        String source,
-        Class<T> configClass,
-        Map<String, String> environment,
-        Map<String, ?> globals
-    ) {
-        return ObjectMapper.deserialize(
-            parse(
-                source,
-                ScriptInputNormalizer.normalizeEnvironment(environment),
-                ScriptInputNormalizer.normalizeGlobals(globals)
-            ),
-            configClass
-        );
-    }
-
-    private static ConfigValue parse(
+    protected ConfigValue parse(
         String source,
         Map<String, String> environment,
         Map<String, Object> globals

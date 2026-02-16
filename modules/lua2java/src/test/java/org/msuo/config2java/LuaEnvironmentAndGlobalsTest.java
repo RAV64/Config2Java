@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
     private static final String ENV_KEY = "CONFIG2JAVA_TEST_APP_ENV_6A0C9341_EE7F_4F5A_BA4A";
+    private final ScriptDeserializer deserializer = new LuaDeserializer();
 
     @Test
     void envAbsent_usesDefaultBranch() {
@@ -18,7 +19,7 @@ class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
         environment.put(ENV_KEY, null);
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = LuaDeserializer.deserialize(
+        CfgInjected cfg = deserializer.deserialize(
             "local cfg = { mode = 'DEV', name = defaultName }\n" +
             "if os.getenv('" + ENV_KEY + "') == 'prod' then\n" +
             "  cfg.mode = 'PROD'\n" +
@@ -38,7 +39,7 @@ class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
         Map<String, String> environment = Map.of(ENV_KEY, "prod");
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = LuaDeserializer.deserialize(
+        CfgInjected cfg = deserializer.deserialize(
             "local cfg = { mode = 'DEV', name = defaultName }\n" +
             "if os.getenv('" + ENV_KEY + "') == 'prod' then\n" +
             "  cfg.mode = 'PROD'\n" +
@@ -63,7 +64,7 @@ class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
             "cfg.name = cfg.name .. '-updated'\n" +
             "return cfg";
 
-        CfgInjected cfg = LuaDeserializer.deserialize(mainScript, CfgInjected.class);
+        CfgInjected cfg = deserializer.deserialize(mainScript, CfgInjected.class);
 
         assertEquals(Mode.PROD, cfg.mode);
         assertEquals("from-file-updated", cfg.name.value);

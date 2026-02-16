@@ -33,11 +33,7 @@ public final class ConfigDeserializationException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return buildMessage(PathTreeFormatter.format(getErrorPathTree()));
-    }
-
-    private static String buildMessage(String pathTree) {
-        return "Config deserialization failed:\n" + pathTree;
+        return "Config deserialization failed:\n" + PathTreeFormatter.format(getErrorPathTree());
     }
 
     public static final class PathNode {

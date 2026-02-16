@@ -1,9 +1,10 @@
 package org.msuo.config2java;
 
 public abstract class GroovyContractSupport extends SharedContractSupport {
+    private final Deserializer deserializer = new GroovyDeserializer();
 
     @Override
     protected <T> T deserialize(String source, Class<T> cls) {
-        return GroovyDeserializer.deserialize(source, cls);
+        return deserializer.deserialize(source, cls);
     }
 }

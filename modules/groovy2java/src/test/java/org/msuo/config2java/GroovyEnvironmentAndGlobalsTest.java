@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
     private static final String ENV_KEY = "CONFIG2JAVA_TEST_APP_ENV_6A0C9341_EE7F_4F5A_BA4A";
+    private final ScriptDeserializer deserializer = new GroovyDeserializer();
 
     @Test
     void envAbsent_usesDefaultBranch() {
@@ -18,7 +19,7 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
         environment.put(ENV_KEY, null);
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = GroovyDeserializer.deserialize(
+        CfgInjected cfg = deserializer.deserialize(
             "def cfg = [mode: 'DEV', name: defaultName]\n" +
             "if (ENV." + ENV_KEY + " == 'prod') {\n" +
             "  cfg.mode = 'PROD'\n" +
@@ -38,7 +39,7 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
         Map<String, String> environment = Map.of(ENV_KEY, "prod");
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = GroovyDeserializer.deserialize(
+        CfgInjected cfg = deserializer.deserialize(
             "def cfg = [mode: 'DEV', name: defaultName]\n" +
             "if (ENV." + ENV_KEY + " == 'prod') {\n" +
             "  cfg.mode = 'PROD'\n" +
@@ -55,7 +56,7 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
 
     @Test
     void scriptWithoutReturn_usesImplicitGroovyReturn() {
-        CfgInjected cfg = GroovyDeserializer.deserialize(
+        CfgInjected cfg = deserializer.deserialize(
             "[mode: 'DEV', name: 'n']",
             CfgInjected.class
         );
@@ -74,7 +75,7 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
             "cfg.name = cfg.name + '-updated'\n" +
             "return cfg";
 
-        CfgInjected cfg = GroovyDeserializer.deserialize(mainScript, CfgInjected.class);
+        CfgInjected cfg = deserializer.deserialize(mainScript, CfgInjected.class);
 
         assertEquals(Mode.PROD, cfg.mode);
         assertEquals("from-file-updated", cfg.name.value);

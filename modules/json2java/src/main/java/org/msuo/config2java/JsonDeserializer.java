@@ -1,25 +1,21 @@
 package org.msuo.config2java;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Iterator;
 import java.util.Map;
 
 public final class JsonDeserializer implements Deserializer {
-
-    private JsonDeserializer() {}
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
-    public <T> T deserialize(CharSequence source, Class<T> configClass) {
-        return deserialize(source.toString(), configClass);
-    }
-
-    public static <T> T deserialize(String source, Class<T> configClass) {
+    public <T> T deserialize(String source, Class<T> configClass) {
         return org.msuo.config2java.ObjectMapper.deserialize(parse(source), configClass);
     }
 
     private static ConfigValue parse(String source) {
         try {
-            JsonNode root = JsonRuntime.MAPPER.readTree(source);
+            JsonNode root = MAPPER.readTree(source);
             return new JsonConfigValue(root);
         } catch (Exception e) {
             throw new ConfigSourceException("JSON", "parse", e.getMessage(), e);

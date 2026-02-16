@@ -9,11 +9,11 @@ import java.nio.file.Path;
 
 public interface Deserializer {
 
-    <T> T deserialize(CharSequence source, Class<T> configClass);
+    <T> T deserialize(String source, Class<T> configClass);
 
     default <T> T deserialize(Path file, Charset charset, Class<T> configClass)
         throws IOException {
-        return deserialize((CharSequence) Files.readString(file, charset), configClass);
+        return deserialize(Files.readString(file, charset), configClass);
     }
 
     default <T> T deserialize(Path file, Class<T> configClass)

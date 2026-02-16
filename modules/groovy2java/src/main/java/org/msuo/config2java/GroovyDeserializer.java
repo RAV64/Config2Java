@@ -2,44 +2,12 @@ package org.msuo.config2java;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import java.util.Collections;
 import java.util.Map;
 
-public final class GroovyDeserializer implements Deserializer {
-
-    private GroovyDeserializer() {}
+public final class GroovyDeserializer extends AbstractScriptDeserializer {
 
     @Override
-    public <T> T deserialize(CharSequence source, Class<T> configClass) {
-        return deserialize(source.toString(), configClass);
-    }
-
-    public static <T> T deserialize(String source, Class<T> configClass) {
-        return deserialize(
-            source,
-            configClass,
-            Collections.emptyMap(),
-            Collections.emptyMap()
-        );
-    }
-
-    public static <T> T deserialize(
-        String source,
-        Class<T> configClass,
-        Map<String, String> environment,
-        Map<String, ?> globals
-    ) {
-        return ObjectMapper.deserialize(
-            parse(
-                source,
-                ScriptInputNormalizer.normalizeEnvironment(environment),
-                ScriptInputNormalizer.normalizeGlobals(globals)
-            ),
-            configClass
-        );
-    }
-
-    private static ConfigValue parse(
+    protected ConfigValue parse(
         String source,
         Map<String, String> environment,
         Map<String, Object> globals

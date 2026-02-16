@@ -22,7 +22,7 @@ class Cfg {
 }
 
 String groovy = "return [name: 'svc', port: 8080]";
-Cfg cfg = GroovyDeserializer.deserialize(groovy, Cfg.class);
+Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
 
 assertEquals("svc", cfg.name);
 assertEquals(Integer.valueOf(8080), cfg.port);
@@ -36,7 +36,7 @@ class Cfg {
     public Integer port;
 }
 
-Cfg cfg = GroovyDeserializer.deserialize("return [port: 8080]", Cfg.class);
+Cfg cfg = new GroovyDeserializer().deserialize("return [port: 8080]", Cfg.class);
 assertEquals("default-name", cfg.name);
 ```
 
@@ -52,7 +52,7 @@ class Cfg {
 }
 
 String groovy = "return [db: [host: 'db', port: 15432]]";
-Cfg cfg = GroovyDeserializer.deserialize(groovy, Cfg.class);
+Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
 
 assertEquals("db", cfg.db.host);
 assertEquals(Integer.valueOf(15432), cfg.db.port);
@@ -67,8 +67,8 @@ class Cfg {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg present = GroovyDeserializer.deserialize("return [user: 'alice']", Cfg.class);
-Cfg missing = GroovyDeserializer.deserialize("return [:]", Cfg.class);
+Cfg present = new GroovyDeserializer().deserialize("return [user: 'alice']", Cfg.class);
+Cfg missing = new GroovyDeserializer().deserialize("return [:]", Cfg.class);
 
 assertEquals(Optional.of("alice"), present.user);
 assertEquals(Optional.of("default-user"), missing.user);
@@ -86,7 +86,7 @@ class Cfg {
 }
 
 String groovy = "return [tags: ['a', 'b'], limits: [api: 10]]";
-Cfg cfg = GroovyDeserializer.deserialize(groovy, Cfg.class);
+Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
 
 assertEquals(List.of("a", "b"), cfg.tags);
 assertEquals(Integer.valueOf(10), cfg.limits.get("api"));
@@ -101,7 +101,7 @@ class Cfg {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg cfg = GroovyDeserializer.deserialize("return [user: null]", Cfg.class);
+Cfg cfg = new GroovyDeserializer().deserialize("return [user: null]", Cfg.class);
 assertEquals(Optional.empty(), cfg.user);
 ```
 
@@ -117,7 +117,7 @@ class Cfg {
 Map<String, String> env = Map.of("CONFIG2JAVA_TEST_APP_ENV", "prod");
 Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-// Pass injected environment and global maps to the static call.
+// Pass injected environment and global maps to deserialize.
 
 String groovy = """
 def c = [mode: 'DEV', name: defaultName]
@@ -125,7 +125,7 @@ if (ENV.CONFIG2JAVA_TEST_APP_ENV == 'prod') c.mode = 'PROD'
 return c
 """;
 
-Cfg cfg = GroovyDeserializer.deserialize(groovy, Cfg.class, env, globals);
+Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class, env, globals);
 assertEquals(Cfg.Mode.PROD, cfg.mode);
 assertEquals("worker-default", cfg.name);
 ```

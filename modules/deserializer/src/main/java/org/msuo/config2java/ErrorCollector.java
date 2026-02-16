@@ -43,8 +43,16 @@ final class ErrorCollector {
         Path.Segment[] segments = path.segments();
         List<String> out = new ArrayList<>(Math.max(0, segments.length - 1));
         for (int i = 1; i < segments.length; i++) {
-            out.add(PathTextFormatter.label(segments[i]));
+            out.add(toPathLabel(segments[i]));
         }
         return out;
+    }
+
+    private static String toPathLabel(Path.Segment segment) {
+        if (segment.kind == Path.SegmentKind.ROOT) return "$";
+        if (segment.kind == Path.SegmentKind.FIELD) return String.valueOf(segment.value);
+        if (segment.kind == Path.SegmentKind.INDEX) return "[" + String.valueOf(segment.value) + "]";
+        if (segment.kind == Path.SegmentKind.MAP_KEY) return "[" + String.valueOf(segment.value) + "]";
+        return "{" + String.valueOf(segment.value) + "}";
     }
 }

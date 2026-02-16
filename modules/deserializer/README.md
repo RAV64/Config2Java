@@ -29,6 +29,18 @@ implementation "org.msuo:deserializer:<version>"
 
 ## For language implementers
 
+`Deserializer` defines the required API:
+
+- implement `deserialize(String source, Class<T> configClass)`
+- reuse default file overloads from the interface (`Path` / `File`)
+
+Script formats can implement `ScriptDeserializer`, which adds:
+
+- `deserialize(String, Class<T>, Map<String, String> env, Map<String, ?> globals)`
+- default no-injection `deserialize(String, Class<T>)`
+
+`AbstractScriptDeserializer` provides shared env/global normalization and delegates format-specific parsing through `parse(...)`.
+
 A language module typically:
 
 1. Parses source text into native objects.
@@ -36,9 +48,6 @@ A language module typically:
 3. Calls `ObjectMapper.deserialize(...)` with the root `ConfigValue`.
 
 The core mapper then handles the rest.
-
-`Deserializer` defines the required `deserialize(CharSequence, Class<T>)` contract and provides default file/path overloads.
-`ScriptInputNormalizer` provides shared helpers for script-backed modules (Lua, Groovy) to normalize injected environment/global maps.
 
 ## Error model
 

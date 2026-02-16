@@ -1,9 +1,10 @@
 package org.msuo.config2java;
 
 public abstract class JsonContractSupport extends SharedContractSupport {
+    private final Deserializer deserializer = new JsonDeserializer();
 
     @Override
     protected <T> T deserialize(String source, Class<T> cls) {
-        return JsonDeserializer.deserialize(source, cls);
+        return deserializer.deserialize(source, cls);
     }
 }

@@ -22,7 +22,7 @@ class Cfg {
 }
 
 String lua = "return { name = 'svc', port = 8080 }";
-Cfg cfg = LuaDeserializer.deserialize(lua, Cfg.class);
+Cfg cfg = new LuaDeserializer().deserialize(lua, Cfg.class);
 
 assertEquals("svc", cfg.name);
 assertEquals(Integer.valueOf(8080), cfg.port);
@@ -36,7 +36,7 @@ class Cfg {
     public Integer port;
 }
 
-Cfg cfg = LuaDeserializer.deserialize("return { port = 8080 }", Cfg.class);
+Cfg cfg = new LuaDeserializer().deserialize("return { port = 8080 }", Cfg.class);
 assertEquals("default-name", cfg.name);
 ```
 
@@ -52,7 +52,7 @@ class Cfg {
 }
 
 String lua = "return { db = { host = 'db', port = 15432 } }";
-Cfg cfg = LuaDeserializer.deserialize(lua, Cfg.class);
+Cfg cfg = new LuaDeserializer().deserialize(lua, Cfg.class);
 
 assertEquals("db", cfg.db.host);
 assertEquals(Integer.valueOf(15432), cfg.db.port);
@@ -67,8 +67,8 @@ class Cfg {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg present = LuaDeserializer.deserialize("return { user = 'alice' }", Cfg.class);
-Cfg missing = LuaDeserializer.deserialize("return {}", Cfg.class);
+Cfg present = new LuaDeserializer().deserialize("return { user = 'alice' }", Cfg.class);
+Cfg missing = new LuaDeserializer().deserialize("return {}", Cfg.class);
 
 assertEquals(Optional.of("alice"), present.user);
 assertEquals(Optional.of("default-user"), missing.user);
@@ -86,7 +86,7 @@ class Cfg {
 }
 
 String lua = "return { tags = { 'a', 'b' }, limits = { api = 10 } }";
-Cfg cfg = LuaDeserializer.deserialize(lua, Cfg.class);
+Cfg cfg = new LuaDeserializer().deserialize(lua, Cfg.class);
 
 assertEquals(List.of("a", "b"), cfg.tags);
 assertEquals(Integer.valueOf(10), cfg.limits.get("api"));
@@ -101,7 +101,7 @@ class Cfg {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg cfg = LuaDeserializer.deserialize("return { user = nil }", Cfg.class);
+Cfg cfg = new LuaDeserializer().deserialize("return { user = nil }", Cfg.class);
 
 // Lua table `user = nil` removes key, so field behaves as missing.
 assertEquals(Optional.of("default-user"), cfg.user);
@@ -119,7 +119,7 @@ class Cfg {
 Map<String, String> env = Map.of("CONFIG2JAVA_TEST_APP_ENV", "prod");
 Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-// Pass injected environment and global maps to the static call.
+// Pass injected environment and global maps to deserialize.
 
 String lua = """
 local c = { mode = 'DEV', name = defaultName }
@@ -127,7 +127,7 @@ if os.getenv('CONFIG2JAVA_TEST_APP_ENV') == 'prod' then c.mode = 'PROD' end
 return c
 """;
 
-Cfg cfg = LuaDeserializer.deserialize(lua, Cfg.class, env, globals);
+Cfg cfg = new LuaDeserializer().deserialize(lua, Cfg.class, env, globals);
 assertEquals(Cfg.Mode.PROD, cfg.mode);
 assertEquals("worker-default", cfg.name);
 ```

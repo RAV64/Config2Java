@@ -20,7 +20,7 @@ Example:
 
 ```java
 try {
-    JsonDeserializer.deserialize(source, MyCfg.class);
+    new JsonDeserializer().deserialize(source, MyCfg.class);
 } catch (ConfigDeserializationException ex) {
     ex.forEachError((segments, error) -> {
         System.out.println(segments);
@@ -131,7 +131,7 @@ Handling errors via API:
 
 ```java
 try {
-    JsonDeserializer.deserialize(source, ShowcaseCfg.class);
+    new JsonDeserializer().deserialize(source, ShowcaseCfg.class);
 } catch (ConfigDeserializationException ex) {
     // Stable assertions should use API values, not message-string matching.
     ex.forEachError((segments, error) ->
