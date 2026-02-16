@@ -23,30 +23,56 @@ public abstract class SharedContractSupport {
 
     protected final void assertSingleError(
         ConfigDeserializationException ex,
-        String path,
-        String contains
+        ConfigErrorKind errorType,
+        String... expectedPathSegments
     ) {
         assertEquals(1, ex.getErrors().size(), "Expected exactly 1 error");
-        assertEquals(path, ex.getErrors().get(0).getPath());
-        assertTrue(
-            ex.getErrors().get(0).getMessage().contains(contains),
-            "Expected error message to contain '" +
-            contains +
-            "' but was: " +
-            ex.getErrors().get(0).getMessage()
+        assertEquals(
+            errorType,
+            ex.getErrors().get(0).getErrorKind(),
+            "Unexpected error type"
+        );
+        assertPathSegments(ex, 0, expectedPathSegments);
+    }
+
+    protected final void assertErrorType(
+        ConfigDeserializationException ex,
+        int index,
+        ConfigErrorKind errorType
+    ) {
+        assertEquals(
+            errorType,
+            ex.getErrors().get(index).getErrorKind(),
+            "Unexpected error type at index " + index
         );
     }
 
-    protected final void assertErrorPaths(
+    protected final void assertPathSegments(
         ConfigDeserializationException ex,
-        String... expectedPaths
+        int index,
+        String... expectedPathSegments
     ) {
+        List<String> actual = ex.getErrors().get(index).getPathSegments();
+        assertEquals(Arrays.asList(expectedPathSegments), actual);
+    }
+
+    protected final void assertErrorTreeRootChildren(
+        ConfigDeserializationException ex,
+        String... expectedSegments
+    ) {
+        ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
+        assertEquals("$", root.getSegment());
+
         Set<String> actual = new HashSet<>();
-        for (int i = 0; i < ex.getErrors().size(); i++) {
-            actual.add(ex.getErrors().get(i).getPath());
+        for (ConfigDeserializationException.PathNode child : root.getChildren()) {
+            actual.add(child.getSegment());
         }
-        for (String p : expectedPaths) {
-            assertTrue(actual.contains(p), "Missing expected error path: " + p);
+
+        for (String segment : expectedSegments) {
+            assertTrue(
+                actual.contains(segment),
+                "Missing expected root tree segment: " + segment
+            );
         }
     }
 

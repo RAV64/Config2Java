@@ -32,7 +32,7 @@ public class LuaCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void mapKeyWrongType_reportsError_atKeyPathWithBraces() {
         ConfigDeserializationException ex = fails("return { limits = { foo = 1 } }", CfgMapKeyWrongType.class);
-        assertSingleError(ex, "$.limits{foo}", "accepting java.lang.String");
+        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "limits", "{foo}");
     }
 
     @Test
@@ -51,13 +51,13 @@ public class LuaCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void missingRequiredList_withoutDefault_fails() {
         ConfigDeserializationException ex = fails("return {}", CfgMissingRequiredList.class);
-        assertSingleError(ex, "$.tags", "Missing required field");
+        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "tags");
     }
 
     @Test
     void missingRequiredMap_withoutDefault_fails() {
         ConfigDeserializationException ex = fails("return {}", CfgMissingRequiredMap.class);
-        assertSingleError(ex, "$.limits", "Missing required field");
+        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "limits");
     }
 
     @Test
@@ -76,20 +76,18 @@ public class LuaCollectionsAndMapsTest extends SharedContractSupport {
     @Test
     void listElementWrongType_reportsError_atElementPath() {
         ConfigDeserializationException ex = fails("return { tags = { 1 } }", CfgListElementWrongType.class);
-        assertSingleError(ex, "$.tags[1]", "accepting java.lang.Integer");
+        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "tags", "[1]");
     }
 
     @Test
     void mapBadEntry_reportsError() {
         ConfigDeserializationException ex = fails("return { limits = { ok = 1, bad = 0 } }", CfgMapHasBadEntry.class);
-        assertEquals(1, ex.getErrors().size());
-        assertTrue(ex.getErrors().get(0).getPath().startsWith("$.limits["));
-        assertTrue(ex.getErrors().get(0).getMessage().contains("must be > 0"));
+        assertSingleError(ex, ConfigErrorKind.CtorRejected, "limits", "[bad]");
     }
 
     @Test
     void nestedGenericsInMap_areRejected() {
         ConfigDeserializationException ex = fails("return { bad = { foo = { 'a' } } }", CfgNestedGenericsBadInMap.class);
-        assertSingleError(ex, "$.bad", "no nested generics");
+        assertSingleError(ex, ConfigErrorKind.MapValueMustBeConcrete, "bad");
     }
 }

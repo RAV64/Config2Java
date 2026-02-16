@@ -19,14 +19,15 @@ public class XmlReflectionEdgeCasesTest extends SharedContractSupport {
     @Test
     void primitiveFieldTypes_areRejected() {
         ConfigDeserializationException ex = fails("<config><n>1</n></config>", CfgPrimitiveFieldNotSupported.class);
-        assertSingleError(ex, "$.n", "Primitive field types are not supported");
+        assertSingleError(ex, ConfigErrorKind.PrimitiveNotSupported, "n");
     }
 
     @Test
     void rootNotATable_forComplexConfig_fails() {
-        Throwable ex = assertThrows(Throwable.class, () ->
+        ConfigSourceException ex = assertThrows(ConfigSourceException.class, () ->
             deserializer().deserialize("<config>", CfgRootIsComplex.class)
         );
-        assertTrue(ex.getMessage().contains("Failed to parse XML"));
+        assertEquals("XML", ex.format());
+        assertEquals("parse", ex.phase());
     }
 }

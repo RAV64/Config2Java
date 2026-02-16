@@ -27,18 +27,18 @@ public class XmlNestedObjectsTest extends SharedContractSupport {
     @Test
     void emptyTableForNestedWithRequiredFields_reportsMissingField() {
         ConfigDeserializationException ex = fails("<config><db><dummy/></db></config>", CfgEmptyTableButNestedHasRequiredField.class);
-        assertSingleError(ex, "$.db.port", "Missing required field");
+        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "db", "port");
     }
 
     @Test
     void ifNestedObjectCannotInstantiate_doNotRecurseIntoIt() {
         ConfigDeserializationException ex = fails("<config><bad><x></x></bad></config>", CfgBadNestedNoNoArg.class);
-        assertSingleError(ex, "$.bad", "No no-arg constructor");
+        assertSingleError(ex, ConfigErrorKind.NoNoArgCtor, "bad");
     }
 
     @Test
     void nestedObjectProvidedAsPrimitive_failsViaMissingConstructor() {
         ConfigDeserializationException ex = fails("<config><db>nope</db></config>", CfgNestedProvidedAsString.class);
-        assertSingleError(ex, "$.db", "No 1-arg constructor");
+        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "db");
     }
 }

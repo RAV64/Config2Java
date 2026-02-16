@@ -27,18 +27,18 @@ public class GroovyNestedObjectsTest extends SharedContractSupport {
     @Test
     void emptyTableForNestedWithRequiredFields_reportsMissingField() {
         ConfigDeserializationException ex = fails("return [db: [:]]", CfgEmptyTableButNestedHasRequiredField.class);
-        assertSingleError(ex, "$.db.port", "Missing required field");
+        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "db", "port");
     }
 
     @Test
     void ifNestedObjectCannotInstantiate_doNotRecurseIntoIt() {
         ConfigDeserializationException ex = fails("return [bad: [x: '']]", CfgBadNestedNoNoArg.class);
-        assertSingleError(ex, "$.bad", "No no-arg constructor");
+        assertSingleError(ex, ConfigErrorKind.NoNoArgCtor, "bad");
     }
 
     @Test
     void nestedObjectProvidedAsPrimitive_failsViaMissingConstructor() {
         ConfigDeserializationException ex = fails("return [db: 'nope']", CfgNestedProvidedAsString.class);
-        assertSingleError(ex, "$.db", "No 1-arg constructor");
+        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "db");
     }
 }

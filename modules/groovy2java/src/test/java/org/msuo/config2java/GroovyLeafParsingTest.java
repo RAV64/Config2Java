@@ -19,7 +19,7 @@ public class GroovyLeafParsingTest extends SharedContractSupport {
     @Test
     void stringLeaf_validationFailure_isReported() {
         ConfigDeserializationException ex = fails("return [name: '']", CfgStringLeaf.class);
-        assertSingleError(ex, "$.name", "must be non-empty");
+        assertSingleError(ex, ConfigErrorKind.CtorRejected, "name");
     }
 
     @Test
@@ -31,7 +31,7 @@ public class GroovyLeafParsingTest extends SharedContractSupport {
     @Test
     void intLeaf_validationFailure_isReported() {
         ConfigDeserializationException ex = fails("return [n: 0]", CfgIntLeaf.class);
-        assertSingleError(ex, "$.n", "must be > 0");
+        assertSingleError(ex, ConfigErrorKind.CtorRejected, "n");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class GroovyLeafParsingTest extends SharedContractSupport {
     @Test
     void integerProvidedToDoubleLeaf_isNotAutoCoerced() {
         ConfigDeserializationException ex = fails("return [x: 1]", CfgDoubleLeaf.class);
-        assertSingleError(ex, "$.x", "accepting java.lang.Integer");
+        assertSingleError(ex, ConfigErrorKind.NoOneArgCtor, "x");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class GroovyLeafParsingTest extends SharedContractSupport {
     @Test
     void enum_unknownValue_fails() {
         ConfigDeserializationException ex = fails("return [mode: 'NOPE']", CfgEnum.class);
-        assertSingleError(ex, "$.mode", "Unknown enum value");
+        assertSingleError(ex, ConfigErrorKind.EnumUnknown, "mode");
     }
 
     @Test

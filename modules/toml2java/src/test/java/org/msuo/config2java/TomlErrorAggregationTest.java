@@ -14,6 +14,14 @@ public class TomlErrorAggregationTest extends SharedContractSupport {
     void collectAllErrors_continueAfterFailures() {
         ConfigDeserializationException ex = fails("a = ''\nb = 0", CfgCollectAllErrors.class);
         assertEquals(2, ex.getErrors().size());
-        assertErrorPaths(ex, "$.a", "$.b");
+        assertErrorTreeRootChildren(ex, "a", "b");
+        assertErrorType(ex, 0, ConfigErrorKind.CtorRejected);
+        assertErrorType(ex, 1, ConfigErrorKind.CtorRejected);
+    }
+
+    @Test
+    void errorTree_containsExpectedRootChildren() {
+        ConfigDeserializationException ex = fails("a = ''\nb = 0", CfgCollectAllErrors.class);
+        assertErrorTreeRootChildren(ex, "a", "b");
     }
 }

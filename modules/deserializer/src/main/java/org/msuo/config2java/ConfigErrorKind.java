@@ -1,0 +1,28 @@
+package org.msuo.config2java;
+
+public enum ConfigErrorKind {
+    UnsupportedType,
+    UnsupportedParameterized,
+    UnsupportedParameterizedRaw,
+    PrimitiveNotSupported,
+    EnumExpectedString,
+    EnumUnknown,
+    ExpectedScalar,
+    MapExpected,
+    CollectionExpected,
+    OptionalInnerMustBeConcrete,
+    CollectionElementMustBeConcrete,
+    MapKeyMustBeConcrete,
+    MapValueMustBeConcrete,
+    MissingRequiredField,
+    NoOneArgCtor,
+    CtorRejected,
+    CtorCallFailed,
+    NoNoArgCtor,
+    CtorFailed,
+    InstantiateFailed,
+    FieldSetAccess,
+    FieldSetTypeMismatch,
+    FieldAccessSetup,
+    FieldReadAccess,
+}

@@ -26,7 +26,7 @@ final class LeafReader {
             return ReadResult.ok(ctor.newInstance(scalar.value));
         } catch (InvocationTargetException e) {
             Throwable cause = (e.getCause() != null) ? e.getCause() : e;
-            errors.add(path, Errors.ctorRejected(target, cause));
+            errors.add(path, Errors.ctorRejected(target, cause, scalar.value));
             return ReadResult.fail();
         } catch (ReflectiveOperationException e) {
             errors.add(path, Errors.ctorCallFailed(target, e));

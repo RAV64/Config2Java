@@ -14,7 +14,7 @@ public class GroovyMissingAndDefaultsTest extends SharedContractSupport {
     @Test
     void missingRequired_withoutDefault_fails() {
         ConfigDeserializationException ex = fails("return [:]", CfgMissingRequired.class);
-        assertSingleError(ex, "$.name", "Missing required field");
+        assertSingleError(ex, ConfigErrorKind.MissingRequiredField, "name");
     }
 
     @Test

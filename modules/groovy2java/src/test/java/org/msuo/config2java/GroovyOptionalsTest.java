@@ -20,6 +20,6 @@ public class GroovyOptionalsTest extends SharedContractSupport {
     @Test
     void optionalLeaf_badValue_reportsError() {
         ConfigDeserializationException ex = fails("return [n: 0]", CfgOptionalLeafBadValue.class);
-        assertSingleError(ex, "$.n", "must be > 0");
+        assertSingleError(ex, ConfigErrorKind.CtorRejected, "n");
     }
 }

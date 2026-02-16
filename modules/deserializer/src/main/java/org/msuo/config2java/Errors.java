@@ -2,6 +2,8 @@ package org.msuo.config2java;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 final class Errors {
 
@@ -67,8 +69,8 @@ final class Errors {
         return new NoOneArgCtor(target, argType);
     }
 
-    static ConfigErrorType ctorRejected(Class<?> target, Throwable cause) {
-        return new CtorRejected(target, cause);
+    static ConfigErrorType ctorRejected(Class<?> target, Throwable cause, Object value) {
+        return new CtorRejected(target, cause, value);
     }
 
     static ConfigErrorType ctorCallFailed(Class<?> target, Exception e) {
@@ -106,30 +108,35 @@ final class Errors {
     private static final class UnsupportedType implements ConfigErrorType {
         private final Type type;
         private UnsupportedType(Type type) { this.type = type; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.UnsupportedType; }
         @Override public String message() { return "Unsupported Type: " + type; }
     }
 
     private static final class UnsupportedParameterized implements ConfigErrorType {
         private final ParameterizedType type;
         private UnsupportedParameterized(ParameterizedType type) { this.type = type; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.UnsupportedParameterized; }
         @Override public String message() { return "Unsupported parameterized type: " + type; }
     }
 
     private static final class UnsupportedParameterizedRaw implements ConfigErrorType {
         private final Type raw;
         private UnsupportedParameterizedRaw(Type raw) { this.raw = raw; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.UnsupportedParameterizedRaw; }
         @Override public String message() { return "Unsupported parameterized raw type: " + raw; }
     }
 
     private static final class PrimitiveNotSupported implements ConfigErrorType {
         private final Class<?> primitive;
         private PrimitiveNotSupported(Class<?> primitive) { this.primitive = primitive; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.PrimitiveNotSupported; }
         @Override public String message() { return "Primitive field types are not supported: " + primitive.getName(); }
     }
 
     private static final class EnumExpectedString implements ConfigErrorType {
         private final String gotTypeName;
         private EnumExpectedString(String gotTypeName) { this.gotTypeName = gotTypeName; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.EnumExpectedString; }
         @Override public String message() { return "Enum expects string name, got: " + gotTypeName; }
     }
 
@@ -140,18 +147,27 @@ final class Errors {
             this.enumClass = enumClass;
             this.name = name;
         }
-        @Override public String message() { return "Unknown enum value '" + name + "' for " + enumClass.getName(); }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.EnumUnknown; }
+        @Override public String message() {
+            Object[] values = enumClass.getEnumConstants();
+            String valid = values == null
+                ? "[]"
+                : Arrays.stream(values).map(String::valueOf).collect(Collectors.joining(", ", "[", "]"));
+            return "Unknown enum value '" + name + "' for " + enumClass.getName() + ". Valid values: " + valid;
+        }
     }
 
     private static final class ExpectedScalar implements ConfigErrorType {
         private final String gotTypeName;
         private ExpectedScalar(String gotTypeName) { this.gotTypeName = gotTypeName; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.ExpectedScalar; }
         @Override public String message() { return "Expected primitive (string/number/bool), got: " + gotTypeName; }
     }
 
     private static final class MapExpected implements ConfigErrorType {
         private final String gotTypeName;
         private MapExpected(String gotTypeName) { this.gotTypeName = gotTypeName; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.MapExpected; }
         @Override public String message() { return "Expected table for Map, got: " + gotTypeName; }
     }
 
@@ -162,34 +178,40 @@ final class Errors {
             this.raw = raw;
             this.gotTypeName = gotTypeName;
         }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.CollectionExpected; }
         @Override public String message() { return "Expected table/array for " + raw.getSimpleName() + ", got: " + gotTypeName; }
     }
 
     private static final class OptionalInnerMustBeConcrete implements ConfigErrorType {
         private final Type inner;
         private OptionalInnerMustBeConcrete(Type inner) { this.inner = inner; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.OptionalInnerMustBeConcrete; }
         @Override public String message() { return "Optional inner type must be a concrete class (no nested generics). Got: " + inner; }
     }
 
     private static final class CollectionElementMustBeConcrete implements ConfigErrorType {
         private final Type elem;
         private CollectionElementMustBeConcrete(Type elem) { this.elem = elem; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.CollectionElementMustBeConcrete; }
         @Override public String message() { return "Collection element type must be a concrete class (no nested generics). Got: " + elem; }
     }
 
     private static final class MapKeyMustBeConcrete implements ConfigErrorType {
         private final Type keyType;
         private MapKeyMustBeConcrete(Type keyType) { this.keyType = keyType; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.MapKeyMustBeConcrete; }
         @Override public String message() { return "Map key type must be a concrete class (no nested generics). Got: " + keyType; }
     }
 
     private static final class MapValueMustBeConcrete implements ConfigErrorType {
         private final Type valueType;
         private MapValueMustBeConcrete(Type valueType) { this.valueType = valueType; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.MapValueMustBeConcrete; }
         @Override public String message() { return "Map value type must be a concrete class (no nested generics). Got: " + valueType; }
     }
 
     private static final class MissingRequiredField implements ConfigErrorType {
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.MissingRequiredField; }
         @Override public String message() { return "Missing required field (no default value)."; }
     }
 
@@ -200,17 +222,24 @@ final class Errors {
             this.target = target;
             this.argType = argType;
         }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.NoOneArgCtor; }
         @Override public String message() { return "No 1-arg constructor on " + target.getName() + " accepting " + argType.getName(); }
     }
 
     private static final class CtorRejected implements ConfigErrorType {
         private final Class<?> target;
         private final Throwable cause;
-        private CtorRejected(Class<?> target, Throwable cause) {
+        private final Object value;
+
+        private CtorRejected(Class<?> target, Throwable cause, Object value) {
             this.target = target;
             this.cause = cause;
+            this.value = value;
         }
-        @Override public String message() { return "Value rejected by " + target.getSimpleName() + " constructor: " + cause.getMessage(); }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.CtorRejected; }
+        @Override public String message() {
+            return "Value [" + String.valueOf(value) + "] rejected by " + target.getSimpleName() + ": " + quote(cause.getMessage());
+        }
     }
 
     private static final class CtorCallFailed implements ConfigErrorType {
@@ -220,12 +249,14 @@ final class Errors {
             this.target = target;
             this.error = error;
         }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.CtorCallFailed; }
         @Override public String message() { return "Failed calling constructor for " + target.getName() + ": " + error.getMessage(); }
     }
 
     private static final class NoNoArgCtor implements ConfigErrorType {
         private final Class<?> cls;
         private NoNoArgCtor(Class<?> cls) { this.cls = cls; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.NoNoArgCtor; }
         @Override public String message() { return "No no-arg constructor for nested object type: " + cls.getName(); }
     }
 
@@ -236,7 +267,8 @@ final class Errors {
             this.cls = cls;
             this.cause = cause;
         }
-        @Override public String message() { return "Constructor failed for " + cls.getName() + ": " + cause.getMessage(); }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.CtorFailed; }
+        @Override public String message() { return "Constructor failed for " + cls.getName() + ": " + quote(cause.getMessage()); }
     }
 
     private static final class InstantiateFailed implements ConfigErrorType {
@@ -246,30 +278,40 @@ final class Errors {
             this.cls = cls;
             this.error = error;
         }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.InstantiateFailed; }
         @Override public String message() { return "Failed to instantiate " + cls.getName() + ": " + error.getMessage(); }
     }
 
     private static final class FieldSetAccess implements ConfigErrorType {
         private final Exception error;
         private FieldSetAccess(Exception error) { this.error = error; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.FieldSetAccess; }
         @Override public String message() { return "Failed to set field (access): " + error.getMessage(); }
     }
 
     private static final class FieldSetTypeMismatch implements ConfigErrorType {
         private final Exception error;
         private FieldSetTypeMismatch(Exception error) { this.error = error; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.FieldSetTypeMismatch; }
         @Override public String message() { return "Failed to set field (type mismatch): " + error.getMessage(); }
     }
 
     private static final class FieldAccessSetup implements ConfigErrorType {
         private final Exception error;
         private FieldAccessSetup(Exception error) { this.error = error; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.FieldAccessSetup; }
         @Override public String message() { return "Failed to access field reflectively: " + error.getMessage(); }
     }
 
     private static final class FieldReadAccess implements ConfigErrorType {
         private final Exception error;
         private FieldReadAccess(Exception error) { this.error = error; }
+        @Override public ConfigErrorKind kind() { return ConfigErrorKind.FieldReadAccess; }
         @Override public String message() { return "Failed to read field default value: " + error.getMessage(); }
+    }
+
+    private static String quote(String message) {
+        if (message == null) return "\"\"";
+        return "\"" + message + "\"";
     }
 }

@@ -51,13 +51,13 @@ public class TomlOptionalSemanticsTest extends SharedContractSupport {
     @Test
     void providedInvalidOptionalLeaf_fails_andDoesNotOverwriteDefaultPresent() {
         ConfigDeserializationException ex = fails("name = ''", CfgOptionalLeafWithDefaultPresent.class);
-        assertSingleError(ex, "$.name", "must be non-empty");
+        assertSingleError(ex, ConfigErrorKind.CtorRejected, "name");
     }
 
     @Test
     void providedInvalidOptionalLeaf_fails_atOptionalPath() {
         ConfigDeserializationException ex = fails("n = 0", CfgOptionalLeafNoDefault.class);
-        assertSingleError(ex, "$.n", "must be > 0");
+        assertSingleError(ex, ConfigErrorKind.CtorRejected, "n");
     }
 
     @Test
@@ -101,6 +101,6 @@ public class TomlOptionalSemanticsTest extends SharedContractSupport {
     @Test
     void optionalComplex_providedButInnerCannotInstantiate_fails() {
         ConfigDeserializationException ex = fails("[bad]\nx = 'ok'", CfgOptionalBadInnerNoNoArg.class);
-        assertSingleError(ex, "$.bad", "No no-arg constructor");
+        assertSingleError(ex, ConfigErrorKind.NoNoArgCtor, "bad");
     }
 }
