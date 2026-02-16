@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class TomlErrorAggregationTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new TomlDeserializer();
-    }
-
+public class TomlErrorAggregationTest extends TomlContractSupport {
 
     @Test
     void collectAllErrors_continueAfterFailures() {

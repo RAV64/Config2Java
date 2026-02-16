@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class LuaOptionalSemanticsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new LuaDeserializer();
-    }
-
+public class LuaOptionalSemanticsTest extends LuaContractSupport {
 
     @Test
     void missingOptional_withoutDefault_defaultsToEmpty() {

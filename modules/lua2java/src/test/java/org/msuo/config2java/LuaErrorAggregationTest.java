@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class LuaErrorAggregationTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new LuaDeserializer();
-    }
-
+public class LuaErrorAggregationTest extends LuaContractSupport {
 
     @Test
     void collectAllErrors_continueAfterFailures() {

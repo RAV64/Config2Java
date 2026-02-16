@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class XmlNestedObjectsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new XmlDeserializer();
-    }
-
+public class XmlNestedObjectsTest extends XmlContractSupport {
 
     @Test
     void nestedObject_fromTable_usesNoArgAndSetsFields() {

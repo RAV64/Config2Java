@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class LuaNestedObjectsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new LuaDeserializer();
-    }
-
+public class LuaNestedObjectsTest extends LuaContractSupport {
 
     @Test
     void nestedObject_fromTable_usesNoArgAndSetsFields() {

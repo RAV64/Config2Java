@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class LuaCollectionsAndMapsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new LuaDeserializer();
-    }
-
+public class LuaCollectionsAndMapsTest extends LuaContractSupport {
 
     @Test
     void listOfLeafTypes_supported() {

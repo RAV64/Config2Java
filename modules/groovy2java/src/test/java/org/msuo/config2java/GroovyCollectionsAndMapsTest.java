@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class GroovyCollectionsAndMapsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new GroovyDeserializer();
-    }
-
+public class GroovyCollectionsAndMapsTest extends GroovyContractSupport {
 
     @Test
     void listOfLeafTypes_supported() {

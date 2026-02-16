@@ -6,10 +6,10 @@ import java.util.*;
 
 public abstract class SharedContractSupport {
 
-    protected abstract Deserializer deserializer();
+    protected abstract <T> T deserialize(String source, Class<T> cls);
 
     protected final <T> T ok(String source, Class<T> cls) {
-        return deserializer().deserialize(source, cls);
+        return deserialize(source, cls);
     }
 
     protected final ConfigDeserializationException fails(
@@ -17,7 +17,7 @@ public abstract class SharedContractSupport {
         Class<?> cls
     ) {
         return assertThrows(ConfigDeserializationException.class, () ->
-            deserializer().deserialize(source, cls)
+            deserialize(source, cls)
         );
     }
 

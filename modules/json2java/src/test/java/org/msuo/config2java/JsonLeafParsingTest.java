@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class JsonLeafParsingTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new JsonDeserializer();
-    }
-
+public class JsonLeafParsingTest extends JsonContractSupport {
 
     @Test
     void stringLeaf_usesStringConstructor() {

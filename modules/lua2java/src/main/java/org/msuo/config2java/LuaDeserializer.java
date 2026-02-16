@@ -1,5 +1,6 @@
 package org.msuo.config2java;
 
+import java.util.Collections;
 import java.util.Map;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaTable;
@@ -8,28 +9,40 @@ import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
-public final class LuaDeserializer extends TreeDeserializer {
+public final class LuaDeserializer extends AbstractScriptDeserializer {
 
-    private final ScriptBindings bindings;
+    private LuaDeserializer() {}
 
-    public LuaDeserializer() {
-        this(ScriptBindings.empty());
+    public static <T> T deserialize(String source, Class<T> configClass) {
+        return deserialize(
+            source,
+            configClass,
+            Collections.emptyMap(),
+            Collections.emptyMap()
+        );
     }
 
-    public LuaDeserializer(ScriptBindings bindings) {
-        this.bindings = bindings;
+    public static <T> T deserialize(
+        String source,
+        Class<T> configClass,
+        Map<String, String> environment,
+        Map<String, ?> globals
+    ) {
+        return ObjectMapper.deserialize(
+            parse(source, normalizeEnvironment(environment), normalizeGlobals(globals)),
+            configClass
+        );
     }
 
-    public static ScriptedDeserializerBuilder<LuaDeserializer> builder() {
-        return ScriptedDeserializerBuilder.of(LuaDeserializer::new);
-    }
-
-    @Override
-    protected ConfigValue parse(String source) {
+    private static ConfigValue parse(
+        String source,
+        Map<String, String> environment,
+        Map<String, Object> globals
+    ) {
         try {
             Globals runtime = JsePlatform.standardGlobals();
-            injectEnvironment(runtime);
-            injectGlobals(runtime);
+            injectEnvironment(runtime, environment);
+            injectGlobals(runtime, globals);
             LuaValue root = runtime.load(source).call();
             return new LuaConfigValue(root);
         } catch (RuntimeException e) {
@@ -37,10 +50,10 @@ public final class LuaDeserializer extends TreeDeserializer {
         }
     }
 
-    private void injectEnvironment(Globals runtime) {
+    private static void injectEnvironment(Globals runtime, Map<String, String> environment) {
         runtime.set(
             "ENV",
-            toLuaValue(EnvironmentValues.withSystemFallback(bindings.environment()))
+            toLuaValue(EnvironmentValues.withSystemFallback(environment))
         );
 
         LuaValue os = runtime.get("os");
@@ -56,8 +69,8 @@ public final class LuaDeserializer extends TreeDeserializer {
                 @Override
                 public LuaValue call(LuaValue arg) {
                     String key = arg.tojstring();
-                    if (bindings.environment().containsKey(key)) {
-                        String value = bindings.environment().get(key);
+                    if (environment.containsKey(key)) {
+                        String value = environment.get(key);
                         return value == null ? LuaValue.NIL : LuaValue.valueOf(value);
                     }
 
@@ -72,8 +85,8 @@ public final class LuaDeserializer extends TreeDeserializer {
         );
     }
 
-    private void injectGlobals(Globals runtime) {
-        for (Map.Entry<String, Object> e : bindings.globals().entrySet()) {
+    private static void injectGlobals(Globals runtime, Map<String, Object> globals) {
+        for (Map.Entry<String, Object> e : globals.entrySet()) {
             runtime.set(e.getKey(), toLuaValue(e.getValue()));
         }
     }

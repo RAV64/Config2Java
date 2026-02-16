@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class GroovyOptionalsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new GroovyDeserializer();
-    }
-
+public class GroovyOptionalsTest extends GroovyContractSupport {
 
     @Test
     void optionalOfComplex_supported() {

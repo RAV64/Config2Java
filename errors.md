@@ -88,7 +88,7 @@ Handling errors via API:
 
 ```java
 try {
-    new JsonDeserializer().deserialize(source, AppCfg.class);
+    JsonDeserializer.deserialize(source, AppCfg.class);
 } catch (ConfigDeserializationException ex) {
     for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
         System.out.println(

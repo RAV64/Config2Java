@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class TomlOptionalsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new TomlDeserializer();
-    }
-
+public class TomlOptionalsTest extends TomlContractSupport {
 
     @Test
     void optionalOfComplex_supported() {

@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class LuaReflectionEdgeCasesTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new LuaDeserializer();
-    }
-
+public class LuaReflectionEdgeCasesTest extends LuaContractSupport {
 
     @Test
     void inheritedFields_areDeserialized() {

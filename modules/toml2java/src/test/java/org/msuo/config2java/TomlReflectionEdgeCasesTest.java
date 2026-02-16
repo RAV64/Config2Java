@@ -3,11 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class TomlReflectionEdgeCasesTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new TomlDeserializer();
-    }
+public class TomlReflectionEdgeCasesTest extends TomlContractSupport {
 
     @Test
     void inheritedFields_areDeserialized() {
@@ -25,7 +21,7 @@ public class TomlReflectionEdgeCasesTest extends SharedContractSupport {
     @Test
     void rootNotATable_forComplexConfig_fails() {
         ConfigSourceException ex = assertThrows(ConfigSourceException.class, () ->
-            deserializer().deserialize("'nope'", CfgRootIsComplex.class)
+            deserialize("'nope'", CfgRootIsComplex.class)
         );
         assertEquals("TOML", ex.format());
         assertEquals("parse", ex.phase());

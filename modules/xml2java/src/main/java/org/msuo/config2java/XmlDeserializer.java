@@ -2,10 +2,15 @@ package org.msuo.config2java;
 
 import org.w3c.dom.Element;
 
-public final class XmlDeserializer extends TreeDeserializer {
+public final class XmlDeserializer implements Deserializer {
 
-    @Override
-    protected ConfigValue parse(String source) {
+    private XmlDeserializer() {}
+
+    public static <T> T deserialize(String source, Class<T> configClass) {
+        return ObjectMapper.deserialize(parse(source), configClass);
+    }
+
+    private static ConfigValue parse(String source) {
         try {
             Element root = XmlParser.parseRoot(source);
             return XmlConfigValueFactory.rootValue(root);

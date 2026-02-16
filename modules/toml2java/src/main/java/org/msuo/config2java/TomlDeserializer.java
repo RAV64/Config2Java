@@ -7,10 +7,15 @@ import org.tomlj.TomlArray;
 import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
 
-public final class TomlDeserializer extends TreeDeserializer {
+public final class TomlDeserializer implements Deserializer {
 
-    @Override
-    protected ConfigValue parse(String source) {
+    private TomlDeserializer() {}
+
+    public static <T> T deserialize(String source, Class<T> configClass) {
+        return ObjectMapper.deserialize(parse(source), configClass);
+    }
+
+    private static ConfigValue parse(String source) {
         TomlParseResult result = Toml.parse(source);
         if (result.hasErrors()) {
             String details = result

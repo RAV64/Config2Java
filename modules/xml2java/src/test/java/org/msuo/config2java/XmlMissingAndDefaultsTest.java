@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class XmlMissingAndDefaultsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new XmlDeserializer();
-    }
-
+public class XmlMissingAndDefaultsTest extends XmlContractSupport {
 
     @Test
     void missingRequired_withoutDefault_fails() {

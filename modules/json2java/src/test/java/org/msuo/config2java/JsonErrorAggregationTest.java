@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class JsonErrorAggregationTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new JsonDeserializer();
-    }
-
+public class JsonErrorAggregationTest extends JsonContractSupport {
 
     @Test
     void collectAllErrors_continueAfterFailures() {

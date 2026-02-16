@@ -2,33 +2,46 @@ package org.msuo.config2java;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import java.util.Collections;
 import java.util.Map;
 
-public final class GroovyDeserializer extends TreeDeserializer {
+public final class GroovyDeserializer extends AbstractScriptDeserializer {
 
-    private final ScriptBindings bindings;
+    private GroovyDeserializer() {}
 
-    public GroovyDeserializer() {
-        this(ScriptBindings.empty());
+    public static <T> T deserialize(String source, Class<T> configClass) {
+        return deserialize(
+            source,
+            configClass,
+            Collections.emptyMap(),
+            Collections.emptyMap()
+        );
     }
 
-    public GroovyDeserializer(ScriptBindings bindings) {
-        this.bindings = bindings;
+    public static <T> T deserialize(
+        String source,
+        Class<T> configClass,
+        Map<String, String> environment,
+        Map<String, ?> globals
+    ) {
+        return ObjectMapper.deserialize(
+            parse(source, normalizeEnvironment(environment), normalizeGlobals(globals)),
+            configClass
+        );
     }
 
-    public static ScriptedDeserializerBuilder<GroovyDeserializer> builder() {
-        return ScriptedDeserializerBuilder.of(GroovyDeserializer::new);
-    }
-
-    @Override
-    protected ConfigValue parse(String source) {
+    private static ConfigValue parse(
+        String source,
+        Map<String, String> environment,
+        Map<String, Object> globals
+    ) {
         try {
             Binding binding = new Binding();
             binding.setVariable(
                 "ENV",
-                EnvironmentValues.withSystemFallback(bindings.environment())
+                EnvironmentValues.withSystemFallback(environment)
             );
-            for (Map.Entry<String, Object> e : bindings.globals().entrySet()) {
+            for (Map.Entry<String, ?> e : globals.entrySet()) {
                 binding.setVariable(e.getKey(), e.getValue());
             }
 

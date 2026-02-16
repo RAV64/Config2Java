@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class LuaMissingAndDefaultsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new LuaDeserializer();
-    }
-
+public class LuaMissingAndDefaultsTest extends LuaContractSupport {
 
     @Test
     void missingRequired_withoutDefault_fails() {

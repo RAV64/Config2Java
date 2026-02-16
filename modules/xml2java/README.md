@@ -19,7 +19,7 @@ class Cfg {
 }
 
 String xml = "<config><name>svc</name><port>8080</port></config>";
-Cfg cfg = new XmlDeserializer().deserialize(xml, Cfg.class);
+Cfg cfg = XmlDeserializer.deserialize(xml, Cfg.class);
 
 assertEquals("svc", cfg.name);
 assertEquals(Integer.valueOf(8080), cfg.port);
@@ -33,7 +33,7 @@ class Cfg {
     public Integer port;
 }
 
-Cfg cfg = new XmlDeserializer().deserialize("<config><port>8080</port></config>", Cfg.class);
+Cfg cfg = XmlDeserializer.deserialize("<config><port>8080</port></config>", Cfg.class);
 assertEquals("default-name", cfg.name);
 ```
 
@@ -49,7 +49,7 @@ class Cfg {
 }
 
 String xml = "<config><db><host>db</host><port>15432</port></db></config>";
-Cfg cfg = new XmlDeserializer().deserialize(xml, Cfg.class);
+Cfg cfg = XmlDeserializer.deserialize(xml, Cfg.class);
 
 assertEquals("db", cfg.db.host);
 assertEquals(Integer.valueOf(15432), cfg.db.port);
@@ -64,8 +64,8 @@ class Cfg {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg present = new XmlDeserializer().deserialize("<config><user>alice</user></config>", Cfg.class);
-Cfg missing = new XmlDeserializer().deserialize("<config/>", Cfg.class);
+Cfg present = XmlDeserializer.deserialize("<config><user>alice</user></config>", Cfg.class);
+Cfg missing = XmlDeserializer.deserialize("<config/>", Cfg.class);
 
 assertEquals(Optional.of("alice"), present.user);
 assertEquals(Optional.of("default-user"), missing.user);
@@ -83,7 +83,7 @@ class Cfg {
 }
 
 String xml = "<config><tags>a</tags><tags>b</tags><limits><api>10</api></limits></config>";
-Cfg cfg = new XmlDeserializer().deserialize(xml, Cfg.class);
+Cfg cfg = XmlDeserializer.deserialize(xml, Cfg.class);
 
 assertEquals(List.of("a", "b"), cfg.tags);
 assertEquals(Integer.valueOf(10), cfg.limits.get("api"));
@@ -99,7 +99,7 @@ class Cfg {
 }
 
 // XML has no explicit null literal. Omitted key behaves as missing.
-Cfg cfg = new XmlDeserializer().deserialize("<config/>", Cfg.class);
+Cfg cfg = XmlDeserializer.deserialize("<config/>", Cfg.class);
 assertEquals(Optional.of("default-user"), cfg.user);
 ```
 

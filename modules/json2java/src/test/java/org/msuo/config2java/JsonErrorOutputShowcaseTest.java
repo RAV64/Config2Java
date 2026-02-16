@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class JsonErrorOutputShowcaseTest extends SharedContractSupport {
-
-    @Override
-    protected Deserializer deserializer() {
-        return new JsonDeserializer();
-    }
+public class JsonErrorOutputShowcaseTest extends JsonContractSupport {
 
     @Test
     void showcase_how_aggregated_error_output_looks() {

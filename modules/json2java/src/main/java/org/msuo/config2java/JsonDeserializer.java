@@ -5,12 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class JsonDeserializer extends TreeDeserializer {
+public final class JsonDeserializer implements Deserializer {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private JsonDeserializer() {}
 
-    @Override
-    protected ConfigValue parse(String source) {
+    public static <T> T deserialize(String source, Class<T> configClass) {
+        return org.msuo.config2java.ObjectMapper.deserialize(parse(source), configClass);
+    }
+
+    private static ConfigValue parse(String source) {
         try {
             JsonNode root = MAPPER.readTree(source);
             return new JsonConfigValue(root);

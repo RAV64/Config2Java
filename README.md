@@ -93,27 +93,27 @@ public class AppConfig {
 ```java
 import org.msuo.config2java.*;
 
-AppConfig luaCfg = new LuaDeserializer().deserialize(
+AppConfig luaCfg = LuaDeserializer.deserialize(
     "return { name = 'svc', port = 9090, mode = 'PROD' }",
     AppConfig.class
 );
 
-AppConfig groovyCfg = new GroovyDeserializer().deserialize(
+AppConfig groovyCfg = GroovyDeserializer.deserialize(
     "return [name: 'svc', port: 9090, mode: 'PROD']",
     AppConfig.class
 );
 
-AppConfig tomlCfg = new TomlDeserializer().deserialize(
+AppConfig tomlCfg = TomlDeserializer.deserialize(
     "name = 'svc'\nport = 9090\nmode = 'PROD'",
     AppConfig.class
 );
 
-AppConfig jsonCfg = new JsonDeserializer().deserialize(
+AppConfig jsonCfg = JsonDeserializer.deserialize(
     "{\"name\":\"svc\",\"port\":9090,\"mode\":\"PROD\"}",
     AppConfig.class
 );
 
-AppConfig xmlCfg = new XmlDeserializer().deserialize(
+AppConfig xmlCfg = XmlDeserializer.deserialize(
     "<config><name>svc</name><port>9090</port><mode>PROD</mode></config>",
     AppConfig.class
 );
@@ -126,7 +126,7 @@ The exception message also includes a tree view of failing paths.
 
 ```java
 try {
-    new JsonDeserializer().deserialize("{\"port\":0}", AppConfig.class);
+    JsonDeserializer.deserialize("{\"port\":0}", AppConfig.class);
 } catch (ConfigDeserializationException ex) {
     ex.forEachError((segments, error) ->
         System.out.println(segments + " -> " + error.getErrorType().getClass().getSimpleName())
@@ -142,7 +142,7 @@ Parse/eval failures are separate and throw `ConfigSourceException`.
 
 ```java
 try {
-    new TomlDeserializer().deserialize("name = ", AppConfig.class);
+    TomlDeserializer.deserialize("name = ", AppConfig.class);
 } catch (ConfigSourceException ex) {
     System.out.println(ex.phase());   // parse or evaluate
     System.out.println(ex.format());  // TOML / JSON / XML / Lua / Groovy

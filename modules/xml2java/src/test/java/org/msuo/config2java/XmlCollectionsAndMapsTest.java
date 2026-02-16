@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class XmlCollectionsAndMapsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new XmlDeserializer();
-    }
-
+public class XmlCollectionsAndMapsTest extends XmlContractSupport {
 
     @Test
     void listOfLeafTypes_supported() {

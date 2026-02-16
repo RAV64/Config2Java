@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class JsonOptionalsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new JsonDeserializer();
-    }
-
+public class JsonOptionalsTest extends JsonContractSupport {
 
     @Test
     void optionalOfComplex_supported() {

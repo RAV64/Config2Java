@@ -12,12 +12,7 @@ Language modules convert native parse trees to `ConfigValue`/`ConfigTable`, then
 - perform constructor-based leaf validation
 - aggregate path-based errors into one exception
 
-## Public API
-
-`org.msuo.config2java.Deserializer`:
-
-- `deserialize(String source, Class<T> configClass)`
-- default overloads for `Path`/`File` with charset
+## Dependency
 
 Gradle dependency:
 
@@ -38,9 +33,12 @@ A language module typically:
 
 1. Parses source text into native objects.
 2. Exposes them through `ConfigValue` + `ConfigTable` adapters.
-3. Extends `TreeDeserializer` and returns the root `ConfigValue`.
+3. Calls `ObjectMapper.deserialize(...)` with the root `ConfigValue`.
 
 The core mapper then handles the rest.
+
+`Deserializer` is a common marker interface for format modules.
+`AbstractScriptDeserializer` provides shared static helpers for script-backed modules (Lua, Groovy) to normalize injected environment/global maps.
 
 ## Error model
 

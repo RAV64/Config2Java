@@ -22,7 +22,7 @@ String toml = """
 name = "svc"
 port = 8080
 """;
-Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+Cfg cfg = TomlDeserializer.deserialize(toml, Cfg.class);
 
 assertEquals("svc", cfg.name);
 assertEquals(Integer.valueOf(8080), cfg.port);
@@ -36,7 +36,7 @@ class Cfg {
     public Integer port;
 }
 
-Cfg cfg = new TomlDeserializer().deserialize("port = 8080", Cfg.class);
+Cfg cfg = TomlDeserializer.deserialize("port = 8080", Cfg.class);
 assertEquals("default-name", cfg.name);
 ```
 
@@ -56,7 +56,7 @@ String toml = """
 host = "db"
 port = 15432
 """;
-Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+Cfg cfg = TomlDeserializer.deserialize(toml, Cfg.class);
 
 assertEquals("db", cfg.db.host);
 assertEquals(Integer.valueOf(15432), cfg.db.port);
@@ -71,8 +71,8 @@ class Cfg {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg present = new TomlDeserializer().deserialize("user = 'alice'", Cfg.class);
-Cfg missing = new TomlDeserializer().deserialize("", Cfg.class);
+Cfg present = TomlDeserializer.deserialize("user = 'alice'", Cfg.class);
+Cfg missing = TomlDeserializer.deserialize("", Cfg.class);
 
 assertEquals(Optional.of("alice"), present.user);
 assertEquals(Optional.of("default-user"), missing.user);
@@ -95,7 +95,7 @@ tags = ["a", "b"]
 [limits]
 api = 10
 """;
-Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+Cfg cfg = TomlDeserializer.deserialize(toml, Cfg.class);
 
 assertEquals(List.of("a", "b"), cfg.tags);
 assertEquals(Integer.valueOf(10), cfg.limits.get("api"));
@@ -111,7 +111,7 @@ class Cfg {
 }
 
 // TOML has no explicit null literal. Omitted key behaves as missing.
-Cfg cfg = new TomlDeserializer().deserialize("", Cfg.class);
+Cfg cfg = TomlDeserializer.deserialize("", Cfg.class);
 assertEquals(Optional.of("default-user"), cfg.user);
 ```
 

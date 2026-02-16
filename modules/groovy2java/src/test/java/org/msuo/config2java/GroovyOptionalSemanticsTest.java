@@ -4,11 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class GroovyOptionalSemanticsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new GroovyDeserializer();
-    }
+public class GroovyOptionalSemanticsTest extends GroovyContractSupport {
 
     @Test
     void missingOptional_withoutDefault_defaultsToEmpty() {

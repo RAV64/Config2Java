@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class TomlLeafParsingTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new TomlDeserializer();
-    }
-
+public class TomlLeafParsingTest extends TomlContractSupport {
 
     @Test
     void stringLeaf_usesStringConstructor() {

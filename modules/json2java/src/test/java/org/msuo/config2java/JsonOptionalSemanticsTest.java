@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class JsonOptionalSemanticsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new JsonDeserializer();
-    }
-
+public class JsonOptionalSemanticsTest extends JsonContractSupport {
 
     @Test
     void missingOptional_withoutDefault_defaultsToEmpty() {

@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class XmlOptionalSemanticsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new XmlDeserializer();
-    }
-
+public class XmlOptionalSemanticsTest extends XmlContractSupport {
 
     @Test
     void missingOptional_withoutDefault_defaultsToEmpty() {

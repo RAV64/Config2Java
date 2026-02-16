@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class GroovyNestedObjectsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new GroovyDeserializer();
-    }
-
+public class GroovyNestedObjectsTest extends GroovyContractSupport {
 
     @Test
     void nestedObject_fromTable_usesNoArgAndSetsFields() {

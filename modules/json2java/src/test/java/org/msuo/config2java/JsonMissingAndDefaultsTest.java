@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class JsonMissingAndDefaultsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new JsonDeserializer();
-    }
-
+public class JsonMissingAndDefaultsTest extends JsonContractSupport {
 
     @Test
     void missingRequired_withoutDefault_fails() {

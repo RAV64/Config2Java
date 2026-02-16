@@ -3,12 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class GroovyGenericLibrarySanityTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new GroovyDeserializer();
-    }
-
+public class GroovyGenericLibrarySanityTest extends GroovyContractSupport {
 
     @Test
     void notHardcodedToOneRootType() {

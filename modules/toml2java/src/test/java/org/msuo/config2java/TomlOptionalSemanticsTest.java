@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class TomlOptionalSemanticsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new TomlDeserializer();
-    }
-
+public class TomlOptionalSemanticsTest extends TomlContractSupport {
 
     @Test
     void missingOptional_withoutDefault_defaultsToEmpty() {

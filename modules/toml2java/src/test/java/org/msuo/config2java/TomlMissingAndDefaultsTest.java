@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class TomlMissingAndDefaultsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new TomlDeserializer();
-    }
-
+public class TomlMissingAndDefaultsTest extends TomlContractSupport {
 
     @Test
     void missingRequired_withoutDefault_fails() {

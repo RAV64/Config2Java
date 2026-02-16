@@ -3,11 +3,7 @@ package org.msuo.config2java;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-public class XmlReflectionEdgeCasesTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new XmlDeserializer();
-    }
+public class XmlReflectionEdgeCasesTest extends XmlContractSupport {
 
     @Test
     void inheritedFields_areDeserialized() {
@@ -25,7 +21,7 @@ public class XmlReflectionEdgeCasesTest extends SharedContractSupport {
     @Test
     void rootNotATable_forComplexConfig_fails() {
         ConfigSourceException ex = assertThrows(ConfigSourceException.class, () ->
-            deserializer().deserialize("<config>", CfgRootIsComplex.class)
+            deserialize("<config>", CfgRootIsComplex.class)
         );
         assertEquals("XML", ex.format());
         assertEquals("parse", ex.phase());

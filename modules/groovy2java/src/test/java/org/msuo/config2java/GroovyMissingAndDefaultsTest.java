@@ -4,12 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-public class GroovyMissingAndDefaultsTest extends SharedContractSupport {
-    @Override
-    protected Deserializer deserializer() {
-        return new GroovyDeserializer();
-    }
-
+public class GroovyMissingAndDefaultsTest extends GroovyContractSupport {
 
     @Test
     void missingRequired_withoutDefault_fails() {
