@@ -2,6 +2,8 @@ package org.msuo.config2java;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.junit.jupiter.api.Test;
 
 public class JsonErrorOutputShowcaseTest extends JsonContractSupport {
@@ -32,9 +34,34 @@ public class JsonErrorOutputShowcaseTest extends JsonContractSupport {
         assertHasError(ex, ConfigErrorTypes.MissingRequiredField.class, "feature", "name");
         assertHasError(ex, ConfigErrorTypes.NoOneArgCtor.class, "ratio");
 
-        // Showcase output for humans when running tests.
-        System.out.println("=== ConfigDeserializationException#getMessage() ===");
-        System.out.println(ex.getMessage());
+        assertTrue(ex.getMessage().startsWith("Config deserialization failed:\n$"));
+    }
+
+    @Test
+    void showcase_stacktrace_contains_exception_tree_and_frames() {
+        String source = "{\"db\":{\"host\":\"\",\"port\":0}}";
+
+        ConfigDeserializationException ex = fails(source, ShowcaseDbOnlyCfg.class);
+
+        assertTrue(
+            ex.getMessage().startsWith("Config deserialization failed:\n$"),
+            "Expected aggregated tree message prefix"
+        );
+        assertEquals(2, ex.getErrors().size());
+        assertErrorType(ex, 0, ConfigErrorTypes.CtorRejected.class);
+        assertErrorType(ex, 1, ConfigErrorTypes.CtorRejected.class);
+
+        StackTraceElement top = ex.getStackTrace()[0];
+        assertEquals("org.msuo.config2java.ObjectMapper", top.getClassName());
+        assertEquals("deserialize", top.getMethodName());
+
+        StringWriter sw = new StringWriter();
+        ex.printStackTrace(new PrintWriter(sw));
+        String trace = sw.toString();
+        assertTrue(trace.contains("org.msuo.config2java.ConfigDeserializationException"));
+        assertTrue(trace.contains("Config deserialization failed:"));
+        assertTrue(trace.contains("org.msuo.config2java.ObjectMapper.deserialize"));
+        assertTrue(trace.contains("org.msuo.config2java.JsonDeserializer.deserialize"));
     }
 
     static final class ShowcaseCfg {
@@ -45,6 +72,11 @@ public class JsonErrorOutputShowcaseTest extends JsonContractSupport {
         public Feature feature;
         public PositiveDouble ratio;
     }
+
+    static final class ShowcaseDbOnlyCfg {
+        public Db db;
+    }
+
 
     static final class Db {
         public NonEmptyString host;

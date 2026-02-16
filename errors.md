@@ -20,7 +20,7 @@ Example:
 
 ```java
 try {
-    deserializer.deserialize(source, MyCfg.class);
+    JsonDeserializer.deserialize(source, MyCfg.class);
 } catch (ConfigDeserializationException ex) {
     ex.forEachError((segments, error) -> {
         System.out.println(segments);
@@ -32,15 +32,16 @@ try {
 
 ## Complex nested example
 
-This example shows how aggregated errors and the structured path tree behave for nested objects and optionals.
+This example mirrors the error-output showcase test and demonstrates multiple error kinds across nested objects.
 
 ```java
-import java.util.Optional;
-
-class AppCfg {
+class ShowcaseCfg {
     public Db db;
-    public Optional<Service> service = Optional.empty();
-    public PositiveInteger retries;
+    public Service service;
+    public java.util.Map<NonEmptyString, PositiveInteger> limits;
+    public NoNoArgNested bad;
+    public Feature feature;
+    public PositiveDouble ratio;
 
     static class Db {
         public NonEmptyString host;
@@ -48,6 +49,21 @@ class AppCfg {
     }
 
     static class Service {
+        public Mode mode;
+        public Auth auth;
+    }
+
+    enum Mode {
+        DEV,
+        PROD
+    }
+
+    static class Auth {
+        public NonEmptyString token;
+        public PositiveInteger ttl;
+    }
+
+    static class Feature {
         public NonEmptyString name;
     }
 
@@ -66,10 +82,25 @@ class AppCfg {
             this.value = v;
         }
     }
+
+    static class PositiveDouble {
+        public final Double value;
+        public PositiveDouble(Double v) {
+            if (v == null || v <= 0.0) throw new IllegalArgumentException("must be > 0");
+            this.value = v;
+        }
+    }
+
+    static class NoNoArgNested {
+        public NonEmptyString x;
+        public NoNoArgNested(NonEmptyString x) {
+            this.x = x;
+        }
+    }
 }
 ```
 
-Failing config (JSON for brevity):
+Failing config (JSON):
 
 ```json
 {
@@ -78,9 +109,21 @@ Failing config (JSON for brevity):
     "port": 0
   },
   "service": {
-    "name": ""
+    "mode": "NOPE",
+    "auth": {
+      "token": "",
+      "ttl": 0
+    }
   },
-  "retries": 0
+  "limits": {
+    "ok": 1,
+    "bad": 0
+  },
+  "bad": {
+    "x": "ok"
+  },
+  "feature": {},
+  "ratio": 1
 }
 ```
 
@@ -88,26 +131,27 @@ Handling errors via API:
 
 ```java
 try {
-    JsonDeserializer.deserialize(source, AppCfg.class);
+    JsonDeserializer.deserialize(source, ShowcaseCfg.class);
 } catch (ConfigDeserializationException ex) {
-    for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
-        System.out.println(
-            e.getPathSegments() + " -> " + e.getErrorType().getClass().getSimpleName()
-        );
-    }
-
-    ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
-    // root.getSegment() == "$"
-    // root.getChildren() contains "db", "service", "retries"
+    // Stable assertions should use API values, not message-string matching.
+    ex.forEachError((segments, error) ->
+        System.out.println(segments + " -> " + error.getErrorType().getClass().getSimpleName())
+    );
+    System.out.println(ex.getMessage());
 }
 ```
 
-Expected error paths:
+Expected path segments and error kinds include:
 
-- `$.db.host`
-- `$.db.port`
-- `$.service.name`
-- `$.retries`
+- `["db", "host"]` -> `CtorRejected`
+- `["db", "port"]` -> `CtorRejected`
+- `["service", "mode"]` -> `EnumUnknown`
+- `["service", "auth", "token"]` -> `CtorRejected`
+- `["service", "auth", "ttl"]` -> `CtorRejected`
+- `["limits", "[bad]"]` -> `CtorRejected`
+- `["bad"]` -> `NoNoArgCtor`
+- `["feature", "name"]` -> `MissingRequiredField`
+- `["ratio"]` -> `NoOneArgCtor`
 
 `ex.getMessage()` output:
 
@@ -117,8 +161,16 @@ $
 |  ├─ host -> Value [] rejected by NonEmptyString: must be non-empty
 |  └─ port -> Value [0] rejected by PositiveInteger: must be > 0
 ├─ service
-|  └─ name -> Value [] rejected by NonEmptyString: must be non-empty
-└─ retries -> Value [0] rejected by PositiveInteger: must be > 0
+|  ├─ mode -> Unknown enum value 'NOPE' for ShowcaseCfg$Mode. Valid values: [DEV, PROD]
+|  └─ auth
+|     ├─ token -> Value [] rejected by NonEmptyString: must be non-empty
+|     └─ ttl -> Value [0] rejected by PositiveInteger: must be > 0
+├─ limits
+|  └─ [bad] -> Value [0] rejected by PositiveInteger: must be > 0
+├─ bad -> No no-arg constructor for nested object type: ShowcaseCfg$NoNoArgNested
+├─ feature
+|  └─ name -> Missing required field (no default value).
+└─ ratio -> No 1-arg constructor on ShowcaseCfg$PositiveDouble accepting java.lang.Integer
 ```
 
 ## Mapping error variants
