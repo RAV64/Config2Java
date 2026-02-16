@@ -10,9 +10,11 @@ It does not include language parser/evaluator failures (for example invalid Lua/
 
 Each error entry has:
 
-- `path`: location (for example `$.db.port`, `$.tags[1]`, `$.limits{foo}`)
+- `pathSegments`: structured path segments (for example `["db", "port"]`, `["tags", "[1]"]`, `["limits", "{foo}"]`)
+- `errorKind`: typed variant (`ConfigErrorKind`)
 - `message`: message from `ConfigErrorType.message()`
-- `errorType`: class name from `ConfigErrorType.type()`
+
+`ConfigDeserializationException` message now also includes an `Error path tree` section that groups failing paths hierarchically using `├─`, `|`, and `└─`, and prints each error message at the node where it occurred.
 
 Example:
 
@@ -21,11 +23,100 @@ try {
     deserializer.deserialize(source, MyCfg.class);
 } catch (ConfigDeserializationException ex) {
     for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
-        System.out.println(e.getPath());
-        System.out.println(e.getErrorType().type()); // e.g. MissingRequiredField
+        System.out.println(e.getPathSegments());
+        System.out.println(e.getErrorKind());        // e.g. ConfigErrorKind.MissingRequiredField
         System.out.println(e.getMessage());
     }
 }
+```
+
+## Complex nested example
+
+This example shows how aggregated errors and the structured path tree behave for nested objects and optionals.
+
+```java
+import java.util.Optional;
+
+class AppCfg {
+    public Db db;
+    public Optional<Service> service = Optional.empty();
+    public PositiveInteger retries;
+
+    static class Db {
+        public NonEmptyString host;
+        public PositiveInteger port;
+    }
+
+    static class Service {
+        public NonEmptyString name;
+    }
+
+    static class NonEmptyString {
+        public final String value;
+        public NonEmptyString(String v) {
+            if (v == null || v.trim().isEmpty()) throw new IllegalArgumentException("must be non-empty");
+            this.value = v;
+        }
+    }
+
+    static class PositiveInteger {
+        public final Integer value;
+        public PositiveInteger(Integer v) {
+            if (v == null || v <= 0) throw new IllegalArgumentException("must be > 0");
+            this.value = v;
+        }
+    }
+}
+```
+
+Failing config (JSON for brevity):
+
+```json
+{
+  "db": {
+    "host": "",
+    "port": 0
+  },
+  "service": {
+    "name": ""
+  },
+  "retries": 0
+}
+```
+
+Handling errors via API:
+
+```java
+try {
+    new JsonDeserializer().deserialize(source, AppCfg.class);
+} catch (ConfigDeserializationException ex) {
+    for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
+        System.out.println(e.getPathSegments() + " -> " + e.getErrorKind());
+    }
+
+    ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
+    // root.getSegment() == "$"
+    // root.getChildren() contains "db", "service", "retries"
+}
+```
+
+Expected error paths:
+
+- `$.db.host`
+- `$.db.port`
+- `$.service.name`
+- `$.retries`
+
+Human-readable tree output is included in `ex.getMessage()`:
+
+```text
+$
+├─ db
+|  ├─ host -> Value [] rejected by NonEmptyString constructor: "must be non-empty"
+|  └─ port -> Value [0] rejected by PositiveInteger constructor: "must be > 0"
+├─ service
+|  └─ name -> Value [] rejected by NonEmptyString constructor: "must be non-empty"
+└─ retries -> Value [0] rejected by PositiveInteger constructor: "must be > 0"
 ```
 
 ## Mapping error variants
@@ -82,7 +173,7 @@ Provide enum as a string value.
 
 ### 6) `EnumUnknown`
 Message:
-`Unknown enum value '<value>' for <EnumClass>`
+`Unknown enum value '<value>' for <EnumClass>. Valid values: [A, B, ...]`
 
 Real trigger:
 String value does not match any enum constant name.
@@ -182,13 +273,16 @@ Add matching one-arg constructor or change input scalar type.
 
 ### 16) `CtorRejected`
 Message:
-`Value rejected by <Type> constructor: <reason>`
+`Value [<value>] rejected by <Type> constructor: "<reason>"`
 
 Real trigger:
 One-arg constructor exists and throws (typically validation failure).
 
 How to fix:
 Fix input value or constructor validation logic.
+
+Example:
+`Value [-1] rejected by PositiveInteger constructor: "must be > 0"`
 
 ### 17) `CtorCallFailed`
 Message:
@@ -280,7 +374,8 @@ Allow reflective read access for model fields in the runtime environment.
 
 ## Practical debugging flow
 
-1. Inspect `path` to locate offending field.
-2. Inspect `errorType.type()` to identify exact variant.
-3. Apply the fix to either config input or Java model.
-4. Re-run and handle remaining aggregated errors.
+1. Inspect `pathSegments` to locate offending field.
+2. Inspect `errorKind` to identify exact variant.
+3. If needed, inspect `getErrorPathTree()` to traverse grouped nested failures programmatically.
+4. Apply the fix to either config input or Java model.
+5. Re-run and handle remaining aggregated errors.

@@ -44,4 +44,11 @@ The core mapper then handles the rest.
 
 ## Error model
 
+`ConfigDeserializationException` exposes:
+
+- `getErrors()` for flat structured error entries
+- each error entry includes `getErrorKind()`, `getPathSegments()`, and `getMessage()`
+- `getErrorPathTree()` for structured nested path traversal
+- `getMessage()` for human-readable tree rendering
+
 See [../../errors.md](../../errors.md) for all error types, examples, and fixes.

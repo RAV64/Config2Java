@@ -1,9 +1,7 @@
 package org.msuo.config2java;
 
 interface ConfigErrorType {
-    String message();
+    ConfigErrorKind kind();
 
-    default String type() {
-        return getClass().getSimpleName();
-    }
+    String message();
 }
