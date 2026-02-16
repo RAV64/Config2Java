@@ -122,14 +122,17 @@ AppConfig xmlCfg = new XmlDeserializer().deserialize(
 ## Validation and errors
 
 Object mapping and validation are done in one pass. Field errors are collected, then one `ConfigDeserializationException` is thrown with all errors.
+The exception message also includes a tree view of failing paths.
 
 ```java
 try {
     new JsonDeserializer().deserialize("{\"port\":0}", AppConfig.class);
 } catch (ConfigDeserializationException ex) {
-    ex.getErrors().forEach(e ->
-        System.out.println(e.getPath() + " -> " + e.getMessage())
+    ex.forEachError((segments, error) ->
+        System.out.println(segments + " -> " + error.getErrorKind())
     );
+    ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
+    System.out.println(ex.getMessage()); // pretty tree for humans
 }
 ```
 

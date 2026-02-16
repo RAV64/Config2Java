@@ -47,6 +47,7 @@ The core mapper then handles the rest.
 `ConfigDeserializationException` exposes:
 
 - `getErrors()` for flat structured error entries
+- `forEachError((pathSegments, error) -> ...)` for typed iteration without message parsing
 - each error entry includes `getErrorKind()`, `getPathSegments()`, and `getMessage()`
 - `getErrorPathTree()` for structured nested path traversal
 - `getMessage()` for human-readable tree rendering

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 
 public final class ConfigDeserializationException extends RuntimeException {
 
@@ -19,6 +21,14 @@ public final class ConfigDeserializationException extends RuntimeException {
 
     public List<ConfigError> getErrors() {
         return errors;
+    }
+
+    public void forEachError(BiConsumer<List<String>, ConfigError> consumer) {
+        Objects.requireNonNull(consumer, "consumer");
+        for (int i = 0; i < errors.size(); i++) {
+            ConfigError error = errors.get(i);
+            consumer.accept(error.getPathSegments(), error);
+        }
     }
 
     public PathNode getErrorPathTree() {

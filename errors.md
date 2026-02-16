@@ -22,11 +22,11 @@ Example:
 try {
     deserializer.deserialize(source, MyCfg.class);
 } catch (ConfigDeserializationException ex) {
-    for (ConfigDeserializationException.ConfigError e : ex.getErrors()) {
-        System.out.println(e.getPathSegments());
-        System.out.println(e.getErrorKind());        // e.g. ConfigErrorKind.MissingRequiredField
-        System.out.println(e.getMessage());
-    }
+    ex.forEachError((segments, error) -> {
+        System.out.println(segments);
+        System.out.println(error.getErrorKind()); // e.g. ConfigErrorKind.MissingRequiredField
+        System.out.println(error.getMessage());
+    });
 }
 ```
 
