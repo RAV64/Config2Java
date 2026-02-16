@@ -2,8 +2,6 @@ package org.msuo.config2java;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -105,7 +103,7 @@ public final class JsonDeserializer extends TreeDeserializer {
 
         private Iterable<ConfigEntry> objectEntries() {
             return () -> new Iterator<ConfigEntry>() {
-                private final Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+                private final Iterator<Map.Entry<String, JsonNode>> it = node.properties().iterator();
 
                 @Override
                 public boolean hasNext() {
@@ -116,7 +114,7 @@ public final class JsonDeserializer extends TreeDeserializer {
                 public ConfigEntry next() {
                     Map.Entry<String, JsonNode> e = it.next();
                     return ConfigEntry.of(
-                        new JsonConfigValue(TextNode.valueOf(e.getKey())),
+                        new JsonScalarValue(e.getKey()),
                         new JsonConfigValue(e.getValue()),
                         e.getKey()
                     );
@@ -139,12 +137,44 @@ public final class JsonDeserializer extends TreeDeserializer {
                     JsonNode value = node.get(index - 1);
                     index++;
                     return ConfigEntry.of(
-                        new JsonConfigValue(IntNode.valueOf(key)),
+                        new JsonScalarValue(key),
                         new JsonConfigValue(value),
                         String.valueOf(key)
                     );
                 }
             };
+        }
+    }
+
+    private static final class JsonScalarValue implements ConfigValue {
+
+        private final Object value;
+
+        JsonScalarValue(Object value) {
+            this.value = value;
+        }
+
+        @Override
+        public String typename() {
+            if (value == null) return "nil";
+            if (value instanceof CharSequence) return "string";
+            if (value instanceof Boolean) return "boolean";
+            if (value instanceof Number) return "number";
+            return "userdata";
+        }
+
+        @Override
+        public boolean isNil() {
+            return value == null;
+        }
+
+        @Override
+        public ScalarValue asScalar() {
+            if (value == null) return null;
+            if (value instanceof CharSequence) return ScalarValue.ofString(value.toString());
+            if (value instanceof Boolean) return ScalarValue.ofBoolean((Boolean) value);
+            if (value instanceof Number) return ScalarNumbers.fromNumber((Number) value);
+            return null;
         }
     }
 }
