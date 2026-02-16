@@ -13,10 +13,6 @@ abstract class MapListConfigValue implements ConfigValue {
 
     protected abstract ConfigValue wrap(Object value);
 
-    protected final Object raw() {
-        return value;
-    }
-
     @Override
     public String typename() {
         if (value == null) return "nil";

@@ -12,10 +12,6 @@ final class FieldAccess {
         this.field = field;
     }
 
-    Field field() {
-        return field;
-    }
-
     boolean ensureAccessible(Path path, ErrorCollector errors) {
         try {
             field.setAccessible(true);
