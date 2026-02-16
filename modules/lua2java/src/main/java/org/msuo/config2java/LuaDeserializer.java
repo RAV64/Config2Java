@@ -9,9 +9,14 @@ import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
-public final class LuaDeserializer extends AbstractScriptDeserializer {
+public final class LuaDeserializer implements Deserializer {
 
     private LuaDeserializer() {}
+
+    @Override
+    public <T> T deserialize(CharSequence source, Class<T> configClass) {
+        return deserialize(source.toString(), configClass);
+    }
 
     public static <T> T deserialize(String source, Class<T> configClass) {
         return deserialize(
@@ -29,7 +34,11 @@ public final class LuaDeserializer extends AbstractScriptDeserializer {
         Map<String, ?> globals
     ) {
         return ObjectMapper.deserialize(
-            parse(source, normalizeEnvironment(environment), normalizeGlobals(globals)),
+            parse(
+                source,
+                ScriptInputNormalizer.normalizeEnvironment(environment),
+                ScriptInputNormalizer.normalizeGlobals(globals)
+            ),
             configClass
         );
     }

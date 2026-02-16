@@ -5,9 +5,14 @@ import groovy.lang.GroovyShell;
 import java.util.Collections;
 import java.util.Map;
 
-public final class GroovyDeserializer extends AbstractScriptDeserializer {
+public final class GroovyDeserializer implements Deserializer {
 
     private GroovyDeserializer() {}
+
+    @Override
+    public <T> T deserialize(CharSequence source, Class<T> configClass) {
+        return deserialize(source.toString(), configClass);
+    }
 
     public static <T> T deserialize(String source, Class<T> configClass) {
         return deserialize(
@@ -25,7 +30,11 @@ public final class GroovyDeserializer extends AbstractScriptDeserializer {
         Map<String, ?> globals
     ) {
         return ObjectMapper.deserialize(
-            parse(source, normalizeEnvironment(environment), normalizeGlobals(globals)),
+            parse(
+                source,
+                ScriptInputNormalizer.normalizeEnvironment(environment),
+                ScriptInputNormalizer.normalizeGlobals(globals)
+            ),
             configClass
         );
     }

@@ -6,6 +6,11 @@ public final class XmlDeserializer implements Deserializer {
 
     private XmlDeserializer() {}
 
+    @Override
+    public <T> T deserialize(CharSequence source, Class<T> configClass) {
+        return deserialize(source.toString(), configClass);
+    }
+
     public static <T> T deserialize(String source, Class<T> configClass) {
         return ObjectMapper.deserialize(parse(source), configClass);
     }

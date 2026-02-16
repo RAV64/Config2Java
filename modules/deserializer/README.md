@@ -37,8 +37,8 @@ A language module typically:
 
 The core mapper then handles the rest.
 
-`Deserializer` is a common marker interface for format modules.
-`AbstractScriptDeserializer` provides shared static helpers for script-backed modules (Lua, Groovy) to normalize injected environment/global maps.
+`Deserializer` defines the required `deserialize(CharSequence, Class<T>)` contract and provides default file/path overloads.
+`ScriptInputNormalizer` provides shared helpers for script-backed modules (Lua, Groovy) to normalize injected environment/global maps.
 
 ## Error model
 
