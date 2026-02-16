@@ -126,7 +126,7 @@ public final class ConfigErrorTypes {
             this.value = value;
         }
         @Override public String message() {
-            return "Value [" + String.valueOf(value) + "] rejected by " + target.getSimpleName() + ": " + quote(cause.getMessage());
+            return "Value [" + String.valueOf(value) + "] rejected by " + target.getSimpleName() + ": " + cause.getMessage();
         }
     }
 
@@ -153,7 +153,7 @@ public final class ConfigErrorTypes {
             this.cls = cls;
             this.cause = cause;
         }
-        @Override public String message() { return "Constructor failed for " + cls.getName() + ": " + quote(cause.getMessage()); }
+        @Override public String message() { return "Constructor failed for " + cls.getName() + ": " + cause.getMessage(); }
     }
 
     public static final class InstantiateFailed implements ConfigErrorType {
@@ -190,8 +190,4 @@ public final class ConfigErrorTypes {
         @Override public String message() { return "Failed to read field default value: " + error.getMessage(); }
     }
 
-    private static String quote(String message) {
-        if (message == null) return "\"\"";
-        return "\"" + message + "\"";
-    }
 }

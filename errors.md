@@ -114,11 +114,11 @@ Expected error paths:
 ```text
 $
 ├─ db
-|  ├─ host -> Value [] rejected by NonEmptyString: "must be non-empty"
-|  └─ port -> Value [0] rejected by PositiveInteger: "must be > 0"
+|  ├─ host -> Value [] rejected by NonEmptyString: must be non-empty
+|  └─ port -> Value [0] rejected by PositiveInteger: must be > 0
 ├─ service
-|  └─ name -> Value [] rejected by NonEmptyString: "must be non-empty"
-└─ retries -> Value [0] rejected by PositiveInteger: "must be > 0"
+|  └─ name -> Value [] rejected by NonEmptyString: must be non-empty
+└─ retries -> Value [0] rejected by PositiveInteger: must be > 0
 ```
 
 ## Mapping error variants
@@ -275,7 +275,7 @@ Add matching one-arg constructor or change input scalar type.
 
 ### 16) `CtorRejected`
 Message:
-`Value [<value>] rejected by <Type>: "<reason>"`
+`Value [<value>] rejected by <Type>: <reason>`
 
 Real trigger:
 One-arg constructor exists and throws (typically validation failure).
@@ -284,7 +284,7 @@ How to fix:
 Fix input value or constructor validation logic.
 
 Example:
-`Value [-1] rejected by PositiveInteger: "must be > 0"`
+`Value [-1] rejected by PositiveInteger: must be > 0`
 
 ### 17) `CtorCallFailed`
 Message:
