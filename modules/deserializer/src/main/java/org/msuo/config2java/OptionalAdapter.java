@@ -26,7 +26,7 @@ final class OptionalAdapter implements TypeAdapter {
             Errors.optionalInnerMustBeConcrete(pt.getActualTypeArguments()[0]),
             errors
         );
-        if (inner == null) return ReadResult.ok(Optional.empty());
+        if (inner == null) return ReadResult.fail();
 
         ReadResult innerRes = ObjectMapper.readValue(path, inner, value, errors);
         if (!innerRes.ok) return ReadResult.fail();
