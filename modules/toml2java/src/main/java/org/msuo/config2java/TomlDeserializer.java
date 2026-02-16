@@ -34,14 +34,10 @@ public final class TomlDeserializer extends TreeDeserializer {
 
         @Override
         public String typename() {
-            if (value == null) return "nil";
             if (value instanceof TomlParseResult || value instanceof TomlTable || value instanceof TomlArray) {
                 return "table";
             }
-            if (value instanceof CharSequence) return "string";
-            if (value instanceof Boolean) return "boolean";
-            if (value instanceof Number) return "number";
-            return "userdata";
+            return JavaScalarConfigValue.typenameOf(value);
         }
 
         @Override
@@ -70,11 +66,7 @@ public final class TomlDeserializer extends TreeDeserializer {
 
         @Override
         public ScalarValue asScalar() {
-            if (value == null) return null;
-            if (value instanceof CharSequence) return ScalarValue.ofString(value.toString());
-            if (value instanceof Boolean) return ScalarValue.ofBoolean((Boolean) value);
-            if (value instanceof Number) return ScalarNumbers.fromNumber((Number) value);
-            return null;
+            return JavaScalarConfigValue.scalarOf(value);
         }
     }
 
@@ -106,7 +98,7 @@ public final class TomlDeserializer extends TreeDeserializer {
                 public ConfigEntry next() {
                     String key = keys.next();
                     return ConfigEntry.of(
-                        new TomlConfigValue(key),
+                        new JavaScalarConfigValue(key),
                         new TomlConfigValue(table.get(key)),
                         key
                     );
@@ -151,7 +143,7 @@ public final class TomlDeserializer extends TreeDeserializer {
                     Object value = array.get(index - 1);
                     index++;
                     return ConfigEntry.of(
-                        new TomlConfigValue(key),
+                        new JavaScalarConfigValue(key),
                         new TomlConfigValue(value),
                         String.valueOf(key)
                     );

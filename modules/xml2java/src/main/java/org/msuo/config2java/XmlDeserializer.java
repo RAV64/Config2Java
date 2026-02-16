@@ -48,7 +48,7 @@ public final class XmlDeserializer extends TreeDeserializer {
         if (isStructuredElement(element)) {
             return new XmlElementValue(element, true);
         }
-        return new XmlScalarValue(coerceScalar(textOnly(element)));
+        return new JavaScalarConfigValue(coerceScalar(textOnly(element)));
     }
 
     private static boolean isStructuredElement(Element element) {
@@ -131,48 +131,6 @@ public final class XmlDeserializer extends TreeDeserializer {
         }
     }
 
-    private static final class XmlScalarValue implements ConfigValue {
-
-        private final Object value;
-
-        XmlScalarValue(Object value) {
-            this.value = value;
-        }
-
-        @Override
-        public String typename() {
-            if (value == null) return "nil";
-            if (value instanceof CharSequence) return "string";
-            if (value instanceof Boolean) return "boolean";
-            if (value instanceof Number) return "number";
-            return "userdata";
-        }
-
-        @Override
-        public boolean isNil() {
-            return value == null;
-        }
-
-        @Override
-        public boolean isTable() {
-            return false;
-        }
-
-        @Override
-        public ConfigTable asTable() {
-            throw new IllegalStateException("not a table value");
-        }
-
-        @Override
-        public ScalarValue asScalar() {
-            if (value == null) return null;
-            if (value instanceof CharSequence) return ScalarValue.ofString(value.toString());
-            if (value instanceof Boolean) return ScalarValue.ofBoolean((Boolean) value);
-            if (value instanceof Number) return ScalarNumbers.fromNumber((Number) value);
-            return null;
-        }
-    }
-
     private static final class XmlElementTable implements ConfigTable {
 
         private final Map<String, Object> attributes = new LinkedHashMap<>();
@@ -205,7 +163,7 @@ public final class XmlDeserializer extends TreeDeserializer {
         @Override
         public ConfigValue getField(String key) {
             if (attributes.containsKey(key)) {
-                return new XmlScalarValue(attributes.get(key));
+                return new JavaScalarConfigValue(attributes.get(key));
             }
 
             List<Element> group = children.get(key);
@@ -217,7 +175,7 @@ public final class XmlDeserializer extends TreeDeserializer {
             }
 
             if ("text".equals(key) && structuredText != null) {
-                return new XmlScalarValue(coerceScalar(structuredText));
+                return new JavaScalarConfigValue(coerceScalar(structuredText));
             }
 
             return MissingValue.INSTANCE;
@@ -240,8 +198,8 @@ public final class XmlDeserializer extends TreeDeserializer {
                     if (attrsIt.hasNext()) {
                         Map.Entry<String, Object> e = attrsIt.next();
                         return ConfigEntry.of(
-                            new XmlScalarValue(e.getKey()),
-                            new XmlScalarValue(e.getValue()),
+                            new JavaScalarConfigValue(e.getKey()),
+                            new JavaScalarConfigValue(e.getValue()),
                             e.getKey()
                         );
                     }
@@ -251,7 +209,7 @@ public final class XmlDeserializer extends TreeDeserializer {
                             ? valueForElement(e.getValue().get(0))
                             : new XmlElementListValue(e.getValue());
                         return ConfigEntry.of(
-                            new XmlScalarValue(e.getKey()),
+                            new JavaScalarConfigValue(e.getKey()),
                             value,
                             e.getKey()
                         );
@@ -259,8 +217,8 @@ public final class XmlDeserializer extends TreeDeserializer {
 
                     textConsumed = true;
                     return ConfigEntry.of(
-                        new XmlScalarValue("text"),
-                        new XmlScalarValue(coerceScalar(structuredText)),
+                        new JavaScalarConfigValue("text"),
+                        new JavaScalarConfigValue(coerceScalar(structuredText)),
                         "text"
                     );
                 }
@@ -303,7 +261,7 @@ public final class XmlDeserializer extends TreeDeserializer {
                     ConfigValue value = valueForElement(elements.get(index - 1));
                     index++;
                     return ConfigEntry.of(
-                        new XmlScalarValue(key),
+                        new JavaScalarConfigValue(key),
                         value,
                         String.valueOf(key)
                     );
