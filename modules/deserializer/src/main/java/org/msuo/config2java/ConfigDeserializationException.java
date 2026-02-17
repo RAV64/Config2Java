@@ -3,6 +3,7 @@ package org.msuo.config2java;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -12,7 +13,17 @@ public final class ConfigDeserializationException extends RuntimeException {
 
     public ConfigDeserializationException(List<ConfigError> errors) {
         super("Config deserialization failed");
-        this.errors = Collections.unmodifiableList(new ArrayList<ConfigError>(errors));
+        this.errors = Collections.unmodifiableList(
+            new ArrayList<ConfigError>(requireNonEmpty(errors, "errors"))
+        );
+    }
+
+    private static <T extends Collection<?>> T requireNonEmpty(T value, String name) {
+        Objects.requireNonNull(value, name);
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException(name + " must not be empty");
+        }
+        return value;
     }
 
     public List<ConfigError> getErrors() {

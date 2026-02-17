@@ -81,6 +81,70 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
         assertEquals("from-file-updated", cfg.name.value);
     }
 
+    @Test
+    void nullEnvironmentKey_isRejectedEarly() {
+        Map<String, String> environment = new LinkedHashMap<>();
+        environment.put(null, "x");
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> deserializer.deserialize(
+                "return [mode: 'DEV', name: 'x']",
+                Injected.class,
+                environment,
+                Map.of()
+            )
+        );
+    }
+
+    @Test
+    void blankEnvironmentKey_isRejectedEarly() {
+        Map<String, String> environment = new LinkedHashMap<>();
+        environment.put("   ", "x");
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> deserializer.deserialize(
+                "return [mode: 'DEV', name: 'x']",
+                Injected.class,
+                environment,
+                Map.of()
+            )
+        );
+    }
+
+    @Test
+    void nullGlobalKey_isRejectedEarly() {
+        Map<String, Object> globals = new LinkedHashMap<>();
+        globals.put(null, "x");
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> deserializer.deserialize(
+                "return [mode: 'DEV', name: 'x']",
+                Injected.class,
+                Map.of(),
+                globals
+            )
+        );
+    }
+
+    @Test
+    void blankGlobalKey_isRejectedEarly() {
+        Map<String, Object> globals = new LinkedHashMap<>();
+        globals.put("  ", "x");
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> deserializer.deserialize(
+                "return [mode: 'DEV', name: 'x']",
+                Injected.class,
+                Map.of(),
+                globals
+            )
+        );
+    }
+
     private static String groovyString(String raw) {
         return "'" + raw.replace("\\", "\\\\").replace("'", "\\'") + "'";
     }

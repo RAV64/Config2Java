@@ -26,7 +26,7 @@ final class FieldAccess {
         try {
             return field.get(instance);
         } catch (IllegalAccessException | RuntimeException e) {
-            errors.add(path, Errors.fieldReadAccess(e));
+            errors.add(path, ReflectionErrorMapper.fieldReadError(e));
             return READ_FAILED;
         }
     }
@@ -38,10 +38,8 @@ final class FieldAccess {
     void write(Object instance, Object value, Path path, ErrorCollector errors) {
         try {
             field.set(instance, value);
-        } catch (IllegalAccessException e) {
-            errors.add(path, Errors.fieldSetAccess(e));
-        } catch (IllegalArgumentException e) {
-            errors.add(path, Errors.fieldSetTypeMismatch(e));
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            errors.add(path, ReflectionErrorMapper.fieldWriteError(e));
         }
     }
 }

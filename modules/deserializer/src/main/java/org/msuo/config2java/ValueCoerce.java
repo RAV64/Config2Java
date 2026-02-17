@@ -1,5 +1,7 @@
 package org.msuo.config2java;
 
+import java.util.function.Function;
+
 final class ValueCoerce {
 
     private ValueCoerce() {}
@@ -18,5 +20,19 @@ final class ValueCoerce {
             errors.add(path, Errors.expectedScalar(value));
         }
         return scalar;
+    }
+
+    static String stringOrError(
+        Path path,
+        ConfigValue value,
+        ErrorCollector errors,
+        Function<ConfigValue, ConfigErrorType> errorFactory
+    ) {
+        ScalarValue scalar = value.asScalar();
+        if (scalar == null || scalar.boxedType != String.class) {
+            errors.add(path, errorFactory.apply(value));
+            return null;
+        }
+        return (String) scalar.value;
     }
 }

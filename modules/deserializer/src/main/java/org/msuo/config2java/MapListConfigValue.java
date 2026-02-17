@@ -15,12 +15,8 @@ abstract class MapListConfigValue implements ConfigValue {
 
     @Override
     public String typename() {
-        if (value == null) return "nil";
         if (value instanceof Map || value instanceof List) return "table";
-        if (value instanceof CharSequence) return "string";
-        if (value instanceof Boolean) return "boolean";
-        if (value instanceof Number) return "number";
-        return "userdata";
+        return JavaScalarConfigValue.typenameOf(value);
     }
 
     @Override
@@ -46,10 +42,6 @@ abstract class MapListConfigValue implements ConfigValue {
 
     @Override
     public ScalarValue asScalar() {
-        if (value == null) return null;
-        if (value instanceof CharSequence) return ScalarValue.ofString(value.toString());
-        if (value instanceof Boolean) return ScalarValue.ofBoolean((Boolean) value);
-        if (value instanceof Number) return ScalarNumbers.fromNumber((Number) value);
-        return null;
+        return JavaScalarConfigValue.scalarOf(value);
     }
 }

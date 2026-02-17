@@ -1,7 +1,6 @@
 package org.msuo.config2java;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
 final class ClassAdapter implements TypeAdapter {
@@ -79,11 +78,8 @@ final class ClassAdapter implements TypeAdapter {
             return c.newInstance();
         } catch (NoSuchMethodException e) {
             errors.add(path, Errors.noNoArgCtor(cls));
-        } catch (InvocationTargetException e) {
-            Throwable cause = (e.getCause() != null) ? e.getCause() : e;
-            errors.add(path, Errors.ctorFailed(cls, cause));
         } catch (ReflectiveOperationException e) {
-            errors.add(path, Errors.instantiateFailed(cls, e));
+            errors.add(path, ReflectionErrorMapper.instantiateError(cls, e));
         }
         return null;
     }

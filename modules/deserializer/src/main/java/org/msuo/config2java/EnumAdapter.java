@@ -10,13 +10,13 @@ final class EnumAdapter implements TypeAdapter {
 
     @Override
     public ReadResult read(Path path, ConfigValue value, ErrorCollector errors) {
-        ScalarValue scalar = value.asScalar();
-        if (scalar == null || scalar.boxedType != String.class) {
-            errors.add(path, Errors.enumExpectedString(value));
-            return ReadResult.fail();
-        }
-
-        String name = (String) scalar.value;
+        String name = ValueCoerce.stringOrError(
+            path,
+            value,
+            errors,
+            Errors::enumExpectedString
+        );
+        if (name == null) return ReadResult.fail();
         try {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             Object e = Enum.valueOf((Class<? extends Enum>) enumClass, name);

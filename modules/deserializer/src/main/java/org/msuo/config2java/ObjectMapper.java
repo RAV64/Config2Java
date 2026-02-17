@@ -2,6 +2,8 @@ package org.msuo.config2java;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +19,12 @@ final class ObjectMapper {
         if (errors.hasErrors()) {
             throw new ConfigDeserializationException(errors.asList());
         }
+        if (!rr.ok) {
+            throw new IllegalStateException(
+                "Deserializer failed without collecting errors for type: " +
+                configClass.getName()
+            );
+        }
 
         @SuppressWarnings("unchecked")
         T cast = (T) rr.value;
@@ -28,6 +36,16 @@ final class ObjectMapper {
     }
 
     static TypeAdapter adapterFor(Type targetType) {
+        if (targetType instanceof TypeVariable<?>) {
+            return new UnsupportedAdapter(
+                Errors.unresolvedTypeVariable((TypeVariable<?>) targetType)
+            );
+        }
+        if (targetType instanceof WildcardType) {
+            return new UnsupportedAdapter(
+                Errors.wildcardTypeNotSupported((WildcardType) targetType)
+            );
+        }
         if (targetType instanceof ParameterizedType) {
             return adapterForParameterized((ParameterizedType) targetType);
         }
@@ -46,6 +64,7 @@ final class ObjectMapper {
         Class<?> rawClass = (Class<?>) raw;
 
         if (rawClass == Optional.class) return new OptionalAdapter(pt);
+        if (rawClass == Class.class) return new ClassReferenceAdapter(pt.getActualTypeArguments()[0]);
         if (Map.class.isAssignableFrom(rawClass)) return new MapAdapter(pt);
         if (Collection.class.isAssignableFrom(rawClass)) return new CollectionAdapter(pt, rawClass);
 

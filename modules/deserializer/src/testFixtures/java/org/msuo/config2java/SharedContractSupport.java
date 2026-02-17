@@ -281,6 +281,24 @@ public abstract class SharedContractSupport {
         public GenericBox<? extends NonEmptyString> foo;
     }
 
+    interface ClassRefService {}
+
+    public static final class ClassRefServiceImpl implements ClassRefService {}
+
+    public static final class ClassRefOther {}
+
+    static final class ClassReferenceField {
+        public Class<ClassRefService> impl;
+    }
+
+    public static class ClassRefBase {}
+
+    public static final class ClassRefDerived extends ClassRefBase {}
+
+    static final class ClassReferenceSuperclassField {
+        public Class<ClassRefBase> impl;
+    }
+
     static final class CollectAllErrors {
         public NonEmptyString a;
         public PositiveInteger b;

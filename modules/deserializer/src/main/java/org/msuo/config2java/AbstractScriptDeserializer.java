@@ -32,14 +32,36 @@ public abstract class AbstractScriptDeserializer implements ScriptDeserializer {
     private static Map<String, String> normalizeEnvironment(
         Map<String, String> environment
     ) {
-        return environment == null
-            ? Collections.emptyMap()
-            : Collections.unmodifiableMap(new LinkedHashMap<>(environment));
+        if (environment == null) return Collections.emptyMap();
+        LinkedHashMap<String, String> normalized = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : environment.entrySet()) {
+            String key = requireValidKey(entry.getKey(), "environment");
+            normalized.put(key, entry.getValue());
+        }
+        return Collections.unmodifiableMap(normalized);
     }
 
     private static Map<String, Object> normalizeGlobals(Map<String, ?> globals) {
-        return globals == null
-            ? Collections.emptyMap()
-            : Collections.unmodifiableMap(new LinkedHashMap<>(globals));
+        if (globals == null) return Collections.emptyMap();
+        LinkedHashMap<String, Object> normalized = new LinkedHashMap<>();
+        for (Map.Entry<String, ?> entry : globals.entrySet()) {
+            String key = requireValidKey(entry.getKey(), "globals");
+            normalized.put(key, entry.getValue());
+        }
+        return Collections.unmodifiableMap(normalized);
+    }
+
+    private static String requireValidKey(String key, String sourceName) {
+        if (key == null) {
+            throw new IllegalArgumentException(
+                "Invalid " + sourceName + " key: key must not be null"
+            );
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Invalid " + sourceName + " key: key must not be blank"
+            );
+        }
+        return key;
     }
 }

@@ -30,7 +30,11 @@ public class GroovyReflectionEdgeCasesTest extends GroovyContractSupport {
             "return [value: 'x']",
             UnresolvedTypeVariableField.class
         );
-        assertSingleError(ex, ConfigErrorTypes.UnsupportedType.class, "value");
+        assertSingleError(
+            ex,
+            ConfigErrorTypes.UnresolvedTypeVariable.class,
+            "value"
+        );
     }
 
     @Test
@@ -48,6 +52,47 @@ public class GroovyReflectionEdgeCasesTest extends GroovyContractSupport {
             "return [foo: [value: 'x']]",
             WildcardGenericNestedField.class
         );
-        assertSingleError(ex, ConfigErrorTypes.UnsupportedType.class, "foo", "value");
+        assertSingleError(
+            ex,
+            ConfigErrorTypes.WildcardTypeNotSupported.class,
+            "foo",
+            "value"
+        );
+    }
+
+    @Test
+    void classReferenceField_resolvesAssignableClass() {
+        ClassReferenceField cfg = ok(
+            "return [impl: '" + ClassRefServiceImpl.class.getName() + "']",
+            ClassReferenceField.class
+        );
+        assertEquals(ClassRefServiceImpl.class, cfg.impl);
+    }
+
+    @Test
+    void classReferenceField_rejectsNonAssignableClass() {
+        ConfigDeserializationException ex = fails(
+            "return [impl: '" + ClassRefOther.class.getName() + "']",
+            ClassReferenceField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.ClassRefNotAssignable.class, "impl");
+    }
+
+    @Test
+    void classReferenceField_requiresStringValue() {
+        ConfigDeserializationException ex = fails(
+            "return [impl: 1]",
+            ClassReferenceField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.ClassRefExpectedString.class, "impl");
+    }
+
+    @Test
+    void classReferenceField_acceptsSubclassForSuperclassField() {
+        ClassReferenceSuperclassField cfg = ok(
+            "return [impl: '" + ClassRefDerived.class.getName() + "']",
+            ClassReferenceSuperclassField.class
+        );
+        assertEquals(ClassRefDerived.class, cfg.impl);
     }
 }

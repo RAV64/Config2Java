@@ -1,6 +1,8 @@
 package org.msuo.config2java;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 
 final class Errors {
 
@@ -10,8 +12,31 @@ final class Errors {
         return new ConfigErrorTypes.UnsupportedType(t);
     }
 
+    static ConfigErrorType unresolvedTypeVariable(TypeVariable<?> tv) {
+        return new ConfigErrorTypes.UnresolvedTypeVariable(tv);
+    }
+
+    static ConfigErrorType wildcardTypeNotSupported(WildcardType wt) {
+        return new ConfigErrorTypes.WildcardTypeNotSupported(wt);
+    }
+
     static ConfigErrorType unsupportedParameterizedRaw(Type raw) {
         return new ConfigErrorTypes.UnsupportedParameterizedRaw(raw);
+    }
+
+    static ConfigErrorType classRefExpectedString(ConfigValue got) {
+        return new ConfigErrorTypes.ClassRefExpectedString(got.typename());
+    }
+
+    static ConfigErrorType classRefNotFound(String className) {
+        return new ConfigErrorTypes.ClassRefNotFound(className);
+    }
+
+    static ConfigErrorType classRefNotAssignable(
+        Class<?> expectedBaseType,
+        Class<?> actualType
+    ) {
+        return new ConfigErrorTypes.ClassRefNotAssignable(expectedBaseType, actualType);
     }
 
     static ConfigErrorType primitiveNotSupported(Class<?> prim) {

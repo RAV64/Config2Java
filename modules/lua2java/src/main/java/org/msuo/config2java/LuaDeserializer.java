@@ -28,9 +28,12 @@ public final class LuaDeserializer extends AbstractScriptDeserializer {
     }
 
     private static void injectEnvironment(Globals runtime, Map<String, String> environment) {
+        Map<String, String> resolvedEnvironment = EnvironmentValues.withSystemFallback(
+            environment
+        );
         runtime.set(
             "ENV",
-            toLuaValue(EnvironmentValues.withSystemFallback(environment))
+            toLuaValue(resolvedEnvironment)
         );
 
         LuaValue os = runtime.get("os");
@@ -39,24 +42,17 @@ public final class LuaDeserializer extends AbstractScriptDeserializer {
         }
 
         LuaTable osTable = os.checktable();
-        LuaValue originalGetenv = osTable.get("getenv");
         osTable.set(
             "getenv",
             new OneArgFunction() {
                 @Override
                 public LuaValue call(LuaValue arg) {
                     String key = arg.tojstring();
-                    if (environment.containsKey(key)) {
-                        String value = environment.get(key);
+                    if (resolvedEnvironment.containsKey(key)) {
+                        String value = resolvedEnvironment.get(key);
                         return value == null ? LuaValue.NIL : LuaValue.valueOf(value);
                     }
-
-                    if (!originalGetenv.isnil()) {
-                        return originalGetenv.call(arg);
-                    }
-
-                    String system = System.getenv(key);
-                    return system == null ? LuaValue.NIL : LuaValue.valueOf(system);
+                    return LuaValue.NIL;
                 }
             }
         );

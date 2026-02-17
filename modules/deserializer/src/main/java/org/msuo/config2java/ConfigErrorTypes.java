@@ -1,6 +1,8 @@
 package org.msuo.config2java;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -14,10 +16,67 @@ public final class ConfigErrorTypes {
         @Override public String message() { return "Unsupported Type: " + type; }
     }
 
+    public static final class UnresolvedTypeVariable implements ConfigErrorType {
+        private final TypeVariable<?> typeVariable;
+        UnresolvedTypeVariable(TypeVariable<?> typeVariable) {
+            this.typeVariable = typeVariable;
+        }
+        @Override
+        public String message() {
+            return "Unresolved generic type variable: " + typeVariable.getName();
+        }
+    }
+
+    public static final class WildcardTypeNotSupported implements ConfigErrorType {
+        private final WildcardType wildcardType;
+        WildcardTypeNotSupported(WildcardType wildcardType) {
+            this.wildcardType = wildcardType;
+        }
+        @Override
+        public String message() {
+            return "Wildcard generic types are not supported here: " + wildcardType;
+        }
+    }
+
     public static final class UnsupportedParameterizedRaw implements ConfigErrorType {
         private final Type raw;
         UnsupportedParameterizedRaw(Type raw) { this.raw = raw; }
         @Override public String message() { return "Unsupported parameterized raw type: " + raw; }
+    }
+
+    public static final class ClassRefExpectedString implements ConfigErrorType {
+        private final String gotTypeName;
+        ClassRefExpectedString(String gotTypeName) {
+            this.gotTypeName = gotTypeName;
+        }
+        @Override
+        public String message() {
+            return "Class reference expects string class name, got: " + gotTypeName;
+        }
+    }
+
+    public static final class ClassRefNotFound implements ConfigErrorType {
+        private final String className;
+        ClassRefNotFound(String className) {
+            this.className = className;
+        }
+        @Override
+        public String message() {
+            return "Class not found: " + className;
+        }
+    }
+
+    public static final class ClassRefNotAssignable implements ConfigErrorType {
+        private final Class<?> expectedBaseType;
+        private final Class<?> actualType;
+        ClassRefNotAssignable(Class<?> expectedBaseType, Class<?> actualType) {
+            this.expectedBaseType = expectedBaseType;
+            this.actualType = actualType;
+        }
+        @Override
+        public String message() {
+            return "Class " + actualType.getName() + " is not assignable to " + expectedBaseType.getName();
+        }
     }
 
     public static final class PrimitiveNotSupported implements ConfigErrorType {

@@ -1,7 +1,6 @@
 package org.msuo.config2java;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 final class LeafReader {
 
@@ -24,12 +23,8 @@ final class LeafReader {
         try {
             ctor.setAccessible(true);
             return ReadResult.ok(ctor.newInstance(scalar.value));
-        } catch (InvocationTargetException e) {
-            Throwable cause = (e.getCause() != null) ? e.getCause() : e;
-            errors.add(path, Errors.ctorRejected(target, cause, scalar.value));
-            return ReadResult.fail();
         } catch (ReflectiveOperationException e) {
-            errors.add(path, Errors.ctorCallFailed(target, e));
+            errors.add(path, ReflectionErrorMapper.leafCtorError(target, scalar.value, e));
             return ReadResult.fail();
         }
     }
