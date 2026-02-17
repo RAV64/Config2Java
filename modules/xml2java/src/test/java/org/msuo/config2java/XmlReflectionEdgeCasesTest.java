@@ -82,6 +82,15 @@ public class XmlReflectionEdgeCasesTest extends XmlContractSupport {
     }
 
     @Test
+    void classReferenceField_rejectsUnknownClassName() {
+        ConfigDeserializationException ex = fails(
+            "<config><impl>no.such.Type</impl></config>",
+            ClassReferenceField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.ClassRefNotFound.class, "impl");
+    }
+
+    @Test
     void classReferenceField_requiresStringValue() {
         ConfigDeserializationException ex = fails(
             "<config><impl><x>1</x></impl></config>",

@@ -41,4 +41,19 @@ public class CoreLeafParsingTest extends CoreMapperContractSupport {
         ConfigDeserializationException ex = fails(obj("mode", "NOPE"), EnumLeaf.class);
         assertSingleError(ex, ConfigErrorTypes.EnumUnknown.class, "mode");
     }
+
+    @Test
+    void enum_nonString_reportsEnumExpectedString() {
+        ConfigDeserializationException ex = fails(obj("mode", 1), EnumLeaf.class);
+        assertSingleError(ex, ConfigErrorTypes.EnumExpectedString.class, "mode");
+    }
+
+    @Test
+    void leafString_nonScalar_reportsExpectedScalar() {
+        ConfigDeserializationException ex = fails(
+            obj("name", new Object()),
+            StringLeaf.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.ExpectedScalar.class, "name");
+    }
 }

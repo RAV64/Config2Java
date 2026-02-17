@@ -82,6 +82,15 @@ public class TomlReflectionEdgeCasesTest extends TomlContractSupport {
     }
 
     @Test
+    void classReferenceField_rejectsUnknownClassName() {
+        ConfigDeserializationException ex = fails(
+            "impl = 'no.such.Type'",
+            ClassReferenceField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.ClassRefNotFound.class, "impl");
+    }
+
+    @Test
     void classReferenceField_requiresStringValue() {
         ConfigDeserializationException ex = fails(
             "impl = 1",

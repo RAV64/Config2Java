@@ -79,6 +79,15 @@ public class GroovyReflectionEdgeCasesTest extends GroovyContractSupport {
     }
 
     @Test
+    void classReferenceField_rejectsUnknownClassName() {
+        ConfigDeserializationException ex = fails(
+            "return [impl: 'no.such.Type']",
+            ClassReferenceField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.ClassRefNotFound.class, "impl");
+    }
+
+    @Test
     void classReferenceField_requiresStringValue() {
         ConfigDeserializationException ex = fails(
             "return [impl: 1]",

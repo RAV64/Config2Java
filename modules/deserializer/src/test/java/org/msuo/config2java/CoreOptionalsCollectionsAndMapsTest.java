@@ -64,4 +64,22 @@ public class CoreOptionalsCollectionsAndMapsTest
         );
         assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "limits", "{foo}");
     }
+
+    @Test
+    void listGivenScalar_reportsCollectionExpected() {
+        ConfigDeserializationException ex = fails(
+            obj("tags", 1),
+            ListOfLeaf.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.CollectionExpected.class, "tags");
+    }
+
+    @Test
+    void mapGivenScalar_reportsMapExpected() {
+        ConfigDeserializationException ex = fails(
+            obj("limits", 1),
+            MapOfLeaf.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.MapExpected.class, "limits");
+    }
 }
