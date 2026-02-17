@@ -26,6 +26,22 @@ implementation "org.msuo:deserializer:<version>"
 - Missing key and explicit nil are handled differently.
 - Missing required fields fail unless a default already exists.
 - `Optional<T>` maps missing/nil to `Optional.empty()`.
+- Nested generics are supported across object graphs and containers.
+
+Example:
+
+```java
+class GenericBox<T> { public T value; }
+class GenericItem<T> { public T payload; }
+class StringConstructedGenericKey<T> {
+    public final String value;
+    public StringConstructedGenericKey(String value) { this.value = value; }
+}
+class GenericConfig {
+    public GenericBox<java.util.List<GenericItem<String>>> foo;
+    public java.util.Map<StringConstructedGenericKey<Integer>, java.util.List<String>> values;
+}
+```
 
 ## For language implementers
 

@@ -42,6 +42,7 @@ Use mutable classes with fields that can be set reflectively. Field visibility c
 - Fields should be non-primitive boxed/object types (`Integer`, not `int`).
 - Value objects can validate with a single-arg constructor.
 - `Optional<T>`, `List<T>`, `Set<T>`, and `Map<K,V>` are supported.
+- Nested generic combinations are supported (for example `GenericBox<List<GenericItem<String>>>`, `Map<StringConstructedGenericKey<Integer>, List<String>>`).
 - Enums are parsed from string names.
 - Expose values however you prefer (public fields or getters on private fields).
 
@@ -116,6 +117,30 @@ AppConfig jsonCfg = new JsonDeserializer().deserialize(
 AppConfig xmlCfg = new XmlDeserializer().deserialize(
     "<config><name>svc</name><port>9090</port><mode>PROD</mode></config>",
     AppConfig.class
+);
+```
+
+## Nested generics example
+
+```java
+import java.util.List;
+import java.util.Map;
+
+class GenericBox<T> { public T value; }
+class GenericItem<T> { public T payload; }
+class StringConstructedGenericKey<T> {
+    public final String value;
+    public StringConstructedGenericKey(String value) { this.value = value; }
+}
+
+class GenericConfig {
+    public GenericBox<List<GenericItem<String>>> foo;
+    public Map<StringConstructedGenericKey<Integer>, List<String>> values;
+}
+
+GenericConfig cfg = new JsonDeserializer().deserialize(
+    "{\"foo\":{\"value\":[{\"payload\":\"a\"}]},\"values\":{\"k1\":[\"x\",\"y\"]}}",
+    GenericConfig.class
 );
 ```
 

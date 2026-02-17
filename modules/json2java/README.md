@@ -89,6 +89,27 @@ assertEquals(List.of("a", "b"), cfg.tags);
 assertEquals(Integer.valueOf(10), cfg.limits.get("api"));
 ```
 
+## Nested generics
+
+```java
+import java.util.List;
+import java.util.Map;
+
+class GenericBox<T> { public T value; }
+class GenericItem<T> { public T payload; }
+class StringConstructedGenericKey<T> {
+    public final String value;
+    public StringConstructedGenericKey(String value) { this.value = value; }
+}
+class GenericConfig {
+    public GenericBox<List<GenericItem<String>>> foo;
+    public Map<StringConstructedGenericKey<Integer>, List<String>> values;
+}
+
+String json = "{\"foo\":{\"value\":[{\"payload\":\"a\"}]},\"values\":{\"k1\":[\"x\",\"y\"]}}";
+GenericConfig cfg = new JsonDeserializer().deserialize(json, GenericConfig.class);
+```
+
 ## Null semantics
 
 ```java
