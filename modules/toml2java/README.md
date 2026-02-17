@@ -128,6 +128,21 @@ k1 = ["x", "y"]
 GenericConfig cfg = new TomlDeserializer().deserialize(toml, GenericConfig.class);
 ```
 
+## Class references
+
+```java
+interface Service {}
+final class ServiceImpl implements Service {}
+class Cfg {
+    public Class<Service> impl;
+}
+
+String toml = "impl = '" + ServiceImpl.class.getName() + "'";
+Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+
+assertEquals(ServiceImpl.class, cfg.impl);
+```
+
 ## Optional semantics
 
 ```java

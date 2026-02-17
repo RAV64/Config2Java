@@ -110,6 +110,21 @@ String xml = "<config><foo><value><payload>a</payload></value></foo><values><k1>
 GenericConfig cfg = new XmlDeserializer().deserialize(xml, GenericConfig.class);
 ```
 
+## Class references
+
+```java
+interface Service {}
+final class ServiceImpl implements Service {}
+class Cfg {
+    public Class<Service> impl;
+}
+
+String xml = "<config><impl>" + ServiceImpl.class.getName() + "</impl></config>";
+Cfg cfg = new XmlDeserializer().deserialize(xml, Cfg.class);
+
+assertEquals(ServiceImpl.class, cfg.impl);
+```
+
 ## Optional semantics
 
 ```java

@@ -113,6 +113,21 @@ String groovy = "return [foo: [value: [[payload: 'a']]], values: [k1: ['x', 'y']
 GenericConfig cfg = new GroovyDeserializer().deserialize(groovy, GenericConfig.class);
 ```
 
+## Class references
+
+```java
+interface Service {}
+final class ServiceImpl implements Service {}
+class Cfg {
+    public Class<Service> impl;
+}
+
+String groovy = "return [impl: '" + ServiceImpl.class.getName() + "']";
+Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
+
+assertEquals(ServiceImpl.class, cfg.impl);
+```
+
 ## Null semantics
 
 ```java

@@ -9,6 +9,7 @@ Language modules convert native parse trees to `ConfigValue`/`ConfigTable`, then
 - map config trees to Java objects
 - apply defaults and optional semantics
 - parse enums and generic containers (`Optional`, `List`, `Set`, `Map`)
+- resolve `Class<T>` references from class-name strings (assignable to `T`)
 - perform constructor-based leaf validation
 - aggregate path-based errors into one exception
 
@@ -27,6 +28,7 @@ implementation "org.msuo:deserializer:<version>"
 - Missing required fields fail unless a default already exists.
 - `Optional<T>` maps missing/nil to `Optional.empty()`.
 - Nested generics are supported across object graphs and containers.
+- `Class<T>` fields are supported when config provides a string class name.
 
 Example:
 
@@ -42,6 +44,18 @@ class GenericConfig {
     public java.util.Map<StringConstructedGenericKey<Integer>, java.util.List<String>> values;
 }
 ```
+
+`Class<T>` example:
+
+```java
+interface Service {}
+final class ServiceImpl implements Service {}
+class Cfg {
+    public Class<Service> impl;
+}
+```
+
+Input value for `impl` must be a string class name, and the resolved class must be assignable to `Service`.
 
 ## For language implementers
 

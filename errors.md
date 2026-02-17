@@ -41,6 +41,7 @@ class ShowcaseCfg {
     public java.util.Map<NonEmptyString, PositiveInteger> limits;
     public NoNoArgNested bad;
     public Feature feature;
+    public Class<Worker> workerImpl;
     public PositiveDouble ratio;
 
     static class Db {
@@ -66,6 +67,10 @@ class ShowcaseCfg {
     static class Feature {
         public NonEmptyString name;
     }
+
+    interface Worker {}
+
+    static class WorkerImpl implements Worker {}
 
     static class NonEmptyString {
         public final String value;
@@ -123,6 +128,7 @@ Failing config (JSON):
     "x": "ok"
   },
   "feature": {},
+  "workerImpl": "java.lang.String",
   "ratio": 1
 }
 ```
@@ -151,6 +157,7 @@ Expected path segments and error kinds include:
 - `["limits", "[bad]"]` -> `CtorRejected`
 - `["bad"]` -> `NoNoArgCtor`
 - `["feature", "name"]` -> `MissingRequiredField`
+- `["workerImpl"]` -> `ClassRefNotAssignable`
 - `["ratio"]` -> `NoOneArgCtor`
 
 `ex.getMessage()` output:
@@ -170,6 +177,7 @@ $
 ├─ bad -> No no-arg constructor for nested object type: ShowcaseCfg$NoNoArgNested
 ├─ feature
 |  └─ name -> Missing required field (no default value).
+├─ workerImpl -> Class java.lang.String is not assignable to ShowcaseCfg$Worker
 └─ ratio -> No 1-arg constructor on ShowcaseCfg$PositiveDouble accepting java.lang.Integer
 ```
 
@@ -185,7 +193,27 @@ A field type resolves to a `Type` that is neither `Class<?>` nor `ParameterizedT
 How to fix:
 Use supported field declarations (`Class<?>` and parameterized types with concrete raw classes, including nested generics).
 
-### 2) `UnsupportedParameterizedRaw`
+### 2) `UnresolvedTypeVariable`
+Message:
+`Unresolved generic type variable: <TypeVariable>`
+
+Real trigger:
+A field resolves to a generic type variable that cannot be resolved to a concrete type in the target object graph.
+
+How to fix:
+Use concrete generic types in deserialization targets.
+
+### 3) `WildcardTypeNotSupported`
+Message:
+`Wildcard generic types are not supported here: <WildcardType>`
+
+Real trigger:
+A wildcard type appears in a place where mapping requires a concrete resolved type.
+
+How to fix:
+Use concrete generic arguments for deserialization target fields.
+
+### 4) `UnsupportedParameterizedRaw`
 Message:
 `Unsupported parameterized raw type: <raw>`
 
@@ -195,7 +223,7 @@ Parameterized raw type is not a `Class<?>`.
 How to fix:
 Use normal class-based generic declarations.
 
-### 3) `PrimitiveNotSupported`
+### 5) `PrimitiveNotSupported`
 Message:
 `Primitive field types are not supported: <primitive>`
 
@@ -205,7 +233,7 @@ A target field is primitive (`int`, `boolean`, etc.).
 How to fix:
 Use boxed types (`Integer`, `Boolean`, etc.).
 
-### 4) `EnumExpectedString`
+### 6) `EnumExpectedString`
 Message:
 `Enum expects string name, got: <type>`
 
@@ -215,7 +243,7 @@ Enum field receives non-string scalar or non-scalar value.
 How to fix:
 Provide enum as a string value.
 
-### 5) `EnumUnknown`
+### 7) `EnumUnknown`
 Message:
 `Unknown enum value '<value>' for <EnumClass>. Valid values: [A, B, ...]`
 
@@ -225,7 +253,7 @@ String value does not match any enum constant name.
 How to fix:
 Use a valid enum constant name exactly.
 
-### 6) `ExpectedScalar`
+### 8) `ExpectedScalar`
 Message:
 `Expected primitive (string/number/bool), got: <type>`
 
@@ -235,7 +263,7 @@ Leaf/value-object target receives table/array/object instead of scalar.
 How to fix:
 Provide scalar input or change Java field type to object/collection.
 
-### 7) `MapExpected`
+### 9) `MapExpected`
 Message:
 `Expected table for Map, got: <type>`
 
@@ -245,7 +273,7 @@ Real trigger:
 How to fix:
 Provide object/table-like input.
 
-### 8) `CollectionExpected`
+### 10) `CollectionExpected`
 Message:
 `Expected table/array for <CollectionType>, got: <type>`
 
@@ -255,7 +283,7 @@ Real trigger:
 How to fix:
 Provide list/array/table-like input.
 
-### 9) `MissingRequiredField`
+### 11) `MissingRequiredField`
 Message:
 `Missing required field (no default value).`
 
@@ -265,7 +293,7 @@ Key is missing and field has no default and no optional/missing adapter fallback
 How to fix:
 Provide key, set a default, or change field to `Optional<T>`.
 
-### 10) `NoOneArgCtor`
+### 12) `NoOneArgCtor`
 Message:
 `No 1-arg constructor on <Type> accepting <ScalarType>`
 
@@ -275,7 +303,7 @@ Leaf value mapping needs value-object construction, but constructor signature do
 How to fix:
 Add matching one-arg constructor or change input scalar type.
 
-### 11) `CtorRejected`
+### 13) `CtorRejected`
 Message:
 `Value [<value>] rejected by <Type>: <reason>`
 
@@ -288,7 +316,7 @@ Fix input value or constructor validation logic.
 Example:
 `Value [-1] rejected by PositiveInteger: must be > 0`
 
-### 12) `CtorCallFailed`
+### 14) `CtorCallFailed`
 Message:
 `Failed calling constructor for <Type>: <reason>`
 
@@ -298,7 +326,7 @@ One-arg constructor invocation fails reflectively for non-validation reasons.
 How to fix:
 Check constructor accessibility/reflective constraints and type assumptions.
 
-### 13) `NoNoArgCtor`
+### 15) `NoNoArgCtor`
 Message:
 `No no-arg constructor for nested object type: <Type>`
 
@@ -308,7 +336,7 @@ Object mapping requires a no-arg constructor and none exists.
 How to fix:
 Add a no-arg constructor or change model shape.
 
-### 14) `CtorFailed`
+### 16) `CtorFailed`
 Message:
 `Constructor failed for <Type>: <reason>`
 
@@ -318,7 +346,7 @@ No-arg constructor exists but throws while instantiating nested object.
 How to fix:
 Avoid throwing from construction path used by object mapping.
 
-### 15) `InstantiateFailed`
+### 17) `InstantiateFailed`
 Message:
 `Failed to instantiate <Type>: <reason>`
 
@@ -328,7 +356,7 @@ Reflective no-arg instantiation fails (for example abstract type or reflection f
 How to fix:
 Use concrete instantiable field types.
 
-### 16) `FieldSetAccess`
+### 18) `FieldSetAccess`
 Message:
 `Failed to set field (access): <reason>`
 
@@ -338,7 +366,7 @@ Reflection cannot assign field due to access/security restriction at runtime.
 How to fix:
 Allow reflective field access in runtime environment.
 
-### 17) `FieldSetTypeMismatch`
+### 19) `FieldSetTypeMismatch`
 Message:
 `Failed to set field (type mismatch): <reason>`
 
@@ -348,7 +376,7 @@ Bound value type is incompatible with field type.
 How to fix:
 Align field declaration with actual bound value type.
 
-### 18) `FieldAccessSetup`
+### 20) `FieldAccessSetup`
 Message:
 `Failed to access field reflectively: <reason>`
 
@@ -358,7 +386,37 @@ Runtime blocks reflective access setup (`setAccessible(true)`), for example modu
 How to fix:
 Open module/package for reflection, or use a runtime that allows reflective access for your config model types.
 
-### 19) `FieldReadAccess`
+### 21) `ClassRefExpectedString`
+Message:
+`Class reference expects string class name, got: <type>`
+
+Real trigger:
+A `Class<T>` field receives a non-string value.
+
+How to fix:
+Provide the class as a fully qualified string name.
+
+### 22) `ClassRefNotFound`
+Message:
+`Class not found: <className>`
+
+Real trigger:
+A `Class<T>` field receives a string class name that cannot be loaded.
+
+How to fix:
+Use a valid class name available on the application classpath.
+
+### 23) `ClassRefNotAssignable`
+Message:
+`Class <ActualType> is not assignable to <ExpectedType>`
+
+Real trigger:
+A `Class<T>` field resolves to a class that is not assignable to `T`.
+
+How to fix:
+Use a class name that resolves to `T` or a subtype of `T`.
+
+### 24) `FieldReadAccess`
 Message:
 `Failed to read field default value: <reason>`
 

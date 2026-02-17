@@ -110,6 +110,21 @@ String json = "{\"foo\":{\"value\":[{\"payload\":\"a\"}]},\"values\":{\"k1\":[\"
 GenericConfig cfg = new JsonDeserializer().deserialize(json, GenericConfig.class);
 ```
 
+## Class references
+
+```java
+interface Service {}
+final class ServiceImpl implements Service {}
+class Cfg {
+    public Class<Service> impl;
+}
+
+String json = "{\"impl\":\"" + ServiceImpl.class.getName() + "\"}";
+Cfg cfg = new JsonDeserializer().deserialize(json, Cfg.class);
+
+assertEquals(ServiceImpl.class, cfg.impl);
+```
+
 ## Null semantics
 
 ```java

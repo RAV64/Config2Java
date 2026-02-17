@@ -42,6 +42,7 @@ Use mutable classes with fields that can be set reflectively. Field visibility c
 - Fields should be non-primitive boxed/object types (`Integer`, not `int`).
 - Value objects can validate with a single-arg constructor.
 - `Optional<T>`, `List<T>`, `Set<T>`, and `Map<K,V>` are supported.
+- `Class<T>` is supported: provide a class name string and it resolves if assignable to `T`.
 - Nested generic combinations are supported (for example `GenericBox<List<GenericItem<String>>>`, `Map<StringConstructedGenericKey<Integer>, List<String>>`).
 - Enums are parsed from string names.
 - Expose values however you prefer (public fields or getters on private fields).
@@ -143,6 +144,25 @@ GenericConfig cfg = new JsonDeserializer().deserialize(
     GenericConfig.class
 );
 ```
+
+## Class reference example
+
+```java
+interface Service {}
+class ServiceImpl implements Service {}
+class ServiceCfg {
+    public Class<Service> impl;
+}
+
+ServiceCfg cfg = new JsonDeserializer().deserialize(
+    "{\"impl\":\"" + ServiceImpl.class.getName() + "\"}",
+    ServiceCfg.class
+);
+
+assertEquals(ServiceImpl.class, cfg.impl);
+```
+
+Any class assignable to `T` is accepted for `Class<T>`.
 
 ## Validation and errors
 

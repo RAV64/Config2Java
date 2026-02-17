@@ -113,6 +113,21 @@ String lua = "return { foo = { value = { { payload = 'a' } } }, values = { k1 = 
 GenericConfig cfg = new LuaDeserializer().deserialize(lua, GenericConfig.class);
 ```
 
+## Class references
+
+```java
+interface Service {}
+final class ServiceImpl implements Service {}
+class Cfg {
+    public Class<Service> impl;
+}
+
+String lua = "return { impl = '" + ServiceImpl.class.getName() + "' }";
+Cfg cfg = new LuaDeserializer().deserialize(lua, Cfg.class);
+
+assertEquals(ServiceImpl.class, cfg.impl);
+```
+
 ## Nil semantics
 
 ```java
