@@ -174,68 +174,122 @@ public abstract class SharedContractSupport {
         public PositiveInteger n;
     }
 
-    static final class CfgStringLeaf { public NonEmptyString name; }
-    static final class CfgIntLeaf { public PositiveInteger n; }
-    static final class CfgDoubleLeaf { public PositiveDouble x; }
-    static final class CfgEnum { public Mode mode; }
-    static final class CfgBooleanLeaf { public Boolean enabled; }
-    static final class CfgInjected { public Mode mode; public NonEmptyString name; }
+    static final class StringLeaf { public NonEmptyString name; }
+    static final class IntLeaf { public PositiveInteger n; }
+    static final class DoubleLeaf { public PositiveDouble x; }
+    static final class Enum { public Mode mode; }
+    static final class BooleanLeaf { public Boolean enabled; }
+    static final class Injected { public Mode mode; public NonEmptyString name; }
 
-    static final class CfgMissingRequired { public NonEmptyString name; }
-    static final class CfgMissingOptional { public Optional<NonEmptyString> name; }
-    static final class CfgOptionalHasDefaultPresent {
+    static final class MissingRequired { public NonEmptyString name; }
+    static final class MissingOptional { public Optional<NonEmptyString> name; }
+    static final class OptionalHasDefaultPresent {
         public Optional<NonEmptyString> name = Optional.of(new NonEmptyString("x"));
     }
-    static final class CfgDefaultValue { public NonEmptyString name = new NonEmptyString("default"); }
-    static final class CfgExtraKeysIgnored { public NonEmptyString name; }
-    static final class CfgDefaultNestedObjectKept {
+    static final class DefaultValue { public NonEmptyString name = new NonEmptyString("default"); }
+    static final class ExtraKeysIgnored { public NonEmptyString name; }
+    static final class DefaultNestedObjectKept {
         public NestedDefaultsOrOptional db = new NestedDefaultsOrOptional();
     }
 
-    static final class CfgNestedPort { public NestedPort db; }
-    static final class CfgNestedDefaultsOrOptional { public NestedDefaultsOrOptional db; }
-    static final class CfgEmptyTableButNestedHasRequiredField { public NestedPort db; }
+    static final class NestedPortContainer { public NestedPort db; }
+    static final class NestedDefaultsOrOptionalContainer { public NestedDefaultsOrOptional db; }
+    static final class EmptyTableButNestedHasRequiredField { public NestedPort db; }
 
     public static final class NoNoArgNested {
         public NonEmptyString x;
         public NoNoArgNested(NonEmptyString x) { this.x = x; }
     }
-    static final class CfgBadNestedNoNoArg { public NoNoArgNested bad; }
-    static final class CfgNestedProvidedAsString { public NestedPort db; }
+    static final class BadNestedNoNoArg { public NoNoArgNested bad; }
+    static final class NestedProvidedAsString { public NestedPort db; }
 
-    static final class CfgOptionalOfComplex { public Optional<NestedHost> db; }
-    static final class CfgOptionalLeafBadValue { public Optional<PositiveInteger> n; }
+    static final class OptionalOfComplex { public Optional<NestedHost> db; }
+    static final class OptionalLeafBadValue { public Optional<PositiveInteger> n; }
 
-    static final class CfgListOfLeaf { public List<NonEmptyString> tags; }
-    static final class CfgSetOfLeaf { public Set<NonEmptyString> tags; }
-    static final class CfgMapOfLeaf { public Map<NonEmptyString, PositiveInteger> limits; }
-    static final class CfgMapKeyWrongType { public Map<PositiveInteger, PositiveInteger> limits; }
-    static final class CfgListOfComplex { public List<ItemName> items; }
-    static final class CfgMapOfComplex { public Map<NonEmptyString, ItemN> items; }
-    static final class CfgMissingRequiredList { public List<NonEmptyString> tags; }
-    static final class CfgMissingRequiredMap { public Map<NonEmptyString, PositiveInteger> limits; }
-    static final class CfgDefaultListKept {
+    static final class ListOfLeaf { public List<NonEmptyString> tags; }
+    static final class SetOfLeaf { public Set<NonEmptyString> tags; }
+    static final class MapOfLeaf { public Map<NonEmptyString, PositiveInteger> limits; }
+    static final class MapKeyWrongType { public Map<PositiveInteger, PositiveInteger> limits; }
+    static final class ListOfComplex { public List<ItemName> items; }
+    static final class MapOfComplex { public Map<NonEmptyString, ItemN> items; }
+    static final class MissingRequiredList { public List<NonEmptyString> tags; }
+    static final class MissingRequiredMap { public Map<NonEmptyString, PositiveInteger> limits; }
+    static final class DefaultListKept {
         public List<NonEmptyString> tags = new ArrayList<>(Arrays.asList(new NonEmptyString("d")));
     }
-    static final class CfgDefaultMapKept {
+    static final class DefaultMapKept {
         public Map<NonEmptyString, PositiveInteger> limits = new LinkedHashMap<>();
-        public CfgDefaultMapKept() { limits.put(new NonEmptyString("x"), new PositiveInteger(1)); }
+        public DefaultMapKept() { limits.put(new NonEmptyString("x"), new PositiveInteger(1)); }
     }
-    static final class CfgListElementWrongType { public List<NonEmptyString> tags; }
-    static final class CfgMapHasBadEntry { public Map<NonEmptyString, PositiveInteger> limits; }
-    static final class CfgNestedGenericsBadInMap {
+    static final class ListElementWrongType { public List<NonEmptyString> tags; }
+    static final class MapHasBadEntry { public Map<NonEmptyString, PositiveInteger> limits; }
+    static final class NestedGenericsMapValue {
         public Map<NonEmptyString, List<NonEmptyString>> bad;
     }
 
-    static final class CfgCollectAllErrors {
+    static final class GenericBox<T> {
+        public T value;
+    }
+
+    static final class GenericItem<T> {
+        public T payload;
+    }
+
+    static final class StringConstructedGenericKey<T> {
+        public final String value;
+
+        public StringConstructedGenericKey(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof StringConstructedGenericKey)) return false;
+            StringConstructedGenericKey<?> other = (StringConstructedGenericKey<?>) o;
+            return Objects.equals(this.value, other.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.value);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    static final class NestedGenericObjectGraph {
+        public GenericBox<List<GenericItem<String>>> foo;
+    }
+
+    static final class NestedGenericKeyedListMap {
+        public Map<StringConstructedGenericKey<Integer>, List<String>> values;
+    }
+
+    static class UnresolvedTypeVariableField<T> {
+        public T value;
+    }
+
+    static class UnresolvedTypeVariableArrayField<T> {
+        public T[] values;
+    }
+
+    static final class WildcardGenericNestedField {
+        public GenericBox<? extends NonEmptyString> foo;
+    }
+
+    static final class CollectAllErrors {
         public NonEmptyString a;
         public PositiveInteger b;
     }
 
     static class BaseCfg { public NonEmptyString base; }
     static final class DerivedCfg extends BaseCfg { public PositiveInteger child; }
-    static final class CfgPrimitiveFieldNotSupported { public int n; }
-    static final class CfgRootIsComplex { public NonEmptyString name; }
+    static final class PrimitiveFieldNotSupported { public int n; }
+    static final class RootIsComplex { public NonEmptyString name; }
 
     static final class RootA { public NonEmptyString x; }
     static final class RootB { public PositiveInteger y; }
@@ -257,23 +311,23 @@ public abstract class SharedContractSupport {
         }
     }
 
-    static final class CfgOptionalLeafNoDefault { public Optional<PositiveInteger> n; }
-    static final class CfgOptionalLeafWithDefaultPresent {
+    static final class OptionalLeafNoDefault { public Optional<PositiveInteger> n; }
+    static final class OptionalLeafWithDefaultPresent {
         public Optional<NonEmptyString> name = Optional.of(new NonEmptyString("default"));
     }
-    static final class CfgOptionalLeafWithDefaultEmpty {
+    static final class OptionalLeafWithDefaultEmpty {
         public Optional<NonEmptyString> name = Optional.empty();
     }
-    static final class CfgOptionalComplexWithDefaultPresent {
+    static final class OptionalComplexWithDefaultPresent {
         public Optional<TestMe.OInnerTest> onnie = Optional.of(new TestMe.OInnerTest());
     }
-    static final class CfgOptionalComplexNoDefault { public Optional<TestMe.OInnerTest> onnie; }
-    static final class CfgOptionalComplexInnerFieldMutation {
+    static final class OptionalComplexNoDefault { public Optional<TestMe.OInnerTest> onnie; }
+    static final class OptionalComplexInnerFieldMutation {
         public Optional<TestMe.OInnerTest> onnie = Optional.of(new TestMe.OInnerTest());
     }
     public static final class NoNoArgNested2 {
         public NonEmptyString x;
         public NoNoArgNested2(NonEmptyString x) { this.x = x; }
     }
-    static final class CfgOptionalBadInnerNoNoArg { public Optional<NoNoArgNested2> bad; }
+    static final class OptionalBadInnerNoNoArg { public Optional<NoNoArgNested2> bad; }
 }

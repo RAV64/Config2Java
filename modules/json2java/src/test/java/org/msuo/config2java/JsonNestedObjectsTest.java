@@ -8,32 +8,32 @@ public class JsonNestedObjectsTest extends JsonContractSupport {
 
     @Test
     void nestedObject_fromTable_usesNoArgAndSetsFields() {
-        CfgNestedPort cfg = ok("{\"db\":{\"port\":5432}}", CfgNestedPort.class);
+        NestedPortContainer cfg = ok("{\"db\":{\"port\":5432}}", NestedPortContainer.class);
         assertEquals(Integer.valueOf(5432), cfg.db.port.value);
     }
 
     @Test
     void emptyTableForComplex_isEnoughWhenFieldsDefaultOrOptional() {
-        CfgNestedDefaultsOrOptional cfg = ok("{\"db\":{}}", CfgNestedDefaultsOrOptional.class);
+        NestedDefaultsOrOptionalContainer cfg = ok("{\"db\":{}}", NestedDefaultsOrOptionalContainer.class);
         assertEquals("localhost", cfg.db.host.value);
         assertEquals(Optional.empty(), cfg.db.user);
     }
 
     @Test
     void emptyTableForNestedWithRequiredFields_reportsMissingField() {
-        ConfigDeserializationException ex = fails("{\"db\":{}}", CfgEmptyTableButNestedHasRequiredField.class);
+        ConfigDeserializationException ex = fails("{\"db\":{}}", EmptyTableButNestedHasRequiredField.class);
         assertSingleError(ex, ConfigErrorTypes.MissingRequiredField.class, "db", "port");
     }
 
     @Test
     void ifNestedObjectCannotInstantiate_doNotRecurseIntoIt() {
-        ConfigDeserializationException ex = fails("{\"bad\":{\"x\":\"\"}}", CfgBadNestedNoNoArg.class);
+        ConfigDeserializationException ex = fails("{\"bad\":{\"x\":\"\"}}", BadNestedNoNoArg.class);
         assertSingleError(ex, ConfigErrorTypes.NoNoArgCtor.class, "bad");
     }
 
     @Test
     void nestedObjectProvidedAsPrimitive_failsViaMissingConstructor() {
-        ConfigDeserializationException ex = fails("{\"db\":\"nope\"}", CfgNestedProvidedAsString.class);
+        ConfigDeserializationException ex = fails("{\"db\":\"nope\"}", NestedProvidedAsString.class);
         assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "db");
     }
 }

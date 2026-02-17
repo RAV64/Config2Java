@@ -7,7 +7,7 @@ public class LuaErrorAggregationTest extends LuaContractSupport {
 
     @Test
     void collectAllErrors_continueAfterFailures() {
-        ConfigDeserializationException ex = fails("return { a = '', b = 0 }", CfgCollectAllErrors.class);
+        ConfigDeserializationException ex = fails("return { a = '', b = 0 }", CollectAllErrors.class);
         assertEquals(2, ex.getErrors().size());
         assertErrorTreeRootChildren(ex, "a", "b");
         assertErrorType(ex, 0, ConfigErrorTypes.CtorRejected.class);
@@ -16,7 +16,7 @@ public class LuaErrorAggregationTest extends LuaContractSupport {
 
     @Test
     void errorTree_containsExpectedRootChildren() {
-        ConfigDeserializationException ex = fails("return { a = '', b = 0 }", CfgCollectAllErrors.class);
+        ConfigDeserializationException ex = fails("return { a = '', b = 0 }", CollectAllErrors.class);
         assertErrorTreeRootChildren(ex, "a", "b");
     }
 }

@@ -14,16 +14,43 @@ public class TomlReflectionEdgeCasesTest extends TomlContractSupport {
 
     @Test
     void primitiveFieldTypes_areRejected() {
-        ConfigDeserializationException ex = fails("n = 1", CfgPrimitiveFieldNotSupported.class);
+        ConfigDeserializationException ex = fails("n = 1", PrimitiveFieldNotSupported.class);
         assertSingleError(ex, ConfigErrorTypes.PrimitiveNotSupported.class, "n");
     }
 
     @Test
     void rootNotATable_forComplexConfig_fails() {
         ConfigSourceException ex = assertThrows(ConfigSourceException.class, () ->
-            deserialize("'nope'", CfgRootIsComplex.class)
+            deserialize("'nope'", RootIsComplex.class)
         );
         assertEquals("TOML", ex.format());
         assertEquals("parse", ex.phase());
+    }
+
+    @Test
+    void unresolvedTypeVariableField_reportsUnsupportedType() {
+        ConfigDeserializationException ex = fails(
+            "value = 'x'",
+            UnresolvedTypeVariableField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.UnsupportedType.class, "value");
+    }
+
+    @Test
+    void unresolvedTypeVariableArrayField_reportsUnsupportedType() {
+        ConfigDeserializationException ex = fails(
+            "values = ['x']",
+            UnresolvedTypeVariableArrayField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.UnsupportedType.class, "values");
+    }
+
+    @Test
+    void wildcardNestedGenericField_reportsUnsupportedType() {
+        ConfigDeserializationException ex = fails(
+            "[foo]\nvalue = 'x'",
+            WildcardGenericNestedField.class
+        );
+        assertSingleError(ex, ConfigErrorTypes.UnsupportedType.class, "foo", "value");
     }
 }

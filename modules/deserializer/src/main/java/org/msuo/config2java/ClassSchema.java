@@ -15,14 +15,18 @@ final class ClassSchema {
         this.bindings = bindings;
     }
 
-    static ClassSchema build(Class<?> cls) {
-        List<Field> fields = allInstanceFields(cls);
+    static ClassSchema build(Type targetType, Class<?> targetRawClass) {
+        List<Field> fields = allInstanceFields(targetRawClass);
         List<FieldBinding> bs = new ArrayList<>(fields.size());
 
         for (int i = 0; i < fields.size(); i++) {
             Field f = fields.get(i);
             String key = f.getName();
-            Type t = f.getGenericType();
+            Type t = GenericTypeResolver.resolve(
+                targetType,
+                targetRawClass,
+                f.getGenericType()
+            );
             TypeAdapter adapter = ObjectMapper.adapterFor(t);
 
             bs.add(new FieldBinding(f, key, adapter));

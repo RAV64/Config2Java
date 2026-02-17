@@ -1,14 +1,15 @@
 package org.msuo.config2java;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 final class OptionalAdapter implements TypeAdapter {
 
-    private final ParameterizedType pt;
+    private final Type innerType;
 
     OptionalAdapter(ParameterizedType pt) {
-        this.pt = pt;
+        this.innerType = pt.getActualTypeArguments()[0];
     }
 
     @Override
@@ -20,15 +21,7 @@ final class OptionalAdapter implements TypeAdapter {
     public ReadResult read(Path path, ConfigValue value, ErrorCollector errors) {
         if (value.isMissing() || value.isNil()) return ReadResult.ok(Optional.empty());
 
-        Class<?> inner = TypeUtils.requireConcreteClassArg(
-            pt.getActualTypeArguments()[0],
-            path,
-            Errors.optionalInnerMustBeConcrete(pt.getActualTypeArguments()[0]),
-            errors
-        );
-        if (inner == null) return ReadResult.fail();
-
-        ReadResult innerRes = ObjectMapper.readValue(path, inner, value, errors);
+        ReadResult innerRes = ObjectMapper.readValue(path, innerType, value, errors);
         if (!innerRes.ok) return ReadResult.fail();
         return ReadResult.ok(Optional.of(innerRes.value));
     }

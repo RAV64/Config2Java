@@ -1,6 +1,5 @@
 package org.msuo.config2java;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -13,12 +12,6 @@ public final class ConfigErrorTypes {
         private final Type type;
         UnsupportedType(Type type) { this.type = type; }
         @Override public String message() { return "Unsupported Type: " + type; }
-    }
-
-    public static final class UnsupportedParameterized implements ConfigErrorType {
-        private final ParameterizedType type;
-        UnsupportedParameterized(ParameterizedType type) { this.type = type; }
-        @Override public String message() { return "Unsupported parameterized type: " + type; }
     }
 
     public static final class UnsupportedParameterizedRaw implements ConfigErrorType {
@@ -75,30 +68,6 @@ public final class ConfigErrorTypes {
             this.gotTypeName = gotTypeName;
         }
         @Override public String message() { return "Expected table/array for " + raw.getSimpleName() + ", got: " + gotTypeName; }
-    }
-
-    public static final class OptionalInnerMustBeConcrete implements ConfigErrorType {
-        private final Type inner;
-        OptionalInnerMustBeConcrete(Type inner) { this.inner = inner; }
-        @Override public String message() { return "Optional inner type must be a concrete class (no nested generics). Got: " + inner; }
-    }
-
-    public static final class CollectionElementMustBeConcrete implements ConfigErrorType {
-        private final Type elem;
-        CollectionElementMustBeConcrete(Type elem) { this.elem = elem; }
-        @Override public String message() { return "Collection element type must be a concrete class (no nested generics). Got: " + elem; }
-    }
-
-    public static final class MapKeyMustBeConcrete implements ConfigErrorType {
-        private final Type keyType;
-        MapKeyMustBeConcrete(Type keyType) { this.keyType = keyType; }
-        @Override public String message() { return "Map key type must be a concrete class (no nested generics). Got: " + keyType; }
-    }
-
-    public static final class MapValueMustBeConcrete implements ConfigErrorType {
-        private final Type valueType;
-        MapValueMustBeConcrete(Type valueType) { this.valueType = valueType; }
-        @Override public String message() { return "Map value type must be a concrete class (no nested generics). Got: " + valueType; }
     }
 
     public static final class MissingRequiredField implements ConfigErrorType {

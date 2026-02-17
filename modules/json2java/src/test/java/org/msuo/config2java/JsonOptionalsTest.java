@@ -7,14 +7,14 @@ public class JsonOptionalsTest extends JsonContractSupport {
 
     @Test
     void optionalOfComplex_supported() {
-        CfgOptionalOfComplex cfg = ok("{\"db\":{\"host\":\"x\"}}", CfgOptionalOfComplex.class);
+        OptionalOfComplex cfg = ok("{\"db\":{\"host\":\"x\"}}", OptionalOfComplex.class);
         assertTrue(cfg.db.isPresent());
         assertEquals("x", cfg.db.get().host.value);
     }
 
     @Test
     void optionalLeaf_badValue_reportsError() {
-        ConfigDeserializationException ex = fails("{\"n\":0}", CfgOptionalLeafBadValue.class);
+        ConfigDeserializationException ex = fails("{\"n\":0}", OptionalLeafBadValue.class);
         assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "n");
     }
 }

@@ -8,38 +8,38 @@ public class LuaMissingAndDefaultsTest extends LuaContractSupport {
 
     @Test
     void missingRequired_withoutDefault_fails() {
-        ConfigDeserializationException ex = fails("return {}", CfgMissingRequired.class);
+        ConfigDeserializationException ex = fails("return {}", MissingRequired.class);
         assertSingleError(ex, ConfigErrorTypes.MissingRequiredField.class, "name");
     }
 
     @Test
     void missingOptional_defaultsToEmpty() {
-        CfgMissingOptional cfg = ok("return {}", CfgMissingOptional.class);
+        MissingOptional cfg = ok("return {}", MissingOptional.class);
         assertEquals(Optional.empty(), cfg.name);
     }
 
     @Test
     void optionalDefaultPresent_isKeptWhenKeyMissing() {
-        CfgOptionalHasDefaultPresent cfg = ok("return {}", CfgOptionalHasDefaultPresent.class);
+        OptionalHasDefaultPresent cfg = ok("return {}", OptionalHasDefaultPresent.class);
         assertTrue(cfg.name.isPresent());
         assertEquals("x", cfg.name.get().value);
     }
 
     @Test
     void defaultValue_isKeptWhenKeyMissing() {
-        CfgDefaultValue cfg = ok("return {}", CfgDefaultValue.class);
+        DefaultValue cfg = ok("return {}", DefaultValue.class);
         assertEquals("default", cfg.name.value);
     }
 
     @Test
     void extraKeys_areIgnored() {
-        CfgExtraKeysIgnored cfg = ok("return { name = 'ok', extra = 123, other = { a = 1 } }", CfgExtraKeysIgnored.class);
+        ExtraKeysIgnored cfg = ok("return { name = 'ok', extra = 123, other = { a = 1 } }", ExtraKeysIgnored.class);
         assertEquals("ok", cfg.name.value);
     }
 
     @Test
     void defaultNestedObject_isKeptWhenKeyMissing() {
-        CfgDefaultNestedObjectKept cfg = ok("return {}", CfgDefaultNestedObjectKept.class);
+        DefaultNestedObjectKept cfg = ok("return {}", DefaultNestedObjectKept.class);
         assertNotNull(cfg.db);
         assertEquals("localhost", cfg.db.host.value);
         assertEquals(Optional.empty(), cfg.db.user);

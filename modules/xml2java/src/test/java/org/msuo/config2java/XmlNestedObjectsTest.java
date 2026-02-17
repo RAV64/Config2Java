@@ -8,32 +8,32 @@ public class XmlNestedObjectsTest extends XmlContractSupport {
 
     @Test
     void nestedObject_fromTable_usesNoArgAndSetsFields() {
-        CfgNestedPort cfg = ok("<config><db><port>5432</port></db></config>", CfgNestedPort.class);
+        NestedPortContainer cfg = ok("<config><db><port>5432</port></db></config>", NestedPortContainer.class);
         assertEquals(Integer.valueOf(5432), cfg.db.port.value);
     }
 
     @Test
     void emptyTableForComplex_isEnoughWhenFieldsDefaultOrOptional() {
-        CfgNestedDefaultsOrOptional cfg = ok("<config><db><dummy/></db></config>", CfgNestedDefaultsOrOptional.class);
+        NestedDefaultsOrOptionalContainer cfg = ok("<config><db><dummy/></db></config>", NestedDefaultsOrOptionalContainer.class);
         assertEquals("localhost", cfg.db.host.value);
         assertEquals(Optional.empty(), cfg.db.user);
     }
 
     @Test
     void emptyTableForNestedWithRequiredFields_reportsMissingField() {
-        ConfigDeserializationException ex = fails("<config><db><dummy/></db></config>", CfgEmptyTableButNestedHasRequiredField.class);
+        ConfigDeserializationException ex = fails("<config><db><dummy/></db></config>", EmptyTableButNestedHasRequiredField.class);
         assertSingleError(ex, ConfigErrorTypes.MissingRequiredField.class, "db", "port");
     }
 
     @Test
     void ifNestedObjectCannotInstantiate_doNotRecurseIntoIt() {
-        ConfigDeserializationException ex = fails("<config><bad><x></x></bad></config>", CfgBadNestedNoNoArg.class);
+        ConfigDeserializationException ex = fails("<config><bad><x></x></bad></config>", BadNestedNoNoArg.class);
         assertSingleError(ex, ConfigErrorTypes.NoNoArgCtor.class, "bad");
     }
 
     @Test
     void nestedObjectProvidedAsPrimitive_failsViaMissingConstructor() {
-        ConfigDeserializationException ex = fails("<config><db>nope</db></config>", CfgNestedProvidedAsString.class);
+        ConfigDeserializationException ex = fails("<config><db>nope</db></config>", NestedProvidedAsString.class);
         assertSingleError(ex, ConfigErrorTypes.NoOneArgCtor.class, "db");
     }
 }

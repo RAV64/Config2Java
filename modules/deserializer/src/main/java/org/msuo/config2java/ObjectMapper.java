@@ -49,12 +49,12 @@ final class ObjectMapper {
         if (Map.class.isAssignableFrom(rawClass)) return new MapAdapter(pt);
         if (Collection.class.isAssignableFrom(rawClass)) return new CollectionAdapter(pt, rawClass);
 
-        return new UnsupportedAdapter(Errors.unsupportedParameterized(pt));
+        return new ClassAdapter(pt, rawClass);
     }
 
     private static TypeAdapter adapterForClass(Class<?> cls) {
         if (cls.isPrimitive()) return new PrimitiveRejectedAdapter(cls);
         if (cls.isEnum()) return new EnumAdapter(cls);
-        return new ClassAdapter(cls);
+        return new ClassAdapter(cls, cls);
     }
 }

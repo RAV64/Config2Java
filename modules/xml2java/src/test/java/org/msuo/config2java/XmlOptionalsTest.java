@@ -7,14 +7,14 @@ public class XmlOptionalsTest extends XmlContractSupport {
 
     @Test
     void optionalOfComplex_supported() {
-        CfgOptionalOfComplex cfg = ok("<config><db><host>x</host></db></config>", CfgOptionalOfComplex.class);
+        OptionalOfComplex cfg = ok("<config><db><host>x</host></db></config>", OptionalOfComplex.class);
         assertTrue(cfg.db.isPresent());
         assertEquals("x", cfg.db.get().host.value);
     }
 
     @Test
     void optionalLeaf_badValue_reportsError() {
-        ConfigDeserializationException ex = fails("<config><n>0</n></config>", CfgOptionalLeafBadValue.class);
+        ConfigDeserializationException ex = fails("<config><n>0</n></config>", OptionalLeafBadValue.class);
         assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "n");
     }
 }

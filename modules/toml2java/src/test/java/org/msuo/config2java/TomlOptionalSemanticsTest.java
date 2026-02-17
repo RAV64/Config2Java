@@ -8,15 +8,15 @@ public class TomlOptionalSemanticsTest extends TomlContractSupport {
 
     @Test
     void missingOptional_withoutDefault_defaultsToEmpty() {
-        CfgOptionalLeafNoDefault cfg = ok("", CfgOptionalLeafNoDefault.class);
+        OptionalLeafNoDefault cfg = ok("", OptionalLeafNoDefault.class);
         assertEquals(Optional.empty(), cfg.n);
     }
 
     @Test
     void optionalComplex_nilOrMissing_keepsDefaultPresent() {
-        CfgOptionalComplexWithDefaultPresent cfg = ok(
+        OptionalComplexWithDefaultPresent cfg = ok(
             "",
-            CfgOptionalComplexWithDefaultPresent.class
+            OptionalComplexWithDefaultPresent.class
         );
         assertTrue(cfg.onnie.isPresent());
         assertEquals("c", cfg.onnie.get().c);
@@ -25,45 +25,45 @@ public class TomlOptionalSemanticsTest extends TomlContractSupport {
 
     @Test
     void missingOptional_keepsDefaultPresent() {
-        CfgOptionalLeafWithDefaultPresent cfg = ok("", CfgOptionalLeafWithDefaultPresent.class);
+        OptionalLeafWithDefaultPresent cfg = ok("", OptionalLeafWithDefaultPresent.class);
         assertTrue(cfg.name.isPresent());
         assertEquals("default", cfg.name.get().value);
     }
 
     @Test
     void missingOptional_keepsDefaultEmpty() {
-        CfgOptionalLeafWithDefaultEmpty cfg = ok("", CfgOptionalLeafWithDefaultEmpty.class);
+        OptionalLeafWithDefaultEmpty cfg = ok("", OptionalLeafWithDefaultEmpty.class);
         assertEquals(Optional.empty(), cfg.name);
     }
 
     @Test
     void providedValidOptionalLeaf_parsesPresent() {
-        CfgOptionalLeafNoDefault cfg = ok("n = 3", CfgOptionalLeafNoDefault.class);
+        OptionalLeafNoDefault cfg = ok("n = 3", OptionalLeafNoDefault.class);
         assertTrue(cfg.n.isPresent());
         assertEquals(Integer.valueOf(3), cfg.n.get().value);
     }
 
     @Test
     void providedInvalidOptionalLeaf_fails_andDoesNotOverwriteDefaultPresent() {
-        ConfigDeserializationException ex = fails("name = ''", CfgOptionalLeafWithDefaultPresent.class);
+        ConfigDeserializationException ex = fails("name = ''", OptionalLeafWithDefaultPresent.class);
         assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "name");
     }
 
     @Test
     void providedInvalidOptionalLeaf_fails_atOptionalPath() {
-        ConfigDeserializationException ex = fails("n = 0", CfgOptionalLeafNoDefault.class);
+        ConfigDeserializationException ex = fails("n = 0", OptionalLeafNoDefault.class);
         assertSingleError(ex, ConfigErrorTypes.CtorRejected.class, "n");
     }
 
     @Test
     void optionalComplex_missing_withoutDefault_defaultsToEmpty() {
-        CfgOptionalComplexNoDefault cfg = ok("", CfgOptionalComplexNoDefault.class);
+        OptionalComplexNoDefault cfg = ok("", OptionalComplexNoDefault.class);
         assertEquals(Optional.empty(), cfg.onnie);
     }
 
     @Test
     void optionalComplex_missing_keepsDefaultPresent() {
-        CfgOptionalComplexWithDefaultPresent cfg = ok("", CfgOptionalComplexWithDefaultPresent.class);
+        OptionalComplexWithDefaultPresent cfg = ok("", OptionalComplexWithDefaultPresent.class);
         assertTrue(cfg.onnie.isPresent());
         assertEquals("c", cfg.onnie.get().c);
         assertEquals(Integer.valueOf(5), cfg.onnie.get().d);
@@ -71,7 +71,7 @@ public class TomlOptionalSemanticsTest extends TomlContractSupport {
 
     @Test
     void optionalComplex_provided_overridesDefault_andMutatesInnerFields() {
-        CfgOptionalComplexInnerFieldMutation cfg = ok("[onnie]\nc = 'k'", CfgOptionalComplexInnerFieldMutation.class);
+        OptionalComplexInnerFieldMutation cfg = ok("[onnie]\nc = 'k'", OptionalComplexInnerFieldMutation.class);
         assertTrue(cfg.onnie.isPresent());
         assertEquals("k", cfg.onnie.get().c);
         assertEquals(Integer.valueOf(5), cfg.onnie.get().d);
@@ -79,14 +79,14 @@ public class TomlOptionalSemanticsTest extends TomlContractSupport {
 
     @Test
     void providedNilOptional_isIndistinguishableFromMissing_andKeepsDefaultPresent() {
-        CfgOptionalLeafWithDefaultPresent cfg = ok("", CfgOptionalLeafWithDefaultPresent.class);
+        OptionalLeafWithDefaultPresent cfg = ok("", OptionalLeafWithDefaultPresent.class);
         assertTrue(cfg.name.isPresent());
         assertEquals("default", cfg.name.get().value);
     }
 
     @Test
     void optionalComplex_providedEmptyTable_isPresent_andKeepsInnerDefaults() {
-        CfgOptionalComplexNoDefault cfg = ok("[onnie]", CfgOptionalComplexNoDefault.class);
+        OptionalComplexNoDefault cfg = ok("[onnie]", OptionalComplexNoDefault.class);
 
         assertTrue(cfg.onnie.isPresent());
         assertEquals("c", cfg.onnie.get().c);
@@ -95,7 +95,7 @@ public class TomlOptionalSemanticsTest extends TomlContractSupport {
 
     @Test
     void optionalComplex_providedButInnerCannotInstantiate_fails() {
-        ConfigDeserializationException ex = fails("[bad]\nx = 'ok'", CfgOptionalBadInnerNoNoArg.class);
+        ConfigDeserializationException ex = fails("[bad]\nx = 'ok'", OptionalBadInnerNoNoArg.class);
         assertSingleError(ex, ConfigErrorTypes.NoNoArgCtor.class, "bad");
     }
 }

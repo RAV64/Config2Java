@@ -19,13 +19,13 @@ class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
         environment.put(ENV_KEY, null);
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = deserializer.deserialize(
+        Injected cfg = deserializer.deserialize(
             "local cfg = { mode = 'DEV', name = defaultName }\n" +
             "if os.getenv('" + ENV_KEY + "') == 'prod' then\n" +
             "  cfg.mode = 'PROD'\n" +
             "end\n" +
             "return cfg",
-            CfgInjected.class,
+            Injected.class,
             environment,
             globals
         );
@@ -39,13 +39,13 @@ class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
         Map<String, String> environment = Map.of(ENV_KEY, "prod");
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = deserializer.deserialize(
+        Injected cfg = deserializer.deserialize(
             "local cfg = { mode = 'DEV', name = defaultName }\n" +
             "if os.getenv('" + ENV_KEY + "') == 'prod' then\n" +
             "  cfg.mode = 'PROD'\n" +
             "end\n" +
             "return cfg",
-            CfgInjected.class,
+            Injected.class,
             environment,
             globals
         );
@@ -64,7 +64,7 @@ class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
             "cfg.name = cfg.name .. '-updated'\n" +
             "return cfg";
 
-        CfgInjected cfg = deserializer.deserialize(mainScript, CfgInjected.class);
+        Injected cfg = deserializer.deserialize(mainScript, Injected.class);
 
         assertEquals(Mode.PROD, cfg.mode);
         assertEquals("from-file-updated", cfg.name.value);

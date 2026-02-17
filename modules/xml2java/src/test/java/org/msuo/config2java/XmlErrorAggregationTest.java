@@ -7,7 +7,7 @@ public class XmlErrorAggregationTest extends XmlContractSupport {
 
     @Test
     void collectAllErrors_continueAfterFailures() {
-        ConfigDeserializationException ex = fails("<config><a></a><b>0</b></config>", CfgCollectAllErrors.class);
+        ConfigDeserializationException ex = fails("<config><a></a><b>0</b></config>", CollectAllErrors.class);
         assertEquals(2, ex.getErrors().size());
         assertErrorTreeRootChildren(ex, "a", "b");
         assertErrorType(ex, 0, ConfigErrorTypes.CtorRejected.class);
@@ -16,7 +16,7 @@ public class XmlErrorAggregationTest extends XmlContractSupport {
 
     @Test
     void errorTree_containsExpectedRootChildren() {
-        ConfigDeserializationException ex = fails("<config><a></a><b>0</b></config>", CfgCollectAllErrors.class);
+        ConfigDeserializationException ex = fails("<config><a></a><b>0</b></config>", CollectAllErrors.class);
         assertErrorTreeRootChildren(ex, "a", "b");
     }
 }

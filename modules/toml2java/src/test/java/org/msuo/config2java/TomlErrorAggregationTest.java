@@ -7,7 +7,7 @@ public class TomlErrorAggregationTest extends TomlContractSupport {
 
     @Test
     void collectAllErrors_continueAfterFailures() {
-        ConfigDeserializationException ex = fails("a = ''\nb = 0", CfgCollectAllErrors.class);
+        ConfigDeserializationException ex = fails("a = ''\nb = 0", CollectAllErrors.class);
         assertEquals(2, ex.getErrors().size());
         assertErrorTreeRootChildren(ex, "a", "b");
         assertErrorType(ex, 0, ConfigErrorTypes.CtorRejected.class);
@@ -16,7 +16,7 @@ public class TomlErrorAggregationTest extends TomlContractSupport {
 
     @Test
     void errorTree_containsExpectedRootChildren() {
-        ConfigDeserializationException ex = fails("a = ''\nb = 0", CfgCollectAllErrors.class);
+        ConfigDeserializationException ex = fails("a = ''\nb = 0", CollectAllErrors.class);
         assertErrorTreeRootChildren(ex, "a", "b");
     }
 }

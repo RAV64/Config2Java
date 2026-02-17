@@ -183,19 +183,9 @@ Real trigger:
 A field type resolves to a `Type` that is neither `Class<?>` nor `ParameterizedType` in the mapper.
 
 How to fix:
-Use supported field declarations (`Class`, `Enum`, `Optional<T>`, `Collection<T>`, `Map<K,V>`).
+Use supported field declarations (`Class<?>` and parameterized types with concrete raw classes, including nested generics).
 
-### 2) `UnsupportedParameterized`
-Message:
-`Unsupported parameterized type: <type>`
-
-Real trigger:
-A parameterized type has a class raw type, but the raw type is not `Optional`, `Collection`/`List`/`Set`, or `Map`.
-
-How to fix:
-Use supported generics, or wrap unsupported generic structures in concrete classes.
-
-### 3) `UnsupportedParameterizedRaw`
+### 2) `UnsupportedParameterizedRaw`
 Message:
 `Unsupported parameterized raw type: <raw>`
 
@@ -205,7 +195,7 @@ Parameterized raw type is not a `Class<?>`.
 How to fix:
 Use normal class-based generic declarations.
 
-### 4) `PrimitiveNotSupported`
+### 3) `PrimitiveNotSupported`
 Message:
 `Primitive field types are not supported: <primitive>`
 
@@ -215,7 +205,7 @@ A target field is primitive (`int`, `boolean`, etc.).
 How to fix:
 Use boxed types (`Integer`, `Boolean`, etc.).
 
-### 5) `EnumExpectedString`
+### 4) `EnumExpectedString`
 Message:
 `Enum expects string name, got: <type>`
 
@@ -225,7 +215,7 @@ Enum field receives non-string scalar or non-scalar value.
 How to fix:
 Provide enum as a string value.
 
-### 6) `EnumUnknown`
+### 5) `EnumUnknown`
 Message:
 `Unknown enum value '<value>' for <EnumClass>. Valid values: [A, B, ...]`
 
@@ -235,7 +225,7 @@ String value does not match any enum constant name.
 How to fix:
 Use a valid enum constant name exactly.
 
-### 7) `ExpectedScalar`
+### 6) `ExpectedScalar`
 Message:
 `Expected primitive (string/number/bool), got: <type>`
 
@@ -245,7 +235,7 @@ Leaf/value-object target receives table/array/object instead of scalar.
 How to fix:
 Provide scalar input or change Java field type to object/collection.
 
-### 8) `MapExpected`
+### 7) `MapExpected`
 Message:
 `Expected table for Map, got: <type>`
 
@@ -255,7 +245,7 @@ Real trigger:
 How to fix:
 Provide object/table-like input.
 
-### 9) `CollectionExpected`
+### 8) `CollectionExpected`
 Message:
 `Expected table/array for <CollectionType>, got: <type>`
 
@@ -265,47 +255,7 @@ Real trigger:
 How to fix:
 Provide list/array/table-like input.
 
-### 10) `OptionalInnerMustBeConcrete`
-Message:
-`Optional inner type must be a concrete class (no nested generics). Got: <type>`
-
-Real trigger:
-`Optional<T>` inner type is not a concrete class.
-
-How to fix:
-Use `Optional<ConcreteType>`.
-
-### 11) `CollectionElementMustBeConcrete`
-Message:
-`Collection element type must be a concrete class (no nested generics). Got: <type>`
-
-Real trigger:
-Collection element type is not a concrete class.
-
-How to fix:
-Use concrete element types.
-
-### 12) `MapKeyMustBeConcrete`
-Message:
-`Map key type must be a concrete class (no nested generics). Got: <type>`
-
-Real trigger:
-Map key type is not a concrete class.
-
-How to fix:
-Use concrete key types.
-
-### 13) `MapValueMustBeConcrete`
-Message:
-`Map value type must be a concrete class (no nested generics). Got: <type>`
-
-Real trigger:
-Map value type is not a concrete class.
-
-How to fix:
-Use concrete value types.
-
-### 14) `MissingRequiredField`
+### 9) `MissingRequiredField`
 Message:
 `Missing required field (no default value).`
 
@@ -315,7 +265,7 @@ Key is missing and field has no default and no optional/missing adapter fallback
 How to fix:
 Provide key, set a default, or change field to `Optional<T>`.
 
-### 15) `NoOneArgCtor`
+### 10) `NoOneArgCtor`
 Message:
 `No 1-arg constructor on <Type> accepting <ScalarType>`
 
@@ -325,7 +275,7 @@ Leaf value mapping needs value-object construction, but constructor signature do
 How to fix:
 Add matching one-arg constructor or change input scalar type.
 
-### 16) `CtorRejected`
+### 11) `CtorRejected`
 Message:
 `Value [<value>] rejected by <Type>: <reason>`
 
@@ -338,7 +288,7 @@ Fix input value or constructor validation logic.
 Example:
 `Value [-1] rejected by PositiveInteger: must be > 0`
 
-### 17) `CtorCallFailed`
+### 12) `CtorCallFailed`
 Message:
 `Failed calling constructor for <Type>: <reason>`
 
@@ -348,7 +298,7 @@ One-arg constructor invocation fails reflectively for non-validation reasons.
 How to fix:
 Check constructor accessibility/reflective constraints and type assumptions.
 
-### 18) `NoNoArgCtor`
+### 13) `NoNoArgCtor`
 Message:
 `No no-arg constructor for nested object type: <Type>`
 
@@ -358,7 +308,7 @@ Object mapping requires a no-arg constructor and none exists.
 How to fix:
 Add a no-arg constructor or change model shape.
 
-### 19) `CtorFailed`
+### 14) `CtorFailed`
 Message:
 `Constructor failed for <Type>: <reason>`
 
@@ -368,7 +318,7 @@ No-arg constructor exists but throws while instantiating nested object.
 How to fix:
 Avoid throwing from construction path used by object mapping.
 
-### 20) `InstantiateFailed`
+### 15) `InstantiateFailed`
 Message:
 `Failed to instantiate <Type>: <reason>`
 
@@ -378,7 +328,7 @@ Reflective no-arg instantiation fails (for example abstract type or reflection f
 How to fix:
 Use concrete instantiable field types.
 
-### 21) `FieldSetAccess`
+### 16) `FieldSetAccess`
 Message:
 `Failed to set field (access): <reason>`
 
@@ -388,7 +338,7 @@ Reflection cannot assign field due to access/security restriction at runtime.
 How to fix:
 Allow reflective field access in runtime environment.
 
-### 22) `FieldSetTypeMismatch`
+### 17) `FieldSetTypeMismatch`
 Message:
 `Failed to set field (type mismatch): <reason>`
 
@@ -398,7 +348,7 @@ Bound value type is incompatible with field type.
 How to fix:
 Align field declaration with actual bound value type.
 
-### 23) `FieldAccessSetup`
+### 18) `FieldAccessSetup`
 Message:
 `Failed to access field reflectively: <reason>`
 
@@ -408,7 +358,7 @@ Runtime blocks reflective access setup (`setAccessible(true)`), for example modu
 How to fix:
 Open module/package for reflection, or use a runtime that allows reflective access for your config model types.
 
-### 24) `FieldReadAccess`
+### 19) `FieldReadAccess`
 Message:
 `Failed to read field default value: <reason>`
 

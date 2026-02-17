@@ -1,6 +1,5 @@
 package org.msuo.config2java;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 final class Errors {
@@ -9,10 +8,6 @@ final class Errors {
 
     static ConfigErrorType unsupportedType(Type t) {
         return new ConfigErrorTypes.UnsupportedType(t);
-    }
-
-    static ConfigErrorType unsupportedParameterized(ParameterizedType pt) {
-        return new ConfigErrorTypes.UnsupportedParameterized(pt);
     }
 
     static ConfigErrorType unsupportedParameterizedRaw(Type raw) {
@@ -41,22 +36,6 @@ final class Errors {
 
     static ConfigErrorType collectionExpected(Class<?> raw, ConfigValue got) {
         return new ConfigErrorTypes.CollectionExpected(raw, got.typename());
-    }
-
-    static ConfigErrorType optionalInnerMustBeConcrete(Type inner) {
-        return new ConfigErrorTypes.OptionalInnerMustBeConcrete(inner);
-    }
-
-    static ConfigErrorType collectionElementMustBeConcrete(Type elem) {
-        return new ConfigErrorTypes.CollectionElementMustBeConcrete(elem);
-    }
-
-    static ConfigErrorType mapKeyMustBeConcrete(Type kType) {
-        return new ConfigErrorTypes.MapKeyMustBeConcrete(kType);
-    }
-
-    static ConfigErrorType mapValueMustBeConcrete(Type vType) {
-        return new ConfigErrorTypes.MapValueMustBeConcrete(vType);
     }
 
     static ConfigErrorType missingRequiredField() {

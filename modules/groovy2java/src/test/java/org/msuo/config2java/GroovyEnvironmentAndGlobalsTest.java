@@ -19,13 +19,13 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
         environment.put(ENV_KEY, null);
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = deserializer.deserialize(
+        Injected cfg = deserializer.deserialize(
             "def cfg = [mode: 'DEV', name: defaultName]\n" +
             "if (ENV." + ENV_KEY + " == 'prod') {\n" +
             "  cfg.mode = 'PROD'\n" +
             "}\n" +
             "return cfg",
-            CfgInjected.class,
+            Injected.class,
             environment,
             globals
         );
@@ -39,13 +39,13 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
         Map<String, String> environment = Map.of(ENV_KEY, "prod");
         Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
-        CfgInjected cfg = deserializer.deserialize(
+        Injected cfg = deserializer.deserialize(
             "def cfg = [mode: 'DEV', name: defaultName]\n" +
             "if (ENV." + ENV_KEY + " == 'prod') {\n" +
             "  cfg.mode = 'PROD'\n" +
             "}\n" +
             "return cfg",
-            CfgInjected.class,
+            Injected.class,
             environment,
             globals
         );
@@ -56,9 +56,9 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
 
     @Test
     void scriptWithoutReturn_usesImplicitGroovyReturn() {
-        CfgInjected cfg = deserializer.deserialize(
+        Injected cfg = deserializer.deserialize(
             "[mode: 'DEV', name: 'n']",
-            CfgInjected.class
+            Injected.class
         );
 
         assertEquals(Mode.DEV, cfg.mode);
@@ -75,7 +75,7 @@ class GroovyEnvironmentAndGlobalsTest extends GroovyContractSupport {
             "cfg.name = cfg.name + '-updated'\n" +
             "return cfg";
 
-        CfgInjected cfg = deserializer.deserialize(mainScript, CfgInjected.class);
+        Injected cfg = deserializer.deserialize(mainScript, Injected.class);
 
         assertEquals(Mode.PROD, cfg.mode);
         assertEquals("from-file-updated", cfg.name.value);
