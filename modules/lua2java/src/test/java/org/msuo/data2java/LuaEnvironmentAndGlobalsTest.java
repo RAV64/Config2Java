@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
-    private static final String ENV_KEY = "CONFIG2JAVA_TEST_APP_ENV_6A0C9341_EE7F_4F5A_BA4A";
+    private static final String ENV_KEY = "DATA2JAVA_TEST_APP_ENV_6A0C9341_EE7F_4F5A_BA4A";
     private final ScriptDeserializer deserializer = new LuaDeserializer();
 
     @Test
@@ -55,9 +55,9 @@ class LuaEnvironmentAndGlobalsTest extends LuaContractSupport {
     }
 
     @Test
-    void canImportLuaFile_modifyImportedContent_andReturnForBinding()
+    void canLoadLuaFile_modifyLoadedContent_andReturnForBinding()
         throws URISyntaxException {
-        String luaPath = luaString(resourcePath("/corpus/import/base-config.lua").toString());
+        String luaPath = luaString(resourcePath("/corpus/load/base-data.lua").toString());
         String mainScript =
             "local data = dofile(" + luaPath + ")\n" +
             "data.mode = 'PROD'\n" +
