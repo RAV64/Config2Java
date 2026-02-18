@@ -1,6 +1,6 @@
 # json2java
 
-JSON deserializer for Data2Java.
+JSON to Java deserializer for Data2Java.
 
 Depends on:
 - [../deserializer](../deserializer/README.md)

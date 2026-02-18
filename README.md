@@ -1,17 +1,17 @@
 # Data2Java
 
-Data2Java maps data into validated **null-safe** Java objects.
+Data2Java is a data-to-Java deserializer that maps data into validated **null-safe** Java objects.
 
 This repository is a monorepo with one core module and format-specific modules. You can depend on exactly the formats you need.
 
 ## Modules
 
 - [modules/deserializer](modules/deserializer/README.md): core object-mapping/validation engine
-- [modules/lua2java](modules/lua2java/README.md): Lua deserializer
-- [modules/groovy2java](modules/groovy2java/README.md): Groovy deserializer
-- [modules/toml2java](modules/toml2java/README.md): TOML deserializer
-- [modules/json2java](modules/json2java/README.md): JSON deserializer
-- [modules/xml2java](modules/xml2java/README.md): XML deserializer
+- [modules/lua2java](modules/lua2java/README.md): Lua to Java deserializer
+- [modules/groovy2java](modules/groovy2java/README.md): Groovy to Java deserializer
+- [modules/toml2java](modules/toml2java/README.md): TOML to Java deserializer
+- [modules/json2java](modules/json2java/README.md): JSON to Java deserializer
+- [modules/xml2java](modules/xml2java/README.md): XML to Java deserializer
 - [errors.md](errors.md): shared error variants and troubleshooting
 
 ## Dependency model

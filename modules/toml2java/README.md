@@ -1,6 +1,6 @@
 # toml2java
 
-TOML deserializer for Data2Java.
+TOML to Java deserializer for Data2Java.
 
 Depends on:
 - [../deserializer](../deserializer/README.md)

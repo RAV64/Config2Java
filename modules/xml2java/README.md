@@ -1,6 +1,6 @@
 # xml2java
 
-XML deserializer for Data2Java.
+XML to Java deserializer for Data2Java.
 
 Depends on:
 - [../deserializer](../deserializer/README.md)

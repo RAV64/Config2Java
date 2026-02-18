@@ -1,6 +1,6 @@
 # groovy2java
 
-Groovy deserializer for Data2Java.
+Groovy to Java deserializer for Data2Java.
 
 Depends on:
 - [../deserializer](../deserializer/README.md)

@@ -1,6 +1,6 @@
 # lua2java
 
-Lua deserializer for Data2Java.
+Lua to Java deserializer for Data2Java.
 
 Depends on:
 - [../deserializer](../deserializer/README.md)
