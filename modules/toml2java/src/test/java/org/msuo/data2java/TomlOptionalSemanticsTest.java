@@ -98,4 +98,13 @@ public class TomlOptionalSemanticsTest extends TomlContractSupport {
         DataDeserializationException ex = fails("[bad]\nx = 'ok'", OptionalBadInnerNoNoArg.class);
         assertSingleError(ex, DataErrorTypes.NoNoArgCtor.class, "bad");
     }
+
+    @Test
+    void optionalComplex_withUnknownNestedField_reportsUnknownField() {
+        DataDeserializationException ex = fails(
+            "[onnie]\nc = 'k'\nextra = 1",
+            OptionalComplexNoDefault.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "onnie", "extra");
+    }
 }

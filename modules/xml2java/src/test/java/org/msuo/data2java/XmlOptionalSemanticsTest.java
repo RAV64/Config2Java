@@ -86,7 +86,7 @@ public class XmlOptionalSemanticsTest extends XmlContractSupport {
 
     @Test
     void optionalComplex_providedEmptyTable_isPresent_andKeepsInnerDefaults() {
-        OptionalComplexNoDefault data = ok("<data><onnie><dummy/></onnie></data>", OptionalComplexNoDefault.class);
+        OptionalComplexNoDefault data = ok("<data><onnie/></data>", OptionalComplexNoDefault.class);
 
         assertTrue(data.onnie.isPresent());
         assertEquals("c", data.onnie.get().c);
@@ -97,5 +97,14 @@ public class XmlOptionalSemanticsTest extends XmlContractSupport {
     void optionalComplex_providedButInnerCannotInstantiate_fails() {
         DataDeserializationException ex = fails("<data><bad><x>ok</x></bad></data>", OptionalBadInnerNoNoArg.class);
         assertSingleError(ex, DataErrorTypes.NoNoArgCtor.class, "bad");
+    }
+
+    @Test
+    void optionalComplex_withUnknownNestedField_reportsUnknownField() {
+        DataDeserializationException ex = fails(
+            "<data><onnie><c>k</c><extra>1</extra></onnie></data>",
+            OptionalComplexNoDefault.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "onnie", "extra");
     }
 }

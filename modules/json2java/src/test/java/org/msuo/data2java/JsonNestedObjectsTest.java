@@ -36,4 +36,13 @@ public class JsonNestedObjectsTest extends JsonContractSupport {
         DataDeserializationException ex = fails("{\"db\":\"nope\"}", NestedProvidedAsString.class);
         assertSingleError(ex, DataErrorTypes.NoOneArgCtor.class, "db");
     }
+
+    @Test
+    void nestedObject_withUnknownField_reportsNestedUnknownField() {
+        DataDeserializationException ex = fails(
+            "{\"db\":{\"port\":5432,\"extra\":1}}",
+            NestedPortContainer.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "db", "extra");
+    }
 }

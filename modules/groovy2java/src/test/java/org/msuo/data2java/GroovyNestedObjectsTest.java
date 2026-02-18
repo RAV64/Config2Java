@@ -36,4 +36,13 @@ public class GroovyNestedObjectsTest extends GroovyContractSupport {
         DataDeserializationException ex = fails("return [db: 'nope']", NestedProvidedAsString.class);
         assertSingleError(ex, DataErrorTypes.NoOneArgCtor.class, "db");
     }
+
+    @Test
+    void nestedObject_withUnknownField_reportsNestedUnknownField() {
+        DataDeserializationException ex = fails(
+            "return [db: [port: 5432, extra: 1]]",
+            NestedPortContainer.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "db", "extra");
+    }
 }

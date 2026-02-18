@@ -95,4 +95,13 @@ public class JsonOptionalSemanticsTest extends JsonContractSupport {
         DataDeserializationException ex = fails("{\"bad\":{\"x\":\"ok\"}}", OptionalBadInnerNoNoArg.class);
         assertSingleError(ex, DataErrorTypes.NoNoArgCtor.class, "bad");
     }
+
+    @Test
+    void optionalComplex_withUnknownNestedField_reportsUnknownField() {
+        DataDeserializationException ex = fails(
+            "{\"onnie\":{\"c\":\"k\",\"extra\":1}}",
+            OptionalComplexNoDefault.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "onnie", "extra");
+    }
 }

@@ -40,6 +40,15 @@ public class CoreOptionalsCollectionsAndMapsTest
     }
 
     @Test
+    void optionalComplex_withUnknownNestedField_reportsUnknownField() {
+        DataDeserializationException ex = fails(
+            obj("db", obj("port", 15432, "extra", 1)),
+            OptionalComplex.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "db", "extra");
+    }
+
+    @Test
     void listSetMap_success() {
         ListOfLeaf listCfg = ok(obj("tags", arr("a", "b")), ListOfLeaf.class);
         SetOfLeaf setCfg = ok(obj("tags", arr("a", "b", "a")), SetOfLeaf.class);

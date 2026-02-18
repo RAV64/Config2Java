@@ -14,14 +14,14 @@ public class XmlNestedObjectsTest extends XmlContractSupport {
 
     @Test
     void emptyTableForComplex_isEnoughWhenFieldsDefaultOrOptional() {
-        NestedDefaultsOrOptionalContainer data = ok("<data><db><dummy/></db></data>", NestedDefaultsOrOptionalContainer.class);
+        NestedDefaultsOrOptionalContainer data = ok("<data><db/></data>", NestedDefaultsOrOptionalContainer.class);
         assertEquals("localhost", data.db.host.value);
         assertEquals(Optional.empty(), data.db.user);
     }
 
     @Test
     void emptyTableForNestedWithRequiredFields_reportsMissingField() {
-        DataDeserializationException ex = fails("<data><db><dummy/></db></data>", EmptyTableButNestedHasRequiredField.class);
+        DataDeserializationException ex = fails("<data><db/></data>", EmptyTableButNestedHasRequiredField.class);
         assertSingleError(ex, DataErrorTypes.MissingRequiredField.class, "db", "port");
     }
 
@@ -35,5 +35,23 @@ public class XmlNestedObjectsTest extends XmlContractSupport {
     void nestedObjectProvidedAsPrimitive_failsViaMissingConstructor() {
         DataDeserializationException ex = fails("<data><db>nope</db></data>", NestedProvidedAsString.class);
         assertSingleError(ex, DataErrorTypes.NoOneArgCtor.class, "db");
+    }
+
+    @Test
+    void nestedObject_withUnknownField_reportsNestedUnknownField() {
+        DataDeserializationException ex = fails(
+            "<data><db><port>5432</port><extra>1</extra></db></data>",
+            NestedPortContainer.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "db", "extra");
+    }
+
+    @Test
+    void structuredTextNode_withoutMatchingField_reportsUnknownField() {
+        DataDeserializationException ex = fails(
+            "<data><db>text<port>5432</port></db></data>",
+            NestedPortContainer.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "db", "text");
     }
 }

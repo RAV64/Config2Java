@@ -101,21 +101,4 @@ public class JsonErrorOutputShowcaseTest extends JsonContractSupport {
     static final class Feature {
         public NonEmptyString name;
     }
-
-    private static void assertHasError(
-        DataDeserializationException ex,
-        Class<? extends DataErrorType> type,
-        String... segments
-    ) {
-        java.util.List<String> expected = java.util.Arrays.asList(segments);
-        for (DataDeserializationException.DataError e : ex.getErrors()) {
-            if (
-                e.getErrorType().getClass() == type &&
-                e.getPathSegments().equals(expected)
-            ) {
-                return;
-            }
-        }
-        fail("Missing error type/path: " + type.getSimpleName() + " " + expected);
-    }
 }

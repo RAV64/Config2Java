@@ -98,4 +98,13 @@ public class LuaOptionalSemanticsTest extends LuaContractSupport {
         DataDeserializationException ex = fails("return { bad = { x = 'ok' } }", OptionalBadInnerNoNoArg.class);
         assertSingleError(ex, DataErrorTypes.NoNoArgCtor.class, "bad");
     }
+
+    @Test
+    void optionalComplex_withUnknownNestedField_reportsUnknownField() {
+        DataDeserializationException ex = fails(
+            "return { onnie = { c = 'k', extra = 1 } }",
+            OptionalComplexNoDefault.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "onnie", "extra");
+    }
 }

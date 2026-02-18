@@ -32,9 +32,45 @@ public class TomlMissingAndDefaultsTest extends TomlContractSupport {
     }
 
     @Test
-    void extraKeys_areIgnored() {
-        ExtraKeysIgnored data = ok("name = 'ok'\nextra = 123\n[other]\na = 1", ExtraKeysIgnored.class);
-        assertEquals("ok", data.name.value);
+    void extraKeys_reportUnknownFieldErrors() {
+        DataDeserializationException ex = fails(
+            "name = 'ok'\nextra = 123\n[other]\na = 1",
+            UnknownFieldInput.class
+        );
+        assertEquals(2, ex.getErrors().size());
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "extra");
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "other");
+    }
+
+    @Test
+    void mixedKnownFailureAndUnknownField_areBothReported() {
+        DataDeserializationException ex = fails(
+            "name = ''\nextra = 1",
+            UnknownFieldInput.class
+        );
+        assertEquals(2, ex.getErrors().size());
+        assertHasError(ex, DataErrorTypes.CtorRejected.class, "name");
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "extra");
+    }
+
+    @Test
+    void inheritedFieldsPlusUnknownField_reportsOnlyUnknownField() {
+        DataDeserializationException ex = fails(
+            "base = 'x'\nchild = 1\nextra = 1",
+            DerivedData.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "extra");
+    }
+
+    @Test
+    void emptyModel_withInputKeys_reportsUnknownFields() {
+        DataDeserializationException ex = fails(
+            "a = 1\nb = 2",
+            EmptyData.class
+        );
+        assertEquals(2, ex.getErrors().size());
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "a");
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "b");
     }
 
     @Test

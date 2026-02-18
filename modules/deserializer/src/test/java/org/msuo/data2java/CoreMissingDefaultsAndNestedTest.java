@@ -44,4 +44,55 @@ public class CoreMissingDefaultsAndNestedTest extends CoreMapperContractSupport 
         );
         assertSingleError(ex, DataErrorTypes.NoNoArgCtor.class, "bad");
     }
+
+    @Test
+    void unknownFields_areReported() {
+        DataDeserializationException ex = fails(
+            obj("name", "ok", "extra", 123, "other", obj("a", 1)),
+            UnknownFieldInput.class
+        );
+        assertEquals(2, ex.getErrors().size());
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "extra");
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "other");
+    }
+
+    @Test
+    void nestedUnknownField_isReportedAtNestedPath() {
+        DataDeserializationException ex = fails(
+            obj("db", obj("port", 5432, "extra", 1)),
+            NestedPortContainer.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "db", "extra");
+    }
+
+    @Test
+    void mixedKnownFailureAndUnknownField_areBothReported() {
+        DataDeserializationException ex = fails(
+            obj("name", "", "extra", 1),
+            UnknownFieldInput.class
+        );
+        assertEquals(2, ex.getErrors().size());
+        assertHasError(ex, DataErrorTypes.CtorRejected.class, "name");
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "extra");
+    }
+
+    @Test
+    void inheritedFieldsPlusUnknownField_reportsOnlyUnknownField() {
+        DataDeserializationException ex = fails(
+            obj("base", "x", "child", 1, "extra", 1),
+            DerivedData.class
+        );
+        assertSingleError(ex, DataErrorTypes.UnknownField.class, "extra");
+    }
+
+    @Test
+    void emptyModel_withInputKeys_reportsUnknownFields() {
+        DataDeserializationException ex = fails(
+            obj("a", 1, "b", 2),
+            EmptyData.class
+        );
+        assertEquals(2, ex.getErrors().size());
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "a");
+        assertHasError(ex, DataErrorTypes.UnknownField.class, "b");
+    }
 }

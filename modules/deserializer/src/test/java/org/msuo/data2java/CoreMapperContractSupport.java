@@ -61,6 +61,30 @@ abstract class CoreMapperContractSupport {
         assertEquals(Arrays.asList(expectedPathSegments), actual);
     }
 
+    protected final void assertHasError(
+        DataDeserializationException ex,
+        Class<? extends DataErrorType> errorType,
+        String... expectedPathSegments
+    ) {
+        List<String> expected = Arrays.asList(expectedPathSegments);
+        for (DataDeserializationException.DataError error : ex.getErrors()) {
+            if (
+                error.getErrorType().getClass().equals(errorType) &&
+                error.getPathSegments().equals(expected)
+            ) {
+                return;
+            }
+        }
+        fail(
+            "Expected error not found. type=" +
+            errorType.getSimpleName() +
+            ", path=" +
+            expected +
+            ", actualErrors=" +
+            ex.getErrors().size()
+        );
+    }
+
     public static final class NonEmptyString {
         public final String value;
 
@@ -109,6 +133,10 @@ abstract class CoreMapperContractSupport {
     static final class DefaultValue {
         public NonEmptyString name = new NonEmptyString("default");
     }
+    static final class UnknownFieldInput { public NonEmptyString name; }
+    static class BaseData { public NonEmptyString base; }
+    static final class DerivedData extends BaseData { public PositiveInteger child; }
+    static final class EmptyData {}
 
     static final class NestedPort { public PositiveInteger port; }
     static final class NestedPortContainer { public NestedPort db; }
