@@ -1,6 +1,6 @@
 # toml2java
 
-TOML deserializer for Config2Java.
+TOML deserializer for Data2Java.
 
 Depends on:
 - [../deserializer](../deserializer/README.md)
@@ -13,7 +13,7 @@ implementation "org.msuo:toml2java:<version>"
 ## Leaf values
 
 ```java
-class Cfg {
+class DataModel {
     public String name;
     public Integer port;
 }
@@ -22,28 +22,28 @@ String toml = """
 name = "svc"
 port = 8080
 """;
-Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+DataModel data = new TomlDeserializer().deserialize(toml, DataModel.class);
 
-assertEquals("svc", cfg.name);
-assertEquals(Integer.valueOf(8080), cfg.port);
+assertEquals("svc", data.name);
+assertEquals(Integer.valueOf(8080), data.port);
 ```
 
 ## Missing keys keep defaults
 
 ```java
-class Cfg {
+class DataModel {
     public String name = "default-name";
     public Integer port;
 }
 
-Cfg cfg = new TomlDeserializer().deserialize("port = 8080", Cfg.class);
-assertEquals("default-name", cfg.name);
+DataModel data = new TomlDeserializer().deserialize("port = 8080", DataModel.class);
+assertEquals("default-name", data.name);
 ```
 
 ## Nested objects
 
 ```java
-class Cfg {
+class DataModel {
     public Db db;
     static class Db {
         public String host;
@@ -56,10 +56,10 @@ String toml = """
 host = "db"
 port = 15432
 """;
-Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+DataModel data = new TomlDeserializer().deserialize(toml, DataModel.class);
 
-assertEquals("db", cfg.db.host);
-assertEquals(Integer.valueOf(15432), cfg.db.port);
+assertEquals("db", data.db.host);
+assertEquals(Integer.valueOf(15432), data.db.port);
 ```
 
 ## Optionals
@@ -67,12 +67,12 @@ assertEquals(Integer.valueOf(15432), cfg.db.port);
 ```java
 import java.util.Optional;
 
-class Cfg {
+class DataModel {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg present = new TomlDeserializer().deserialize("user = 'alice'", Cfg.class);
-Cfg missing = new TomlDeserializer().deserialize("", Cfg.class);
+DataModel present = new TomlDeserializer().deserialize("user = 'alice'", DataModel.class);
+DataModel missing = new TomlDeserializer().deserialize("", DataModel.class);
 
 assertEquals(Optional.of("alice"), present.user);
 assertEquals(Optional.of("default-user"), missing.user);
@@ -84,7 +84,7 @@ assertEquals(Optional.of("default-user"), missing.user);
 import java.util.List;
 import java.util.Map;
 
-class Cfg {
+class DataModel {
     public List<String> tags;
     public Map<String, Integer> limits;
 }
@@ -95,10 +95,10 @@ tags = ["a", "b"]
 [limits]
 api = 10
 """;
-Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+DataModel data = new TomlDeserializer().deserialize(toml, DataModel.class);
 
-assertEquals(List.of("a", "b"), cfg.tags);
-assertEquals(Integer.valueOf(10), cfg.limits.get("api"));
+assertEquals(List.of("a", "b"), data.tags);
+assertEquals(Integer.valueOf(10), data.limits.get("api"));
 ```
 
 ## Nested generics
@@ -113,7 +113,7 @@ class StringConstructedGenericKey<T> {
     public final String value;
     public StringConstructedGenericKey(String value) { this.value = value; }
 }
-class GenericConfig {
+class GenericData {
     public GenericBox<List<GenericItem<String>>> foo;
     public Map<StringConstructedGenericKey<Integer>, List<String>> values;
 }
@@ -125,7 +125,7 @@ payload = "a"
 [values]
 k1 = ["x", "y"]
 """;
-GenericConfig cfg = new TomlDeserializer().deserialize(toml, GenericConfig.class);
+GenericData data = new TomlDeserializer().deserialize(toml, GenericData.class);
 ```
 
 ## Class references
@@ -133,14 +133,14 @@ GenericConfig cfg = new TomlDeserializer().deserialize(toml, GenericConfig.class
 ```java
 interface Service {}
 final class ServiceImpl implements Service {}
-class Cfg {
+class DataModel {
     public Class<Service> impl;
 }
 
 String toml = "impl = '" + ServiceImpl.class.getName() + "'";
-Cfg cfg = new TomlDeserializer().deserialize(toml, Cfg.class);
+DataModel data = new TomlDeserializer().deserialize(toml, DataModel.class);
 
-assertEquals(ServiceImpl.class, cfg.impl);
+assertEquals(ServiceImpl.class, data.impl);
 ```
 
 ## Optional semantics
@@ -148,13 +148,13 @@ assertEquals(ServiceImpl.class, cfg.impl);
 ```java
 import java.util.Optional;
 
-class Cfg {
+class DataModel {
     public Optional<String> user = Optional.of("default-user");
 }
 
 // TOML has no explicit null literal. Omitted key behaves as missing.
-Cfg cfg = new TomlDeserializer().deserialize("", Cfg.class);
-assertEquals(Optional.of("default-user"), cfg.user);
+DataModel data = new TomlDeserializer().deserialize("", DataModel.class);
+assertEquals(Optional.of("default-user"), data.user);
 ```
 
 See [../../errors.md](../../errors.md) for error details.

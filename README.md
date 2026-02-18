@@ -1,6 +1,6 @@
-# Config2Java
+# Data2Java
 
-Config2Java maps configuration data into validated **null-safe** Java objects.
+Data2Java maps data into validated **null-safe** Java objects.
 
 This repository is a monorepo with one core module and format-specific modules. You can depend on exactly the formats you need.
 
@@ -52,7 +52,7 @@ Use mutable classes with fields that can be set reflectively. Field visibility c
 ```java
 import java.util.*;
 
-public class AppConfig {
+public class AppData {
     private String name;
     private Integer port = 8080; // default kept when key is missing
     private Optional<String> user = Optional.empty();
@@ -93,31 +93,31 @@ public class AppConfig {
 ## Quick usage
 
 ```java
-import org.msuo.config2java.*;
+import org.msuo.data2java.*;
 
-AppConfig luaCfg = new LuaDeserializer().deserialize(
+AppData luaData = new LuaDeserializer().deserialize(
     "return { name = 'svc', port = 9090, mode = 'PROD' }",
-    AppConfig.class
+    AppData.class
 );
 
-AppConfig groovyCfg = new GroovyDeserializer().deserialize(
+AppData groovyData = new GroovyDeserializer().deserialize(
     "return [name: 'svc', port: 9090, mode: 'PROD']",
-    AppConfig.class
+    AppData.class
 );
 
-AppConfig tomlCfg = new TomlDeserializer().deserialize(
+AppData tomlData = new TomlDeserializer().deserialize(
     "name = 'svc'\nport = 9090\nmode = 'PROD'",
-    AppConfig.class
+    AppData.class
 );
 
-AppConfig jsonCfg = new JsonDeserializer().deserialize(
+AppData jsonData = new JsonDeserializer().deserialize(
     "{\"name\":\"svc\",\"port\":9090,\"mode\":\"PROD\"}",
-    AppConfig.class
+    AppData.class
 );
 
-AppConfig xmlCfg = new XmlDeserializer().deserialize(
-    "<config><name>svc</name><port>9090</port><mode>PROD</mode></config>",
-    AppConfig.class
+AppData xmlData = new XmlDeserializer().deserialize(
+    "<data><name>svc</name><port>9090</port><mode>PROD</mode></data>",
+    AppData.class
 );
 ```
 
@@ -134,14 +134,14 @@ class StringConstructedGenericKey<T> {
     public StringConstructedGenericKey(String value) { this.value = value; }
 }
 
-class GenericConfig {
+class GenericData {
     public GenericBox<List<GenericItem<String>>> foo;
     public Map<StringConstructedGenericKey<Integer>, List<String>> values;
 }
 
-GenericConfig cfg = new JsonDeserializer().deserialize(
+GenericData data = new JsonDeserializer().deserialize(
     "{\"foo\":{\"value\":[{\"payload\":\"a\"}]},\"values\":{\"k1\":[\"x\",\"y\"]}}",
-    GenericConfig.class
+    GenericData.class
 );
 ```
 
@@ -150,45 +150,45 @@ GenericConfig cfg = new JsonDeserializer().deserialize(
 ```java
 interface Service {}
 class ServiceImpl implements Service {}
-class ServiceCfg {
+class ServiceData {
     public Class<Service> impl;
 }
 
-ServiceCfg cfg = new JsonDeserializer().deserialize(
+ServiceData data = new JsonDeserializer().deserialize(
     "{\"impl\":\"" + ServiceImpl.class.getName() + "\"}",
-    ServiceCfg.class
+    ServiceData.class
 );
 
-assertEquals(ServiceImpl.class, cfg.impl);
+assertEquals(ServiceImpl.class, data.impl);
 ```
 
 Any class assignable to `T` is accepted for `Class<T>`.
 
 ## Validation and errors
 
-Object mapping and validation are done in one pass. Field errors are collected, then one `ConfigDeserializationException` is thrown with all errors.
+Object mapping and validation are done in one pass. Field errors are collected, then one `DataDeserializationException` is thrown with all errors.
 The exception message also includes a tree view of failing paths.
 
 ```java
 try {
-    new JsonDeserializer().deserialize("{\"port\":0}", AppConfig.class);
-} catch (ConfigDeserializationException ex) {
+    new JsonDeserializer().deserialize("{\"port\":0}", AppData.class);
+} catch (DataDeserializationException ex) {
     ex.forEachError((segments, error) ->
         System.out.println(segments + " -> " + error.getErrorType().getClass().getSimpleName())
     );
-    ConfigDeserializationException.PathNode root = ex.getErrorPathTree();
+    DataDeserializationException.PathNode root = ex.getErrorPathTree();
     System.out.println(ex.getMessage());
 }
 ```
 
 See [errors.md](errors.md) for all error variants.
 
-Parse/eval failures are separate and throw `ConfigSourceException`.
+Parse/eval failures are separate and throw `DataSourceException`.
 
 ```java
 try {
-    new TomlDeserializer().deserialize("name = ", AppConfig.class);
-} catch (ConfigSourceException ex) {
+    new TomlDeserializer().deserialize("name = ", AppData.class);
+} catch (DataSourceException ex) {
     System.out.println(ex.phase());   // parse or evaluate
     System.out.println(ex.format());  // TOML / JSON / XML / Lua / Groovy
 }

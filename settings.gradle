@@ -1,4 +1,4 @@
-rootProject.name = 'Config2Java'
+rootProject.name = 'Data2Java'
 
 include('deserializer', 'lua2java', 'groovy2java', 'toml2java', 'json2java', 'xml2java')
 

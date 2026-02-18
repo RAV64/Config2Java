@@ -1,12 +1,12 @@
 # deserializer
 
-`deserializer` is the format-agnostic core of Config2Java.
+`deserializer` is the format-agnostic core of Data2Java.
 
-Language modules convert native parse trees to `ConfigValue`/`ConfigTable`, then this module maps those values into Java objects and validates them.
+Language modules convert native parse trees to `DataValue`/`DataTable`, then this module maps those values into Java objects and validates them.
 
 ## Responsibilities
 
-- map config trees to Java objects
+- map data trees to Java objects
 - apply defaults and optional semantics
 - parse enums and generic containers (`Optional`, `List`, `Set`, `Map`)
 - resolve `Class<T>` references from class-name strings (assignable to `T`)
@@ -28,7 +28,7 @@ implementation "org.msuo:deserializer:<version>"
 - Missing required fields fail unless a default already exists.
 - `Optional<T>` maps missing/nil to `Optional.empty()`.
 - Nested generics are supported across object graphs and containers.
-- `Class<T>` fields are supported when config provides a string class name.
+- `Class<T>` fields are supported when data provides a string class name.
 
 Example:
 
@@ -39,7 +39,7 @@ class StringConstructedGenericKey<T> {
     public final String value;
     public StringConstructedGenericKey(String value) { this.value = value; }
 }
-class GenericConfig {
+class GenericData {
     public GenericBox<java.util.List<GenericItem<String>>> foo;
     public java.util.Map<StringConstructedGenericKey<Integer>, java.util.List<String>> values;
 }
@@ -50,7 +50,7 @@ class GenericConfig {
 ```java
 interface Service {}
 final class ServiceImpl implements Service {}
-class Cfg {
+class DataModel {
     public Class<Service> impl;
 }
 ```
@@ -74,14 +74,14 @@ Script formats can implement `ScriptDeserializer`, which adds:
 A language module typically:
 
 1. Parses source text into native objects.
-2. Exposes them through `ConfigValue` + `ConfigTable` adapters.
-3. Calls `ObjectMapper.deserialize(...)` with the root `ConfigValue`.
+2. Exposes them through `DataValue` + `DataTable` adapters.
+3. Calls `ObjectMapper.deserialize(...)` with the root `DataValue`.
 
 The core mapper then handles the rest.
 
 ## Error model
 
-`ConfigDeserializationException` exposes:
+`DataDeserializationException` exposes:
 
 - `getErrors()` for flat structured error entries
 - `forEachError((pathSegments, error) -> ...)` for typed iteration without message parsing

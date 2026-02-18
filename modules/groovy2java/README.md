@@ -1,6 +1,6 @@
 # groovy2java
 
-Groovy deserializer for Config2Java.
+Groovy deserializer for Data2Java.
 
 Depends on:
 - [../deserializer](../deserializer/README.md)
@@ -16,34 +16,34 @@ Supported Groovy versions:
 ## Leaf values
 
 ```java
-class Cfg {
+class DataModel {
     public String name;
     public Integer port;
 }
 
 String groovy = "return [name: 'svc', port: 8080]";
-Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
+DataModel data = new GroovyDeserializer().deserialize(groovy, DataModel.class);
 
-assertEquals("svc", cfg.name);
-assertEquals(Integer.valueOf(8080), cfg.port);
+assertEquals("svc", data.name);
+assertEquals(Integer.valueOf(8080), data.port);
 ```
 
 ## Missing keys keep defaults
 
 ```java
-class Cfg {
+class DataModel {
     public String name = "default-name";
     public Integer port;
 }
 
-Cfg cfg = new GroovyDeserializer().deserialize("return [port: 8080]", Cfg.class);
-assertEquals("default-name", cfg.name);
+DataModel data = new GroovyDeserializer().deserialize("return [port: 8080]", DataModel.class);
+assertEquals("default-name", data.name);
 ```
 
 ## Nested objects
 
 ```java
-class Cfg {
+class DataModel {
     public Db db;
     static class Db {
         public String host;
@@ -52,10 +52,10 @@ class Cfg {
 }
 
 String groovy = "return [db: [host: 'db', port: 15432]]";
-Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
+DataModel data = new GroovyDeserializer().deserialize(groovy, DataModel.class);
 
-assertEquals("db", cfg.db.host);
-assertEquals(Integer.valueOf(15432), cfg.db.port);
+assertEquals("db", data.db.host);
+assertEquals(Integer.valueOf(15432), data.db.port);
 ```
 
 ## Optionals
@@ -63,12 +63,12 @@ assertEquals(Integer.valueOf(15432), cfg.db.port);
 ```java
 import java.util.Optional;
 
-class Cfg {
+class DataModel {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg present = new GroovyDeserializer().deserialize("return [user: 'alice']", Cfg.class);
-Cfg missing = new GroovyDeserializer().deserialize("return [:]", Cfg.class);
+DataModel present = new GroovyDeserializer().deserialize("return [user: 'alice']", DataModel.class);
+DataModel missing = new GroovyDeserializer().deserialize("return [:]", DataModel.class);
 
 assertEquals(Optional.of("alice"), present.user);
 assertEquals(Optional.of("default-user"), missing.user);
@@ -80,16 +80,16 @@ assertEquals(Optional.of("default-user"), missing.user);
 import java.util.List;
 import java.util.Map;
 
-class Cfg {
+class DataModel {
     public List<String> tags;
     public Map<String, Integer> limits;
 }
 
 String groovy = "return [tags: ['a', 'b'], limits: [api: 10]]";
-Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
+DataModel data = new GroovyDeserializer().deserialize(groovy, DataModel.class);
 
-assertEquals(List.of("a", "b"), cfg.tags);
-assertEquals(Integer.valueOf(10), cfg.limits.get("api"));
+assertEquals(List.of("a", "b"), data.tags);
+assertEquals(Integer.valueOf(10), data.limits.get("api"));
 ```
 
 ## Nested generics
@@ -104,13 +104,13 @@ class StringConstructedGenericKey<T> {
     public final String value;
     public StringConstructedGenericKey(String value) { this.value = value; }
 }
-class GenericConfig {
+class GenericData {
     public GenericBox<List<GenericItem<String>>> foo;
     public Map<StringConstructedGenericKey<Integer>, List<String>> values;
 }
 
 String groovy = "return [foo: [value: [[payload: 'a']]], values: [k1: ['x', 'y']]]";
-GenericConfig cfg = new GroovyDeserializer().deserialize(groovy, GenericConfig.class);
+GenericData data = new GroovyDeserializer().deserialize(groovy, GenericData.class);
 ```
 
 ## Class references
@@ -118,14 +118,14 @@ GenericConfig cfg = new GroovyDeserializer().deserialize(groovy, GenericConfig.c
 ```java
 interface Service {}
 final class ServiceImpl implements Service {}
-class Cfg {
+class DataModel {
     public Class<Service> impl;
 }
 
 String groovy = "return [impl: '" + ServiceImpl.class.getName() + "']";
-Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class);
+DataModel data = new GroovyDeserializer().deserialize(groovy, DataModel.class);
 
-assertEquals(ServiceImpl.class, cfg.impl);
+assertEquals(ServiceImpl.class, data.impl);
 ```
 
 ## Null semantics
@@ -133,39 +133,64 @@ assertEquals(ServiceImpl.class, cfg.impl);
 ```java
 import java.util.Optional;
 
-class Cfg {
+class DataModel {
     public Optional<String> user = Optional.of("default-user");
 }
 
-Cfg cfg = new GroovyDeserializer().deserialize("return [user: null]", Cfg.class);
-assertEquals(Optional.empty(), cfg.user);
+DataModel data = new GroovyDeserializer().deserialize("return [user: null]", DataModel.class);
+assertEquals(Optional.empty(), data.user);
 ```
 
 ## Environment and globals
 
 ```java
-class Cfg {
+class DataModel {
     public String name;
     public Mode mode;
     enum Mode { DEV, PROD }
 }
 
-Map<String, String> env = Map.of("CONFIG2JAVA_TEST_APP_ENV", "prod");
+Map<String, String> env = Map.of("DATA2JAVA_TEST_APP_ENV", "prod");
 Map<String, Object> globals = Map.of("defaultName", "worker-default");
 
 // Pass injected environment and global maps to deserialize.
 
 String groovy = """
 def c = [mode: 'DEV', name: defaultName]
-if (ENV.CONFIG2JAVA_TEST_APP_ENV == 'prod') c.mode = 'PROD'
+if (ENV.DATA2JAVA_TEST_APP_ENV == 'prod') c.mode = 'PROD'
 return c
 """;
 
-Cfg cfg = new GroovyDeserializer().deserialize(groovy, Cfg.class, env, globals);
-assertEquals(Cfg.Mode.PROD, cfg.mode);
-assertEquals("worker-default", cfg.name);
+DataModel data = new GroovyDeserializer().deserialize(groovy, DataModel.class, env, globals);
+assertEquals(DataModel.Mode.PROD, data.mode);
+assertEquals("worker-default", data.name);
 ```
 
 `ENV` resolves from injected values first, then falls back to system environment variables.
+
+## File loading
+
+When deserializing from a Groovy file path, scripts can load other Groovy files with:
+
+```groovy
+load('foo.groovy')
+load('../bar.groovy')
+load('./folder/baz.groovy')
+load('/absolute/path/to/file.groovy')
+```
+
+Relative paths resolve from the currently executing Groovy file. Nested loads resolve relative to the importing file.
+Loaded files run with the same `ENV` and globals as the calling script.
+
+```groovy
+// main.groovy
+return load('./child.groovy')
+```
+
+```groovy
+// child.groovy
+def mode = (ENV.DATA2JAVA_TEST_APP_ENV == 'prod') ? 'PROD' : 'DEV'
+return [mode: mode, name: defaultName]
+```
 
 See [../../errors.md](../../errors.md) for error details.

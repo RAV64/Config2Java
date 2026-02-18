@@ -1,27 +1,27 @@
 # Error Reference
 
-This document lists all object-mapping/validation errors emitted by the core deserializer (`modules/deserializer/src/main/java/org/msuo/config2java/Errors.java`).
+This document lists all object-mapping/validation errors emitted by the core deserializer (`modules/deserializer/src/main/java/org/msuo/data2java/Errors.java`).
 
-These are emitted inside `ConfigDeserializationException`.
+These are emitted inside `DataDeserializationException`.
 
-It does not include language parser/evaluator failures (for example invalid Lua/Groovy/TOML/JSON/XML syntax), which throw `ConfigSourceException` before object mapping starts.
+It does not include language parser/evaluator failures (for example invalid Lua/Groovy/TOML/JSON/XML syntax), which throw `DataSourceException` before object mapping starts.
 
 ## Error shape
 
 Each error entry has:
 
 - `pathSegments`: structured path segments (for example `["db", "port"]`, `["tags", "[1]"]`, `["limits", "{foo}"]`)
-- `errorType`: typed variant (`ConfigErrorType`, for example `ConfigErrorTypes.MissingRequiredField`)
-- `message`: message from `ConfigErrorType.message()`
+- `errorType`: typed variant (`DataErrorType`, for example `DataErrorTypes.MissingRequiredField`)
+- `message`: message from `DataErrorType.message()`
 
-`ConfigDeserializationException` message includes a hierarchical path tree with each error shown at the node where it occurred.
+`DataDeserializationException` message includes a hierarchical path tree with each error shown at the node where it occurred.
 
 Example:
 
 ```java
 try {
-    new JsonDeserializer().deserialize(source, MyCfg.class);
-} catch (ConfigDeserializationException ex) {
+    new JsonDeserializer().deserialize(source, MyDataModel.class);
+} catch (DataDeserializationException ex) {
     ex.forEachError((segments, error) -> {
         System.out.println(segments);
         System.out.println(error.getErrorType().getClass().getSimpleName());
@@ -35,7 +35,7 @@ try {
 This example mirrors the error-output showcase test and demonstrates multiple error kinds across nested objects.
 
 ```java
-class ShowcaseCfg {
+class ShowcaseData {
     public Db db;
     public Service service;
     public java.util.Map<NonEmptyString, PositiveInteger> limits;
@@ -105,7 +105,7 @@ class ShowcaseCfg {
 }
 ```
 
-Failing config (JSON):
+Failing data (JSON):
 
 ```json
 {
@@ -137,8 +137,8 @@ Handling errors via API:
 
 ```java
 try {
-    new JsonDeserializer().deserialize(source, ShowcaseCfg.class);
-} catch (ConfigDeserializationException ex) {
+    new JsonDeserializer().deserialize(source, ShowcaseData.class);
+} catch (DataDeserializationException ex) {
     // Stable assertions should use API values, not message-string matching.
     ex.forEachError((segments, error) ->
         System.out.println(segments + " -> " + error.getErrorType().getClass().getSimpleName())
@@ -168,17 +168,17 @@ $
 |  ├─ host -> Value [] rejected by NonEmptyString: must be non-empty
 |  └─ port -> Value [0] rejected by PositiveInteger: must be > 0
 ├─ service
-|  ├─ mode -> Unknown enum value 'NOPE' for ShowcaseCfg$Mode. Valid values: [DEV, PROD]
+|  ├─ mode -> Unknown enum value 'NOPE' for ShowcaseData$Mode. Valid values: [DEV, PROD]
 |  └─ auth
 |     ├─ token -> Value [] rejected by NonEmptyString: must be non-empty
 |     └─ ttl -> Value [0] rejected by PositiveInteger: must be > 0
 ├─ limits
 |  └─ [bad] -> Value [0] rejected by PositiveInteger: must be > 0
-├─ bad -> No no-arg constructor for nested object type: ShowcaseCfg$NoNoArgNested
+├─ bad -> No no-arg constructor for nested object type: ShowcaseData$NoNoArgNested
 ├─ feature
 |  └─ name -> Missing required field (no default value).
-├─ workerImpl -> Class java.lang.String is not assignable to ShowcaseCfg$Worker
-└─ ratio -> No 1-arg constructor on ShowcaseCfg$PositiveDouble accepting java.lang.Integer
+├─ workerImpl -> Class java.lang.String is not assignable to ShowcaseData$Worker
+└─ ratio -> No 1-arg constructor on ShowcaseData$PositiveDouble accepting java.lang.Integer
 ```
 
 ## Mapping error variants
@@ -384,7 +384,7 @@ Real trigger:
 Runtime blocks reflective access setup (`setAccessible(true)`), for example module access restrictions.
 
 How to fix:
-Open module/package for reflection, or use a runtime that allows reflective access for your config model types.
+Open module/package for reflection, or use a runtime that allows reflective access for your data model types.
 
 ### 21) `ClassRefExpectedString`
 Message:
@@ -428,7 +428,7 @@ Allow reflective read access for model fields in the runtime environment.
 
 ## Source parse/eval failures
 
-`ConfigSourceException` is thrown before object mapping for syntax/eval issues.
+`DataSourceException` is thrown before object mapping for syntax/eval issues.
 
 - `format()`: `Lua`, `Groovy`, `TOML`, `JSON`, `XML`
 - `phase()`: `evaluate` (script formats) or `parse` (data formats)
@@ -439,5 +439,5 @@ Allow reflective read access for model fields in the runtime environment.
 1. Inspect `pathSegments` to locate offending field.
 2. Inspect `errorType` to identify exact variant.
 3. If needed, inspect `getErrorPathTree()` to traverse grouped nested failures programmatically.
-4. Apply the fix to either config input or Java model.
+4. Apply the fix to either input data or Java model.
 5. Re-run and handle remaining aggregated errors.
