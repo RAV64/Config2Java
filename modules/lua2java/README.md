@@ -173,4 +173,17 @@ assertEquals("worker-default", data.name);
 
 `os.getenv` resolves from injected values first, then falls back to system environment variables.
 
+## File loading
+
+Lua scripts can load other Lua files with `dofile(...)`.
+
+```lua
+local data = dofile('/absolute/path/to/base-data.lua')
+data.mode = 'PROD'
+data.name = data.name .. '-updated'
+return data
+```
+
+Use an absolute path when you need deterministic resolution.
+
 See [../../errors.md](../../errors.md) for error details.
