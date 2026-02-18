@@ -15,6 +15,10 @@ interface DataValue {
         return false;
     }
 
+    default boolean canBeReadAsEmptyObject() {
+        return false;
+    }
+
     default DataTable asTable() {
         throw new IllegalStateException("value is not a table");
     }

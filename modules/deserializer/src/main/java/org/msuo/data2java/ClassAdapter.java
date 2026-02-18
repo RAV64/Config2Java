@@ -7,6 +7,7 @@ final class ClassAdapter implements TypeAdapter {
 
     private final Type targetType;
     private final Class<?> cls;
+    private static final DataTable EMPTY_TABLE = new DataTable() {};
 
     ClassAdapter(Type targetType, Class<?> cls) {
         this.targetType = targetType;
@@ -17,6 +18,9 @@ final class ClassAdapter implements TypeAdapter {
     public ReadResult read(Path path, DataValue value, ErrorCollector errors) {
         if (value.isTable()) {
             return readObject(path, targetType, cls, value.asTable(), errors);
+        }
+        if (shouldReadAsEmptyObject(value, cls)) {
+            return readObject(path, targetType, cls, EMPTY_TABLE, errors);
         }
         return LeafReader.readLeaf(path, cls, value, errors);
     }
@@ -35,6 +39,7 @@ final class ClassAdapter implements TypeAdapter {
         for (int i = 0; i < schema.bindings.size(); i++) {
             bindField(instance, schema.bindings.get(i), table, path, errors);
         }
+        reportUnknownFields(path, cls, table, schema, errors);
 
         return ReadResult.ok(instance);
     }
@@ -82,6 +87,33 @@ final class ClassAdapter implements TypeAdapter {
             errors.add(path, ReflectionErrorMapper.instantiateError(cls, e));
         }
         return null;
+    }
+
+    private static void reportUnknownFields(
+        Path basePath,
+        Class<?> cls,
+        DataTable table,
+        ClassSchema schema,
+        ErrorCollector errors
+    ) {
+        for (DataEntry entry : table.entries()) {
+            String key = entry.rawKeyString();
+            if (schema.keys.contains(key)) continue;
+            errors.add(basePath.field(key), Errors.unknownField(cls, key));
+        }
+    }
+
+    private static boolean shouldReadAsEmptyObject(
+        DataValue value,
+        Class<?> cls
+    ) {
+        if (!value.canBeReadAsEmptyObject()) return false;
+        try {
+            cls.getDeclaredConstructor();
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
 }

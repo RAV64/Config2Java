@@ -5,19 +5,24 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 final class ClassSchema {
 
     final List<FieldBinding> bindings;
+    final Set<String> keys;
 
-    private ClassSchema(List<FieldBinding> bindings) {
+    private ClassSchema(List<FieldBinding> bindings, Set<String> keys) {
         this.bindings = bindings;
+        this.keys = keys;
     }
 
     static ClassSchema build(Type targetType, Class<?> targetRawClass) {
         List<Field> fields = allInstanceFields(targetRawClass);
         List<FieldBinding> bs = new ArrayList<>(fields.size());
+        Set<String> keys = new HashSet<>(fields.size());
 
         for (int i = 0; i < fields.size(); i++) {
             Field f = fields.get(i);
@@ -30,9 +35,13 @@ final class ClassSchema {
             TypeAdapter adapter = ObjectMapper.adapterFor(t);
 
             bs.add(new FieldBinding(f, key, adapter));
+            keys.add(key);
         }
 
-        return new ClassSchema(Collections.unmodifiableList(bs));
+        return new ClassSchema(
+            Collections.unmodifiableList(bs),
+            Collections.unmodifiableSet(keys)
+        );
     }
 
     private static List<Field> allInstanceFields(Class<?> cls) {

@@ -133,6 +133,19 @@ public final class DataErrorTypes {
         @Override public String message() { return "Missing required field (no default value)."; }
     }
 
+    public static final class UnknownField implements DataErrorType {
+        private final Class<?> cls;
+        private final String fieldName;
+        UnknownField(Class<?> cls, String fieldName) {
+            this.cls = cls;
+            this.fieldName = fieldName;
+        }
+        @Override
+        public String message() {
+            return "Unknown field '" + fieldName + "' for " + cls.getName();
+        }
+    }
+
     public static final class NoOneArgCtor implements DataErrorType {
         private final Class<?> target;
         private final Class<?> argType;

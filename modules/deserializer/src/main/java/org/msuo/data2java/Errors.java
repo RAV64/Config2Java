@@ -67,6 +67,10 @@ final class Errors {
         return new DataErrorTypes.MissingRequiredField();
     }
 
+    static DataErrorType unknownField(Class<?> cls, String fieldName) {
+        return new DataErrorTypes.UnknownField(cls, fieldName);
+    }
+
     static DataErrorType noOneArgCtor(Class<?> target, Class<?> argType) {
         return new DataErrorTypes.NoOneArgCtor(target, argType);
     }

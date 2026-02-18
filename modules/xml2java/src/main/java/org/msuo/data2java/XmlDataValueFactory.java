@@ -22,7 +22,11 @@ final class XmlDataValueFactory {
         if (isStructuredElement(element)) {
             return new XmlElementValue(element, true);
         }
-        return new JavaScalarDataValue(coerceScalar(textOnly(element)));
+        String text = textOnly(element);
+        if (text.isEmpty()) {
+            return XmlEmptyElementValue.INSTANCE;
+        }
+        return new JavaScalarDataValue(coerceScalar(text));
     }
 
     private static boolean isStructuredElement(Element element) {
@@ -133,6 +137,26 @@ final class XmlDataValueFactory {
         @Override
         public ScalarValue asScalar() {
             return null;
+        }
+    }
+
+    private static final class XmlEmptyElementValue implements DataValue {
+
+        private static final XmlEmptyElementValue INSTANCE = new XmlEmptyElementValue();
+
+        @Override
+        public String typename() {
+            return "xml-empty-element";
+        }
+
+        @Override
+        public boolean canBeReadAsEmptyObject() {
+            return true;
+        }
+
+        @Override
+        public ScalarValue asScalar() {
+            return ScalarValue.ofString("");
         }
     }
 
