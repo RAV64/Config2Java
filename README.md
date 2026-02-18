@@ -166,7 +166,7 @@ Any class assignable to `T` is accepted for `Class<T>`.
 
 ## Validation and errors
 
-Object mapping and validation are done in one pass. Field errors are collected, then one `DataDeserializationException` is thrown with all errors.
+Object mapping and validation are done in one pass. Unknown input fields (including nested ones) are treated as mapping errors and are included in the same aggregated exception. Field errors are collected, then one `DataDeserializationException` is thrown with all errors.
 The exception message also includes a tree view of failing paths.
 
 ```java

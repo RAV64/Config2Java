@@ -115,6 +115,7 @@ Failing data (JSON):
   },
   "service": {
     "mode": "NOPE",
+    "extra": true,
     "auth": {
       "token": "",
       "ttl": 0
@@ -129,7 +130,8 @@ Failing data (JSON):
   },
   "feature": {},
   "workerImpl": "java.lang.String",
-  "ratio": 1
+  "ratio": 1,
+  "unexpectedTop": "x"
 }
 ```
 
@@ -139,7 +141,6 @@ Handling errors via API:
 try {
     new JsonDeserializer().deserialize(source, ShowcaseData.class);
 } catch (DataDeserializationException ex) {
-    // Stable assertions should use API values, not message-string matching.
     ex.forEachError((segments, error) ->
         System.out.println(segments + " -> " + error.getErrorType().getClass().getSimpleName())
     );
@@ -152,6 +153,7 @@ Expected path segments and error kinds include:
 - `["db", "host"]` -> `CtorRejected`
 - `["db", "port"]` -> `CtorRejected`
 - `["service", "mode"]` -> `EnumUnknown`
+- `["service", "extra"]` -> `UnknownField`
 - `["service", "auth", "token"]` -> `CtorRejected`
 - `["service", "auth", "ttl"]` -> `CtorRejected`
 - `["limits", "[bad]"]` -> `CtorRejected`
@@ -159,6 +161,7 @@ Expected path segments and error kinds include:
 - `["feature", "name"]` -> `MissingRequiredField`
 - `["workerImpl"]` -> `ClassRefNotAssignable`
 - `["ratio"]` -> `NoOneArgCtor`
+- `["unexpectedTop"]` -> `UnknownField`
 
 `ex.getMessage()` output:
 
@@ -169,6 +172,7 @@ $
 |  └─ port -> Value [0] rejected by PositiveInteger: must be > 0
 ├─ service
 |  ├─ mode -> Unknown enum value 'NOPE' for ShowcaseData$Mode. Valid values: [DEV, PROD]
+|  ├─ extra -> Unknown field 'extra' for ShowcaseData
 |  └─ auth
 |     ├─ token -> Value [] rejected by NonEmptyString: must be non-empty
 |     └─ ttl -> Value [0] rejected by PositiveInteger: must be > 0
@@ -178,7 +182,8 @@ $
 ├─ feature
 |  └─ name -> Missing required field (no default value).
 ├─ workerImpl -> Class java.lang.String is not assignable to ShowcaseData$Worker
-└─ ratio -> No 1-arg constructor on ShowcaseData$PositiveDouble accepting java.lang.Integer
+├─ ratio -> No 1-arg constructor on ShowcaseData$PositiveDouble accepting java.lang.Integer
+└─ unexpectedTop -> Unknown field 'unexpectedTop' for ShowcaseData
 ```
 
 ## Mapping error variants
@@ -293,7 +298,20 @@ Key is missing and field has no default and no optional/missing adapter fallback
 How to fix:
 Provide key, set a default, or change field to `Optional<T>`.
 
-### 12) `NoOneArgCtor`
+### 12) `UnknownField`
+Message:
+`Unknown field '<field>' for <Type>`
+
+Real trigger:
+Input contains a key that does not map to any field on the current target object type.
+
+How to fix:
+Remove the unexpected key from input data or add a matching field to the Java model.
+
+XML note:
+For structured XML elements with mixed text and child elements, text content may appear as `text`; if the target type has no `text` field, this is also reported as `UnknownField`.
+
+### 13) `NoOneArgCtor`
 Message:
 `No 1-arg constructor on <Type> accepting <ScalarType>`
 
@@ -303,7 +321,7 @@ Leaf value mapping needs value-object construction, but constructor signature do
 How to fix:
 Add matching one-arg constructor or change input scalar type.
 
-### 13) `CtorRejected`
+### 14) `CtorRejected`
 Message:
 `Value [<value>] rejected by <Type>: <reason>`
 
@@ -316,7 +334,7 @@ Fix input value or constructor validation logic.
 Example:
 `Value [-1] rejected by PositiveInteger: must be > 0`
 
-### 14) `CtorCallFailed`
+### 15) `CtorCallFailed`
 Message:
 `Failed calling constructor for <Type>: <reason>`
 
@@ -326,7 +344,7 @@ One-arg constructor invocation fails reflectively for non-validation reasons.
 How to fix:
 Check constructor accessibility/reflective constraints and type assumptions.
 
-### 15) `NoNoArgCtor`
+### 16) `NoNoArgCtor`
 Message:
 `No no-arg constructor for nested object type: <Type>`
 
@@ -336,7 +354,7 @@ Object mapping requires a no-arg constructor and none exists.
 How to fix:
 Add a no-arg constructor or change model shape.
 
-### 16) `CtorFailed`
+### 17) `CtorFailed`
 Message:
 `Constructor failed for <Type>: <reason>`
 
@@ -346,7 +364,7 @@ No-arg constructor exists but throws while instantiating nested object.
 How to fix:
 Avoid throwing from construction path used by object mapping.
 
-### 17) `InstantiateFailed`
+### 18) `InstantiateFailed`
 Message:
 `Failed to instantiate <Type>: <reason>`
 
@@ -356,7 +374,7 @@ Reflective no-arg instantiation fails (for example abstract type or reflection f
 How to fix:
 Use concrete instantiable field types.
 
-### 18) `FieldSetAccess`
+### 19) `FieldSetAccess`
 Message:
 `Failed to set field (access): <reason>`
 
@@ -366,7 +384,7 @@ Reflection cannot assign field due to access/security restriction at runtime.
 How to fix:
 Allow reflective field access in runtime environment.
 
-### 19) `FieldSetTypeMismatch`
+### 20) `FieldSetTypeMismatch`
 Message:
 `Failed to set field (type mismatch): <reason>`
 
@@ -376,7 +394,7 @@ Bound value type is incompatible with field type.
 How to fix:
 Align field declaration with actual bound value type.
 
-### 20) `FieldAccessSetup`
+### 21) `FieldAccessSetup`
 Message:
 `Failed to access field reflectively: <reason>`
 
@@ -386,7 +404,7 @@ Runtime blocks reflective access setup (`setAccessible(true)`), for example modu
 How to fix:
 Open module/package for reflection, or use a runtime that allows reflective access for your data model types.
 
-### 21) `ClassRefExpectedString`
+### 22) `ClassRefExpectedString`
 Message:
 `Class reference expects string class name, got: <type>`
 
@@ -396,7 +414,7 @@ A `Class<T>` field receives a non-string value.
 How to fix:
 Provide the class as a fully qualified string name.
 
-### 22) `ClassRefNotFound`
+### 23) `ClassRefNotFound`
 Message:
 `Class not found: <className>`
 
@@ -406,7 +424,7 @@ A `Class<T>` field receives a string class name that cannot be loaded.
 How to fix:
 Use a valid class name available on the application classpath.
 
-### 23) `ClassRefNotAssignable`
+### 24) `ClassRefNotAssignable`
 Message:
 `Class <ActualType> is not assignable to <ExpectedType>`
 
@@ -416,7 +434,7 @@ A `Class<T>` field resolves to a class that is not assignable to `T`.
 How to fix:
 Use a class name that resolves to `T` or a subtype of `T`.
 
-### 24) `FieldReadAccess`
+### 25) `FieldReadAccess`
 Message:
 `Failed to read field default value: <reason>`
 

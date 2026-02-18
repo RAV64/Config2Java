@@ -25,7 +25,10 @@ assertEquals("svc", data.name);
 assertEquals(Integer.valueOf(8080), data.port);
 ```
 
-## Missing keys keep defaults
+## Missing keys keep defaults (unknown keys fail)
+
+Missing keys preserve defaults. Unknown keys are reported as `UnknownField` errors.
+
 
 ```java
 class DataModel {

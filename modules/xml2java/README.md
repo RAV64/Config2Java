@@ -25,7 +25,10 @@ assertEquals("svc", data.name);
 assertEquals(Integer.valueOf(8080), data.port);
 ```
 
-## Missing keys keep defaults
+## Missing keys keep defaults (unknown keys fail)
+
+Missing keys preserve defaults. Unknown keys are reported as `UnknownField` errors.
+
 
 ```java
 class DataModel {
@@ -138,5 +141,10 @@ class DataModel {
 DataModel data = new XmlDeserializer().deserialize("<data/>", DataModel.class);
 assertEquals(Optional.of("default-user"), data.user);
 ```
+
+## XML text content behavior
+
+Structured elements (elements that also contain child elements) may expose mixed text content as a `text` field.
+If your Java target type does not define a `text` field for that object, deserialization reports `UnknownField` for that node.
 
 See [../../errors.md](../../errors.md) for error details.

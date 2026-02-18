@@ -26,6 +26,7 @@ implementation "org.msuo:deserializer:<version>"
 - Object field mapping is iterative and single-pass.
 - Missing key and explicit nil are handled differently.
 - Missing required fields fail unless a default already exists.
+- Unknown input fields fail with `UnknownField`.
 - `Optional<T>` maps missing/nil to `Optional.empty()`.
 - Nested generics are supported across object graphs and containers.
 - `Class<T>` fields are supported when data provides a string class name.
@@ -61,7 +62,7 @@ Input value for `impl` must be a string class name, and the resolved class must 
 
 `Deserializer` defines the required API:
 
-- implement `deserialize(String source, Class<T> configClass)`
+- implement `deserialize(String source, Class<T> targetClass)`
 - reuse default file overloads from the interface (`Path` / `File`)
 
 Script formats can implement `ScriptDeserializer`, which adds:
